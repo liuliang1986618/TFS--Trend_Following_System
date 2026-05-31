@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "date": "2026-05-31",
+    "generated_at": "2026-05-31T23:37:15.162775",
+    "version": "1.0"
+  },
+  "market_overview": {
+    "uptrend_sectors": 1,
+    "active_themes": 1,
+    "trend_stocks": 1,
+    "trend_etfs": 0,
+    "market_mood": "谨慎 — 机会稀少，多看少动",
+    "key_actions_count": 0
+  },
+  "sectors": [
+    {
+      "symbol": "BK0488",
+      "name": "银行",
+      "type": "sector",
+      "state": 4,
+      "state_label": "上涨趋势",
+      "stage": "mid",
+      "stage_label": "中期",
+      "stage_reasons": [
+        "状态4健康运行，无异常信号——主升浪持股"
+      ],
+      "position_ratio": 1.0,
+      "score": 100,
+      "conditions": {
+        "structure": {
+          "pass": true,
+          "detail": "1更高高+1更高低 (初步结构, 前高=14.78)"
+        },
+        "volume": {
+          "pass": true,
+          "detail": "近20日无阴线, 极强多头(涨均量远超跌均量)"
+        },
+        "persistence": {
+          "pass": true,
+          "detail": "近20日阳20/0阴, 最大连阳20天"
+        }
+      },
+      "signals": {
+        "above_ma20": true,
+        "volume_surge": false,
+        "volume_shrink": false,
+        "consecutive_rise": "False",
+        "consecutive_drop": false
+      },
+      "pivots": {
+        "prev_high": {
+          "date": "2026-05-01 00:00:00",
+          "price": 14.78417635476582
+        },
+        "prev_low": {
+          "date": "2026-05-05 00:00:00",
+          "price": 14.035535877114299
+        }
+      },
+      "bk_code": "BK0488",
+      "external_link": "https://quote.eastmoney.com/bk/xx.BK0488.html"
+    }
+  ],
+  "themes": [
+    {
+      "symbol": "GN003",
+      "name": "白酒",
+      "type": "theme",
+      "state": 4,
+      "state_label": "上涨趋势",
+      "stage": "mid",
+      "stage_label": "中期",
+      "stage_reasons": [
+        "状态4健康运行，无异常信号——主升浪持股"
+      ],
+      "position_ratio": 1.0,
+      "score": 100,
+      "conditions": {
+        "structure": {
+          "pass": true,
+          "detail": "1更高高+1更高低 (初步结构, 前高=18.87)"
+        },
+        "volume": {
+          "pass": true,
+          "detail": "近20日无阴线, 极强多头(涨均量远超跌均量)"
+        },
+        "persistence": {
+          "pass": true,
+          "detail": "近20日阳20/0阴, 最大连阳20天"
+        }
+      },
+      "signals": {
+        "above_ma20": true,
+        "volume_surge": false,
+        "volume_shrink": false,
+        "consecutive_rise": "False",
+        "consecutive_drop": false
+      },
+      "pivots": {
+        "prev_high": {
+          "date": "2026-05-08 00:00:00",
+          "price": 18.871465832451236
+        },
+        "prev_low": {
+          "date": "2026-05-05 00:00:00",
+          "price": 17.758276395955832
+        }
+      },
+      "gn_code": "GN003",
+      "external_link": "https://q.10jqka.com.cn/gn/detail/code/GN003/"
+    }
+  ],
+  "stocks": [
+    {
+      "symbol": "600519",
+      "name": "贵州茅台",
+      "type": "stock",
+      "state": 4,
+      "state_label": "上涨趋势",
+      "stage": "mid",
+      "stage_label": "中期",
+      "stage_reasons": [
+        "状态4健康运行，无异常信号——主升浪持股"
+      ],
+      "position_ratio": 1.0,
+      "score": 100,
+      "conditions": {
+        "structure": {
+          "pass": true,
+          "detail": "1更高高+1更高低 (初步结构, 前高=1599.93)"
+        },
+        "volume": {
+          "pass": true,
+          "detail": "近20日无阴线, 极强多头(涨均量远超跌均量)"
+        },
+        "persistence": {
+          "pass": true,
+          "detail": "近20日阳20/0阴, 最大连阳20天"
+        }
+      },
+      "signals": {
+        "above_ma20": true,
+        "volume_surge": false,
+        "volume_shrink": false,
+        "consecutive_rise": "False",
+        "consecutive_drop": false
+      },
+      "pivots": {
+        "prev_high": {
+          "date": "2026-03-13 00:00:00",
+          "price": 1599.9251277553874
+        },
+        "prev_low": {
+          "date": "2026-05-12 00:00:00",
+          "price": 1599.1623682833151
+        }
+      },
+      "external_link": "https://stockpage.10jqka.com.cn/600519/",
+      "stop_loss": 1591.17,
+      "broke_prev_high": "True",
+      "broke_prev_low": "False"
+    }
+  ],
+  "etfs": [],
+  "key_actions": [],
+  "scenario_plans": [
+    {
+      "symbol": "600519",
+      "name": "贵州茅台",
+      "current_state": "上涨趋势",
+      "position": 1.0,
+      "stop_loss": 1591.17,
+      "scenarios": [
+        {
+          "label": "场景A(大概率)",
+          "probability": "大概率",
+          "conditions": "继续沿MA20上方运行, 无异常信号",
+          "action": "仓位不变, 持股待涨",
+          "next_state": "状态4→4"
+        },
+        {
+          "label": "场景B(中概率)",
+          "probability": "中概率",
+          "conditions": "缩量回调, 不破前低",
+          "action": "继续持仓, 紧盯前低; 企稳反弹时加仓至1.5倍",
+          "next_state": "状态4→5"
+        },
+        {
+          "label": "场景C(小概率)",
+          "probability": "小概率",
+          "conditions": "放量跌破前低, 收盘未收复",
+          "action": "减至1/3仓防守",
+          "next_state": "状态4→3'"
+        }
+      ]
+    }
+  ],
+  "watchlist": [],
+  "comparison": {
+    "new_uptrend": [],
+    "exited_uptrend": [],
+    "note": "首次运行，无前日对比数据 — 明日开始显示趋势变化"
+  },
+  "market_breadth": {
+    "uptrend_sectors": 1,
+    "state4_sectors": 1,
+    "uptrend_stocks": 1,
+    "uptrend_etfs": 0,
+    "market_health": "弱势"
+  },
+  "positions": {}
+}

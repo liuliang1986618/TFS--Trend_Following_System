@@ -1,0 +1,2071 @@
+{
+  "date": "2026-05-31",
+  "recommended_config": "默认值",
+  "best_config_detail": {
+    "total_return": 28.01,
+    "annual_return": 15.81,
+    "max_drawdown": -30.15,
+    "max_drawdown_date": "2026-05-28 00:00:00",
+    "sharpe_ratio": 0.55,
+    "num_trades": 15,
+    "num_rounds": 2,
+    "win_rate": 100.0,
+    "final_equity": 128012.43,
+    "trade_log": [
+      {
+        "date": "2024-09-13 00:00:00",
+        "action": "买点1",
+        "transition": "2→3",
+        "price": 0.666,
+        "shares": 24924.92,
+        "cash": 83400.0,
+        "equity": 100000.0
+      },
+      {
+        "date": "2024-09-19 00:00:00",
+        "action": "买点2",
+        "transition": "3→4",
+        "price": 0.674,
+        "shares": 148663.8,
+        "cash": 0.0,
+        "equity": 100199.4
+      },
+      {
+        "date": "2024-11-20 00:00:00",
+        "action": "最佳加仓",
+        "transition": "5→4",
+        "price": 0.746,
+        "shares": 148663.8,
+        "cash": 0.0,
+        "equity": 110903.19
+      },
+      {
+        "date": "2025-01-03 00:00:00",
+        "action": "防守",
+        "transition": "5→3'",
+        "price": 0.706,
+        "shares": 49505.04,
+        "cash": 70006.08,
+        "equity": 104956.64
+      },
+      {
+        "date": "2025-04-08 00:00:00",
+        "action": "防守",
+        "transition": "5→3'",
+        "price": 0.782,
+        "shares": 46295.95,
+        "cash": 72515.59,
+        "equity": 108719.02
+      },
+      {
+        "date": "2025-06-04 00:00:00",
+        "action": "最佳加仓",
+        "transition": "5→4",
+        "price": 1.068,
+        "shares": 114194.44,
+        "cash": 0.0,
+        "equity": 121959.67
+      },
+      {
+        "date": "2025-06-24 00:00:00",
+        "action": "最佳加仓",
+        "transition": "5→4",
+        "price": 1.159,
+        "shares": 114194.44,
+        "cash": 0.0,
+        "equity": 132351.36
+      },
+      {
+        "date": "2025-07-01 00:00:00",
+        "action": "最佳加仓",
+        "transition": "5→4",
+        "price": 1.169,
+        "shares": 114194.44,
+        "cash": 0.0,
+        "equity": 133493.31
+      },
+      {
+        "date": "2025-08-18 00:00:00",
+        "action": "最佳加仓",
+        "transition": "5→4",
+        "price": 1.55,
+        "shares": 114194.44,
+        "cash": 0.0,
+        "equity": 177001.39
+      },
+      {
+        "date": "2025-09-01 00:00:00",
+        "action": "最佳加仓",
+        "transition": "5→4",
+        "price": 1.542,
+        "shares": 114194.44,
+        "cash": 0.0,
+        "equity": 176087.83
+      },
+      {
+        "date": "2025-09-30 00:00:00",
+        "action": "最佳加仓",
+        "transition": "5→4",
+        "price": 1.531,
+        "shares": 114194.44,
+        "cash": 0.0,
+        "equity": 174831.69
+      },
+      {
+        "date": "2025-11-13 00:00:00",
+        "action": "最佳加仓",
+        "transition": "5→4",
+        "price": 1.415,
+        "shares": 114194.44,
+        "cash": 0.0,
+        "equity": 161585.14
+      },
+      {
+        "date": "2025-12-19 00:00:00",
+        "action": "最佳加仓",
+        "transition": "5→4",
+        "price": 1.273,
+        "shares": 114194.44,
+        "cash": 0.0,
+        "equity": 145369.53
+      },
+      {
+        "date": "2026-03-04 00:00:00",
+        "action": "防守",
+        "transition": "5→3'",
+        "price": 1.125,
+        "shares": 38026.75,
+        "cash": 85688.66,
+        "equity": 128468.75
+      },
+      {
+        "date": "2026-03-23 00:00:00",
+        "action": "防守",
+        "transition": "5→3'",
+        "price": 1.103,
+        "shares": 38026.75,
+        "cash": 85688.66,
+        "equity": 127632.16
+      }
+    ],
+    "symbol": "ETF_513120",
+    "config": "默认值(设计文档推荐)",
+    "params": {
+      "name": "默认值(设计文档推荐)",
+      "ma_period": 20,
+      "volume_lookback": 20,
+      "persistence_lookback": 20,
+      "min_consecutive_yang": 3,
+      "volume_surge_threshold": 1.2,
+      "volume_shrink_threshold": 0.8
+    }
+  },
+  "backtest_summary": {
+    "total_tested": 10,
+    "profitable": 3,
+    "loss_making": 1,
+    "no_trades": 6,
+    "best_symbol": "ETF_513120",
+    "best_return": 15.81,
+    "worst_symbol": "ETF_159316",
+    "worst_return": -23.04
+  },
+  "all_results": [
+    {
+      "total_return": 28.01,
+      "annual_return": 15.81,
+      "max_drawdown": -30.15,
+      "max_drawdown_date": "2026-05-28 00:00:00",
+      "sharpe_ratio": 0.55,
+      "num_trades": 15,
+      "num_rounds": 2,
+      "win_rate": 100.0,
+      "final_equity": 128012.43,
+      "trade_log": [
+        {
+          "date": "2024-09-13 00:00:00",
+          "action": "买点1",
+          "transition": "2→3",
+          "price": 0.666,
+          "shares": 24924.92,
+          "cash": 83400.0,
+          "equity": 100000.0
+        },
+        {
+          "date": "2024-09-19 00:00:00",
+          "action": "买点2",
+          "transition": "3→4",
+          "price": 0.674,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 100199.4
+        },
+        {
+          "date": "2024-11-20 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 0.746,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 110903.19
+        },
+        {
+          "date": "2025-01-03 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.706,
+          "shares": 49505.04,
+          "cash": 70006.08,
+          "equity": 104956.64
+        },
+        {
+          "date": "2025-04-08 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.782,
+          "shares": 46295.95,
+          "cash": 72515.59,
+          "equity": 108719.02
+        },
+        {
+          "date": "2025-06-04 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.068,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 121959.67
+        },
+        {
+          "date": "2025-06-24 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.159,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 132351.36
+        },
+        {
+          "date": "2025-07-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.169,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 133493.31
+        },
+        {
+          "date": "2025-08-18 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.55,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 177001.39
+        },
+        {
+          "date": "2025-09-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.542,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 176087.83
+        },
+        {
+          "date": "2025-09-30 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.531,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 174831.69
+        },
+        {
+          "date": "2025-11-13 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.415,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 161585.14
+        },
+        {
+          "date": "2025-12-19 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.273,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 145369.53
+        },
+        {
+          "date": "2026-03-04 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.125,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 128468.75
+        },
+        {
+          "date": "2026-03-23 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.103,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 127632.16
+        }
+      ],
+      "symbol": "ETF_513120"
+    },
+    {
+      "total_return": 15.07,
+      "annual_return": 8.7,
+      "max_drawdown": -30.27,
+      "max_drawdown_date": "2026-05-28 00:00:00",
+      "sharpe_ratio": 0.33,
+      "num_trades": 18,
+      "num_rounds": 4,
+      "win_rate": 50.0,
+      "final_equity": 115069.88,
+      "trade_log": [
+        {
+          "date": "2024-09-13 00:00:00",
+          "action": "买点1",
+          "transition": "2→3",
+          "price": 0.88,
+          "shares": 18863.64,
+          "cash": 83400.0,
+          "equity": 100000.0
+        },
+        {
+          "date": "2024-09-19 00:00:00",
+          "action": "买点2",
+          "transition": "3→4",
+          "price": 0.883,
+          "shares": 113314.37,
+          "cash": 0.0,
+          "equity": 100056.59
+        },
+        {
+          "date": "2024-10-18 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.051,
+          "shares": 113314.37,
+          "cash": 0.0,
+          "equity": 119093.41
+        },
+        {
+          "date": "2024-11-20 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 0.977,
+          "shares": 113314.37,
+          "cash": 0.0,
+          "equity": 110708.14
+        },
+        {
+          "date": "2025-01-03 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.934,
+          "shares": 37733.69,
+          "cash": 70592.36,
+          "equity": 105835.62
+        },
+        {
+          "date": "2025-03-27 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.217,
+          "shares": 95738.91,
+          "cash": 0.0,
+          "equity": 116514.26
+        },
+        {
+          "date": "2025-04-09 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.05,
+          "shares": 31881.06,
+          "cash": 67050.75,
+          "equity": 100525.86
+        },
+        {
+          "date": "2025-04-22 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.232,
+          "shares": 31881.06,
+          "cash": 67050.75,
+          "equity": 106328.21
+        },
+        {
+          "date": "2025-06-04 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.446,
+          "shares": 78250.87,
+          "cash": 0.0,
+          "equity": 113150.76
+        },
+        {
+          "date": "2025-06-24 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.557,
+          "shares": 78250.87,
+          "cash": 0.0,
+          "equity": 121836.6
+        },
+        {
+          "date": "2025-07-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.599,
+          "shares": 78250.87,
+          "cash": 0.0,
+          "equity": 125123.14
+        },
+        {
+          "date": "2025-08-18 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 2.079,
+          "shares": 78250.87,
+          "cash": 0.0,
+          "equity": 162683.56
+        },
+        {
+          "date": "2025-08-28 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.88,
+          "shares": 26057.54,
+          "cash": 98123.46,
+          "equity": 147111.64
+        },
+        {
+          "date": "2025-11-13 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.853,
+          "shares": 79011.38,
+          "cash": 0.0,
+          "equity": 146408.08
+        },
+        {
+          "date": "2025-11-26 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.789,
+          "shares": 79011.38,
+          "cash": 0.0,
+          "equity": 141351.35
+        },
+        {
+          "date": "2026-02-10 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.672,
+          "shares": 79011.38,
+          "cash": 0.0,
+          "equity": 132107.02
+        },
+        {
+          "date": "2026-03-02 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.494,
+          "shares": 26310.79,
+          "cash": 78734.68,
+          "equity": 118043.0
+        },
+        {
+          "date": "2026-05-19 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.399,
+          "shares": 26310.79,
+          "cash": 78734.68,
+          "equity": 115543.47
+        }
+      ],
+      "symbol": "ETF_159570"
+    },
+    {
+      "total_return": 6.64,
+      "annual_return": 5.94,
+      "max_drawdown": -35.54,
+      "max_drawdown_date": "2026-05-28 00:00:00",
+      "sharpe_ratio": 0.24,
+      "num_trades": 12,
+      "num_rounds": 1,
+      "win_rate": 100.0,
+      "final_equity": 106640.96,
+      "trade_log": [
+        {
+          "date": "2025-04-08 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.102,
+          "shares": 0.0,
+          "cash": 100000,
+          "equity": 100000.0
+        },
+        {
+          "date": "2025-04-22 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.301,
+          "shares": 76863.95,
+          "cash": 0.0,
+          "equity": 100000.0
+        },
+        {
+          "date": "2025-06-04 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.482,
+          "shares": 76863.95,
+          "cash": 0.0,
+          "equity": 113912.38
+        },
+        {
+          "date": "2025-06-24 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.586,
+          "shares": 76863.95,
+          "cash": 0.0,
+          "equity": 121906.23
+        },
+        {
+          "date": "2025-07-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.595,
+          "shares": 76863.95,
+          "cash": 0.0,
+          "equity": 122598.0
+        },
+        {
+          "date": "2025-08-18 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 2.121,
+          "shares": 76863.95,
+          "cash": 0.0,
+          "equity": 163028.44
+        },
+        {
+          "date": "2025-09-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 2.063,
+          "shares": 76863.95,
+          "cash": 0.0,
+          "equity": 158570.33
+        },
+        {
+          "date": "2025-11-13 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.839,
+          "shares": 76863.95,
+          "cash": 0.0,
+          "equity": 141352.81
+        },
+        {
+          "date": "2025-11-26 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.783,
+          "shares": 76863.95,
+          "cash": 0.0,
+          "equity": 137048.42
+        },
+        {
+          "date": "2026-02-10 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.648,
+          "shares": 76863.95,
+          "cash": 0.0,
+          "equity": 126671.79
+        },
+        {
+          "date": "2026-03-04 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.396,
+          "shares": 25595.7,
+          "cash": 71570.48,
+          "equity": 107302.08
+        },
+        {
+          "date": "2026-03-23 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.406,
+          "shares": 25474.27,
+          "cash": 71741.21,
+          "equity": 107558.03
+        }
+      ],
+      "symbol": "ETF_520500"
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0477"
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0488"
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0499"
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0500"
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "ETF_159286"
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "ETF_159217"
+    },
+    {
+      "total_return": -20.85,
+      "annual_return": -23.04,
+      "max_drawdown": -25.52,
+      "max_drawdown_date": "2026-05-28 00:00:00",
+      "sharpe_ratio": -1.66,
+      "num_trades": 11,
+      "num_rounds": 3,
+      "win_rate": 0.0,
+      "final_equity": 79149.64,
+      "trade_log": [
+        {
+          "date": "2025-07-03 00:00:00",
+          "action": "买点1",
+          "transition": "2→3",
+          "price": 1.308,
+          "shares": 12691.13,
+          "cash": 83400.0,
+          "equity": 100000.0
+        },
+        {
+          "date": "2025-07-09 00:00:00",
+          "action": "买点2",
+          "transition": "3→4",
+          "price": 1.306,
+          "shares": 12691.13,
+          "cash": 83400.0,
+          "equity": 99974.62
+        },
+        {
+          "date": "2025-08-18 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.69,
+          "shares": 62040.24,
+          "cash": 0.0,
+          "equity": 104848.01
+        },
+        {
+          "date": "2025-08-27 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.558,
+          "shares": 20659.4,
+          "cash": 64471.35,
+          "equity": 96658.7
+        },
+        {
+          "date": "2025-09-30 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.588,
+          "shares": 20659.4,
+          "cash": 64471.35,
+          "equity": 97278.48
+        },
+        {
+          "date": "2025-10-16 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.499,
+          "shares": 20659.4,
+          "cash": 64471.35,
+          "equity": 95439.8
+        },
+        {
+          "date": "2025-12-19 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.338,
+          "shares": 68844.27,
+          "cash": 0.0,
+          "equity": 92113.63
+        },
+        {
+          "date": "2026-01-07 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.37,
+          "shares": 68844.27,
+          "cash": 0.0,
+          "equity": 94316.65
+        },
+        {
+          "date": "2026-02-10 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.355,
+          "shares": 68844.27,
+          "cash": 0.0,
+          "equity": 93283.98
+        },
+        {
+          "date": "2026-03-03 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.174,
+          "shares": 22925.14,
+          "cash": 53909.06,
+          "equity": 80823.17
+        },
+        {
+          "date": "2026-03-23 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.139,
+          "shares": 22925.14,
+          "cash": 53909.06,
+          "equity": 80020.79
+        }
+      ],
+      "symbol": "ETF_159316"
+    }
+  ],
+  "param_optimization": [
+    {
+      "total_return": 28.01,
+      "annual_return": 15.81,
+      "max_drawdown": -30.15,
+      "max_drawdown_date": "2026-05-28 00:00:00",
+      "sharpe_ratio": 0.55,
+      "num_trades": 15,
+      "num_rounds": 2,
+      "win_rate": 100.0,
+      "final_equity": 128012.43,
+      "trade_log": [
+        {
+          "date": "2024-09-13 00:00:00",
+          "action": "买点1",
+          "transition": "2→3",
+          "price": 0.666,
+          "shares": 24924.92,
+          "cash": 83400.0,
+          "equity": 100000.0
+        },
+        {
+          "date": "2024-09-19 00:00:00",
+          "action": "买点2",
+          "transition": "3→4",
+          "price": 0.674,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 100199.4
+        },
+        {
+          "date": "2024-11-20 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 0.746,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 110903.19
+        },
+        {
+          "date": "2025-01-03 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.706,
+          "shares": 49505.04,
+          "cash": 70006.08,
+          "equity": 104956.64
+        },
+        {
+          "date": "2025-04-08 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.782,
+          "shares": 46295.95,
+          "cash": 72515.59,
+          "equity": 108719.02
+        },
+        {
+          "date": "2025-06-04 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.068,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 121959.67
+        },
+        {
+          "date": "2025-06-24 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.159,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 132351.36
+        },
+        {
+          "date": "2025-07-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.169,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 133493.31
+        },
+        {
+          "date": "2025-08-18 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.55,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 177001.39
+        },
+        {
+          "date": "2025-09-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.542,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 176087.83
+        },
+        {
+          "date": "2025-09-30 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.531,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 174831.69
+        },
+        {
+          "date": "2025-11-13 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.415,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 161585.14
+        },
+        {
+          "date": "2025-12-19 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.273,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 145369.53
+        },
+        {
+          "date": "2026-03-04 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.125,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 128468.75
+        },
+        {
+          "date": "2026-03-23 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.103,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 127632.16
+        }
+      ],
+      "symbol": "ETF_513120",
+      "config": "默认值(设计文档推荐)",
+      "params": {
+        "name": "默认值(设计文档推荐)",
+        "ma_period": 20,
+        "volume_lookback": 20,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.2,
+        "volume_shrink_threshold": 0.8
+      }
+    },
+    {
+      "total_return": 28.01,
+      "annual_return": 15.81,
+      "max_drawdown": -30.15,
+      "max_drawdown_date": "2026-05-28 00:00:00",
+      "sharpe_ratio": 0.55,
+      "num_trades": 15,
+      "num_rounds": 2,
+      "win_rate": 100.0,
+      "final_equity": 128012.43,
+      "trade_log": [
+        {
+          "date": "2024-09-13 00:00:00",
+          "action": "买点1",
+          "transition": "2→3",
+          "price": 0.666,
+          "shares": 24924.92,
+          "cash": 83400.0,
+          "equity": 100000.0
+        },
+        {
+          "date": "2024-09-19 00:00:00",
+          "action": "买点2",
+          "transition": "3→4",
+          "price": 0.674,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 100199.4
+        },
+        {
+          "date": "2024-11-20 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 0.746,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 110903.19
+        },
+        {
+          "date": "2025-01-03 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.706,
+          "shares": 49505.04,
+          "cash": 70006.08,
+          "equity": 104956.64
+        },
+        {
+          "date": "2025-04-08 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.782,
+          "shares": 46295.95,
+          "cash": 72515.59,
+          "equity": 108719.02
+        },
+        {
+          "date": "2025-06-04 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.068,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 121959.67
+        },
+        {
+          "date": "2025-06-24 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.159,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 132351.36
+        },
+        {
+          "date": "2025-07-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.169,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 133493.31
+        },
+        {
+          "date": "2025-08-18 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.55,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 177001.39
+        },
+        {
+          "date": "2025-09-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.542,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 176087.83
+        },
+        {
+          "date": "2025-09-30 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.531,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 174831.69
+        },
+        {
+          "date": "2025-11-13 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.415,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 161585.14
+        },
+        {
+          "date": "2025-12-19 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.273,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 145369.53
+        },
+        {
+          "date": "2026-03-04 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.125,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 128468.75
+        },
+        {
+          "date": "2026-03-23 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.103,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 127632.16
+        }
+      ],
+      "symbol": "ETF_513120",
+      "config": "灵敏度较高(快进快出)",
+      "params": {
+        "name": "灵敏度较高(快进快出)",
+        "ma_period": 15,
+        "volume_lookback": 15,
+        "persistence_lookback": 15,
+        "min_consecutive_yang": 2,
+        "volume_surge_threshold": 1.15,
+        "volume_shrink_threshold": 0.85
+      }
+    },
+    {
+      "total_return": 28.01,
+      "annual_return": 15.81,
+      "max_drawdown": -30.15,
+      "max_drawdown_date": "2026-05-28 00:00:00",
+      "sharpe_ratio": 0.55,
+      "num_trades": 15,
+      "num_rounds": 2,
+      "win_rate": 100.0,
+      "final_equity": 128012.43,
+      "trade_log": [
+        {
+          "date": "2024-09-13 00:00:00",
+          "action": "买点1",
+          "transition": "2→3",
+          "price": 0.666,
+          "shares": 24924.92,
+          "cash": 83400.0,
+          "equity": 100000.0
+        },
+        {
+          "date": "2024-09-19 00:00:00",
+          "action": "买点2",
+          "transition": "3→4",
+          "price": 0.674,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 100199.4
+        },
+        {
+          "date": "2024-11-20 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 0.746,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 110903.19
+        },
+        {
+          "date": "2025-01-03 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.706,
+          "shares": 49505.04,
+          "cash": 70006.08,
+          "equity": 104956.64
+        },
+        {
+          "date": "2025-04-08 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.782,
+          "shares": 46295.95,
+          "cash": 72515.59,
+          "equity": 108719.02
+        },
+        {
+          "date": "2025-06-04 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.068,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 121959.67
+        },
+        {
+          "date": "2025-06-24 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.159,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 132351.36
+        },
+        {
+          "date": "2025-07-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.169,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 133493.31
+        },
+        {
+          "date": "2025-08-18 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.55,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 177001.39
+        },
+        {
+          "date": "2025-09-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.542,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 176087.83
+        },
+        {
+          "date": "2025-09-30 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.531,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 174831.69
+        },
+        {
+          "date": "2025-11-13 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.415,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 161585.14
+        },
+        {
+          "date": "2025-12-19 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.273,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 145369.53
+        },
+        {
+          "date": "2026-03-04 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.125,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 128468.75
+        },
+        {
+          "date": "2026-03-23 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.103,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 127632.16
+        }
+      ],
+      "symbol": "ETF_513120",
+      "config": "稳定度较高(减少假信号)",
+      "params": {
+        "name": "稳定度较高(减少假信号)",
+        "ma_period": 25,
+        "volume_lookback": 25,
+        "persistence_lookback": 25,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.3,
+        "volume_shrink_threshold": 0.75
+      }
+    },
+    {
+      "total_return": 28.01,
+      "annual_return": 15.81,
+      "max_drawdown": -30.15,
+      "max_drawdown_date": "2026-05-28 00:00:00",
+      "sharpe_ratio": 0.55,
+      "num_trades": 15,
+      "num_rounds": 2,
+      "win_rate": 100.0,
+      "final_equity": 128012.43,
+      "trade_log": [
+        {
+          "date": "2024-09-13 00:00:00",
+          "action": "买点1",
+          "transition": "2→3",
+          "price": 0.666,
+          "shares": 24924.92,
+          "cash": 83400.0,
+          "equity": 100000.0
+        },
+        {
+          "date": "2024-09-19 00:00:00",
+          "action": "买点2",
+          "transition": "3→4",
+          "price": 0.674,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 100199.4
+        },
+        {
+          "date": "2024-11-20 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 0.746,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 110903.19
+        },
+        {
+          "date": "2025-01-03 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.706,
+          "shares": 49505.04,
+          "cash": 70006.08,
+          "equity": 104956.64
+        },
+        {
+          "date": "2025-04-08 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.782,
+          "shares": 46295.95,
+          "cash": 72515.59,
+          "equity": 108719.02
+        },
+        {
+          "date": "2025-06-04 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.068,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 121959.67
+        },
+        {
+          "date": "2025-06-24 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.159,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 132351.36
+        },
+        {
+          "date": "2025-07-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.169,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 133493.31
+        },
+        {
+          "date": "2025-08-18 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.55,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 177001.39
+        },
+        {
+          "date": "2025-09-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.542,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 176087.83
+        },
+        {
+          "date": "2025-09-30 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.531,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 174831.69
+        },
+        {
+          "date": "2025-11-13 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.415,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 161585.14
+        },
+        {
+          "date": "2025-12-19 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.273,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 145369.53
+        },
+        {
+          "date": "2026-03-04 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.125,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 128468.75
+        },
+        {
+          "date": "2026-03-23 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.103,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 127632.16
+        }
+      ],
+      "symbol": "ETF_513120",
+      "config": "连阳放宽(更快入场)",
+      "params": {
+        "name": "连阳放宽(更快入场)",
+        "ma_period": 20,
+        "volume_lookback": 20,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 2,
+        "volume_surge_threshold": 1.2,
+        "volume_shrink_threshold": 0.8
+      }
+    },
+    {
+      "total_return": 28.01,
+      "annual_return": 15.81,
+      "max_drawdown": -30.15,
+      "max_drawdown_date": "2026-05-28 00:00:00",
+      "sharpe_ratio": 0.55,
+      "num_trades": 15,
+      "num_rounds": 2,
+      "win_rate": 100.0,
+      "final_equity": 128012.43,
+      "trade_log": [
+        {
+          "date": "2024-09-13 00:00:00",
+          "action": "买点1",
+          "transition": "2→3",
+          "price": 0.666,
+          "shares": 24924.92,
+          "cash": 83400.0,
+          "equity": 100000.0
+        },
+        {
+          "date": "2024-09-19 00:00:00",
+          "action": "买点2",
+          "transition": "3→4",
+          "price": 0.674,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 100199.4
+        },
+        {
+          "date": "2024-11-20 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 0.746,
+          "shares": 148663.8,
+          "cash": 0.0,
+          "equity": 110903.19
+        },
+        {
+          "date": "2025-01-03 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.706,
+          "shares": 49505.04,
+          "cash": 70006.08,
+          "equity": 104956.64
+        },
+        {
+          "date": "2025-04-08 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 0.782,
+          "shares": 46295.95,
+          "cash": 72515.59,
+          "equity": 108719.02
+        },
+        {
+          "date": "2025-06-04 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.068,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 121959.67
+        },
+        {
+          "date": "2025-06-24 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.159,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 132351.36
+        },
+        {
+          "date": "2025-07-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.169,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 133493.31
+        },
+        {
+          "date": "2025-08-18 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.55,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 177001.39
+        },
+        {
+          "date": "2025-09-01 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.542,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 176087.83
+        },
+        {
+          "date": "2025-09-30 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.531,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 174831.69
+        },
+        {
+          "date": "2025-11-13 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.415,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 161585.14
+        },
+        {
+          "date": "2025-12-19 00:00:00",
+          "action": "最佳加仓",
+          "transition": "5→4",
+          "price": 1.273,
+          "shares": 114194.44,
+          "cash": 0.0,
+          "equity": 145369.53
+        },
+        {
+          "date": "2026-03-04 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.125,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 128468.75
+        },
+        {
+          "date": "2026-03-23 00:00:00",
+          "action": "防守",
+          "transition": "5→3'",
+          "price": 1.103,
+          "shares": 38026.75,
+          "cash": 85688.66,
+          "equity": 127632.16
+        }
+      ],
+      "symbol": "ETF_513120",
+      "config": "严格放量(排除诱多)",
+      "params": {
+        "name": "严格放量(排除诱多)",
+        "ma_period": 20,
+        "volume_lookback": 25,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.3,
+        "volume_shrink_threshold": 0.75
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0477",
+      "config": "默认值(设计文档推荐)",
+      "params": {
+        "name": "默认值(设计文档推荐)",
+        "ma_period": 20,
+        "volume_lookback": 20,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.2,
+        "volume_shrink_threshold": 0.8
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0477",
+      "config": "灵敏度较高(快进快出)",
+      "params": {
+        "name": "灵敏度较高(快进快出)",
+        "ma_period": 15,
+        "volume_lookback": 15,
+        "persistence_lookback": 15,
+        "min_consecutive_yang": 2,
+        "volume_surge_threshold": 1.15,
+        "volume_shrink_threshold": 0.85
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0477",
+      "config": "稳定度较高(减少假信号)",
+      "params": {
+        "name": "稳定度较高(减少假信号)",
+        "ma_period": 25,
+        "volume_lookback": 25,
+        "persistence_lookback": 25,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.3,
+        "volume_shrink_threshold": 0.75
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0477",
+      "config": "连阳放宽(更快入场)",
+      "params": {
+        "name": "连阳放宽(更快入场)",
+        "ma_period": 20,
+        "volume_lookback": 20,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 2,
+        "volume_surge_threshold": 1.2,
+        "volume_shrink_threshold": 0.8
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0477",
+      "config": "严格放量(排除诱多)",
+      "params": {
+        "name": "严格放量(排除诱多)",
+        "ma_period": 20,
+        "volume_lookback": 25,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.3,
+        "volume_shrink_threshold": 0.75
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0488",
+      "config": "默认值(设计文档推荐)",
+      "params": {
+        "name": "默认值(设计文档推荐)",
+        "ma_period": 20,
+        "volume_lookback": 20,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.2,
+        "volume_shrink_threshold": 0.8
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0488",
+      "config": "灵敏度较高(快进快出)",
+      "params": {
+        "name": "灵敏度较高(快进快出)",
+        "ma_period": 15,
+        "volume_lookback": 15,
+        "persistence_lookback": 15,
+        "min_consecutive_yang": 2,
+        "volume_surge_threshold": 1.15,
+        "volume_shrink_threshold": 0.85
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0488",
+      "config": "稳定度较高(减少假信号)",
+      "params": {
+        "name": "稳定度较高(减少假信号)",
+        "ma_period": 25,
+        "volume_lookback": 25,
+        "persistence_lookback": 25,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.3,
+        "volume_shrink_threshold": 0.75
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0488",
+      "config": "连阳放宽(更快入场)",
+      "params": {
+        "name": "连阳放宽(更快入场)",
+        "ma_period": 20,
+        "volume_lookback": 20,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 2,
+        "volume_surge_threshold": 1.2,
+        "volume_shrink_threshold": 0.8
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0488",
+      "config": "严格放量(排除诱多)",
+      "params": {
+        "name": "严格放量(排除诱多)",
+        "ma_period": 20,
+        "volume_lookback": 25,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.3,
+        "volume_shrink_threshold": 0.75
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0499",
+      "config": "默认值(设计文档推荐)",
+      "params": {
+        "name": "默认值(设计文档推荐)",
+        "ma_period": 20,
+        "volume_lookback": 20,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.2,
+        "volume_shrink_threshold": 0.8
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0499",
+      "config": "灵敏度较高(快进快出)",
+      "params": {
+        "name": "灵敏度较高(快进快出)",
+        "ma_period": 15,
+        "volume_lookback": 15,
+        "persistence_lookback": 15,
+        "min_consecutive_yang": 2,
+        "volume_surge_threshold": 1.15,
+        "volume_shrink_threshold": 0.85
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0499",
+      "config": "稳定度较高(减少假信号)",
+      "params": {
+        "name": "稳定度较高(减少假信号)",
+        "ma_period": 25,
+        "volume_lookback": 25,
+        "persistence_lookback": 25,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.3,
+        "volume_shrink_threshold": 0.75
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0499",
+      "config": "连阳放宽(更快入场)",
+      "params": {
+        "name": "连阳放宽(更快入场)",
+        "ma_period": 20,
+        "volume_lookback": 20,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 2,
+        "volume_surge_threshold": 1.2,
+        "volume_shrink_threshold": 0.8
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0499",
+      "config": "严格放量(排除诱多)",
+      "params": {
+        "name": "严格放量(排除诱多)",
+        "ma_period": 20,
+        "volume_lookback": 25,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.3,
+        "volume_shrink_threshold": 0.75
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0500",
+      "config": "默认值(设计文档推荐)",
+      "params": {
+        "name": "默认值(设计文档推荐)",
+        "ma_period": 20,
+        "volume_lookback": 20,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.2,
+        "volume_shrink_threshold": 0.8
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0500",
+      "config": "灵敏度较高(快进快出)",
+      "params": {
+        "name": "灵敏度较高(快进快出)",
+        "ma_period": 15,
+        "volume_lookback": 15,
+        "persistence_lookback": 15,
+        "min_consecutive_yang": 2,
+        "volume_surge_threshold": 1.15,
+        "volume_shrink_threshold": 0.85
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0500",
+      "config": "稳定度较高(减少假信号)",
+      "params": {
+        "name": "稳定度较高(减少假信号)",
+        "ma_period": 25,
+        "volume_lookback": 25,
+        "persistence_lookback": 25,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.3,
+        "volume_shrink_threshold": 0.75
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0500",
+      "config": "连阳放宽(更快入场)",
+      "params": {
+        "name": "连阳放宽(更快入场)",
+        "ma_period": 20,
+        "volume_lookback": 20,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 2,
+        "volume_surge_threshold": 1.2,
+        "volume_shrink_threshold": 0.8
+      }
+    },
+    {
+      "total_return": 0.0,
+      "annual_return": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_date": null,
+      "sharpe_ratio": 0.0,
+      "num_trades": 0,
+      "num_rounds": 0,
+      "win_rate": 0,
+      "final_equity": 100000.0,
+      "trade_log": [],
+      "symbol": "BK0500",
+      "config": "严格放量(排除诱多)",
+      "params": {
+        "name": "严格放量(排除诱多)",
+        "ma_period": 20,
+        "volume_lookback": 25,
+        "persistence_lookback": 20,
+        "min_consecutive_yang": 3,
+        "volume_surge_threshold": 1.3,
+        "volume_shrink_threshold": 0.75
+      }
+    }
+  ],
+  "disclaimer": "ETF数据为akshare真实数据(2025-04~2026-05)。板块/题材/个股为模拟数据。回测基于StateMachine.transition()时序跟踪。"
+}
