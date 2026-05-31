@@ -763,7 +763,7 @@ const EMBEDDED_MODE = true;
   /* ── Scan available dates ── */
   async function scanDates() {
     try {
-      if (EMBEDDED_MODE && EMBEDDED_SNAPSHOT) { addDateToList(EMBEDDED_DATE); loadDate(EMBEDDED_DATE); return; }
+      if (EMBEDDED_MODE && EMBEDDED_SNAPSHOT) { dateList = [EMBEDDED_DATE]; loadDate(EMBEDDED_DATE); return; }
       const resp = await fetch('data/');
       const text = await resp.text();
       const parser = new DOMParser();
