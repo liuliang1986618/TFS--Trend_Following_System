@@ -1,0 +1,63 @@
+flowchart TD
+    subgraph legend["图例"]
+        L1["🔴 下跌 / 转跌"]:::bearish
+        L2["🟠 下跌反弹"]:::bearBounce
+        L3["🟡 趋势翻转"]:::transition
+        L4["🟢 上涨趋势"]:::bullish
+        L5["🟩 上涨回调"]:::bullRetrace
+        LS["⭐ 关键操作点"]:::keypoint
+    end
+
+    S1["<b>状态1: 下跌趋势</b><br/>📉 低点持续↓ 高点持续↓<br/>结构: 空头排列<br/>量能: 下跌放量/反弹缩量<br/><br/>💰 仓位: 0 (空仓)<br/>🔑 动作: 纳入观察,不动手"]:::bearish
+
+    S2["<b>状态2: 下跌反弹</b><br/>📊 价格连涨 但未破前高<br/>结构: 下跌结构未打破<br/>量能: 缩量上涨<br/><br/>💰 仓位: 0 (不动!)<br/>🔑 动作: 盯紧前高,等信号"]:::bearBounce
+
+    S3["<b>状态3: 翻转确认</b><br/>⚠️ 突破前高 结构正在重建<br/>已有1个更高高+1个更高低<br/>量能: 放量突破 ✅<br/><br/>💰 仓位: 1/6→1/3 (试探仓)<br/>🔑 动作: 分批建仓,严格止损"]:::transition
+
+    S4["<b>状态4: 上涨趋势</b><br/>📈 2个更高高+2个更高低<br/>结构: 多头排列完整 ✅<br/>量能: 涨放量/跌缩量 ✅<br/>持续性: 阳线>阴线+3连阳 ✅<br/><br/>💰 仓位: 标准仓(100%)<br/>🔑 动作: 持有,跟踪趋势"]:::bullish
+
+    S5["<b>状态5: 上涨回调</b><br/>🔄 价格连跌 但未破前低<br/>结构: 上涨结构未破坏<br/>量能: 缩量下跌 (正常)<br/><br/>💰 仓位: 标准仓(不动)<br/>🔑 动作: 等企稳→加仓至1.5倍"]:::bullRetrace
+
+    S3B["<b>状态3': 转跌确认</b><br/>⚠️ 放量跌破前低<br/>上涨结构被破坏<br/>等待: 是真转跌还是假跌破?<br/><br/>💰 仓位: 减至1/3<br/>🔑 动作: 防守,盯紧新低"]:::bearish
+
+    %% ===== 转换边 =====
+
+    S1 -->|"出现连续上涨<br/>缩量未破前高"| S2
+    S2 -->|"反弹结束<br/>回落跌破前低"| S1
+
+    S2 -->|"⭐放量突破前高<br/>→ 1/6仓试探进场<br/>→ 这是第一个买点"| S3
+    S3 -->|"⭐假突破! 跌破新低<br/>→ 全清止损<br/>→ 回到空仓"| S1
+
+    S3 -->|"回调不破前低<br/>→ 加至1/3仓<br/>→ 第2只脚踩稳"| S3
+
+    S3 -->|"⭐再创新高!<br/>→ 结构完整确认<br/>→ 加至标准仓(100%)"| S4
+
+    S4 -->|"继续新高<br/>→ 持仓不动"| S4
+
+    S4 -->|"出现连续下跌<br/>缩量未破前低"| S5
+
+    S5 -->|"⭐企稳反弹!<br/>→ 加仓至1.5倍<br/>→ 这是最佳加仓点"| S4
+
+    S5 -->|"⭐放量跌破前低!<br/>→ 减至1/3仓<br/>→ 结构被破坏"| S3B
+
+    S3B -->|"假跌破快速收复<br/>→ 回补标准仓"| S4
+
+    S3B -->|"⭐再破新低<br/>→ 全清退场<br/>→ 重回下跌趋势"| S1
+
+    %% ===== 子图:趋势阶段映射 =====
+
+    subgraph phase["趋势阶段映射"]
+        direction LR
+        P1["前期<br/>状态3<br/>试探建仓"]:::transition
+        P2["中期<br/>状态4早期<br/>主升浪持股"]:::bullish
+        P3["后期<br/>状态4晚期<br/>斜率变陡/放量滞涨<br/>收紧止损,不加仓"]:::bullish
+    end
+
+    %% ===== 样式 =====
+
+    classDef bearish fill:#e74c3c,color:#fff,stroke:#c0392b,stroke-width:2px
+    classDef bearBounce fill:#e67e22,color:#fff,stroke:#d35400,stroke-width:2px
+    classDef transition fill:#f39c12,color:#333,stroke:#e67e22,stroke-width:2px
+    classDef bullish fill:#27ae60,color:#fff,stroke:#1e8449,stroke-width:2px
+    classDef bullRetrace fill:#2ecc71,color:#fff,stroke:#27ae60,stroke-width:2px
+    classDef keypoint fill:#e74c3c,color:#fff,stroke:#c0392b,stroke-width:3px,stroke-dasharray:5 5

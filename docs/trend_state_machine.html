@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>趋势状态机</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  body { background: #1a1a2e; display: flex; justify-content: center; padding: 40px; }
+  .mermaid { background: #fff; border-radius: 12px; padding: 40px; max-width: 1100px; }
+</style>
+</head>
+<body>
+<div class="mermaid">
+flowchart TD
+    subgraph legend["图例"]
+        L1["🔴 下跌 / 转跌"]:::bearish
+        L2["🟠 下跌反弹"]:::bearBounce
+        L3["🟡 趋势翻转"]:::transition
+        L4["🟢 上涨趋势"]:::bullish
+        L5["🟩 上涨回调"]:::bullRetrace
+        LS["⭐ 关键操作点"]:::keypoint
+    end
+
+    S1["&lt;b&gt;状态1: 下跌趋势&lt;/b&gt;&lt;br/&gt;📉 低点持续↓ 高点持续↓&lt;br/&gt;结构: 空头排列&lt;br/&gt;&lt;br/&gt;💰 仓位: 0 (空仓)&lt;br/&gt;🔑 动作: 纳入观察,不动手"]:::bearish
+
+    S2["&lt;b&gt;状态2: 下跌反弹&lt;/b&gt;&lt;br/&gt;📊 涨了但未破前高&lt;br/&gt;结构: 下跌结构未打破&lt;br/&gt;量能: 缩量上涨&lt;br/&gt;&lt;br/&gt;💰 仓位: 0 (不动!)&lt;br/&gt;🔑 动作: 盯紧前高"]:::bearBounce
+
+    S3["&lt;b&gt;状态3: 翻转确认&lt;/b&gt;&lt;br/&gt;⚠️ 突破前高 结构重建中&lt;br/&gt;1个更高高+1个更高低&lt;br/&gt;量能: 放量突破 ✅&lt;br/&gt;&lt;br/&gt;💰 仓位: 1/6→1/3 (试探)&lt;br/&gt;🔑 动作: 分批建仓,严格止损"]:::transition
+
+    S4["&lt;b&gt;状态4: 上涨趋势&lt;/b&gt;&lt;br/&gt;📈 2个更高高+2个更高低&lt;br/&gt;结构: 多头完整 ✅&lt;br/&gt;量能: 涨放量/跌缩量 ✅&lt;br/&gt;持续性: 阳线>阴线+3连阳 ✅&lt;br/&gt;&lt;br/&gt;💰 仓位: 标准仓(100%)&lt;br/&gt;🔑 动作: 持有,跟踪趋势"]:::bullish
+
+    S5["&lt;b&gt;状态5: 上涨回调&lt;/b&gt;&lt;br/&gt;🔄 价格连跌 未破前低&lt;br/&gt;结构: 上涨结构未破坏&lt;br/&gt;量能: 缩量下跌 (正常)&lt;br/&gt;&lt;br/&gt;💰 仓位: 标准仓(不动)&lt;br/&gt;🔑 动作: 等企稳→加仓至1.5倍"]:::bullRetrace
+
+    S3B["&lt;b&gt;状态3': 转跌确认&lt;/b&gt;&lt;br/&gt;⚠️ 放量跌破前低&lt;br/&gt;上涨结构被破坏&lt;br/&gt;是真转跌还是假跌破?&lt;br/&gt;&lt;br/&gt;💰 仓位: 减至1/3&lt;br/&gt;🔑 动作: 防守,盯紧新低"]:::bearish
+
+    S1 -->|"出现连续上涨 | 缩量未破前高"| S2
+    S2 -->|"反弹结束 | 回落跌破前低"| S1
+
+    S2 -->|"⭐放量突破前高 → 1/6仓试探进场"| S3
+    S3 -->|"⭐假突破!跌破新低 → 全清止损"| S1
+
+    S3 -->|"回调不破前低 → 加至1/3仓"| S3
+
+    S3 -->|"⭐再创新高! → 结构完整 → 加至标准仓"| S4
+
+    S4 -->|"继续新高 → 持仓不动"| S4
+
+    S4 -->|"出现连续下跌 | 缩量未破前低"| S5
+
+    S5 -->|"⭐企稳反弹! → 加仓至1.5倍 ← 最佳加仓点"| S4
+
+    S5 -->|"⭐放量跌破前低! → 减至1/3仓"| S3B
+
+    S3B -->|"假跌破快速收复 → 回补标准仓"| S4
+
+    S3B -->|"⭐再破新低 → 全清退场 → 重回下跌趋势"| S1
+
+    subgraph phase["趋势阶段映射"]
+        direction LR
+        P1["前期 | 状态3 | 试探建仓"]:::transition
+        P2["中期 | 状态4早期 | 主升浪持股"]:::bullish
+        P3["后期 | 状态4晚期 | 斜率变陡/放量滞涨 | 收紧止损,不加仓"]:::bullish
+    end
+
+    classDef bearish fill:#e74c3c,color:#fff,stroke:#c0392b,stroke-width:2px
+    classDef bearBounce fill:#e67e22,color:#fff,stroke:#d35400,stroke-width:2px
+    classDef transition fill:#f39c12,color:#333,stroke:#e67e22,stroke-width:2px
+    classDef bullish fill:#27ae60,color:#fff,stroke:#1e8449,stroke-width:2px
+    classDef bullRetrace fill:#2ecc71,color:#fff,stroke:#27ae60,stroke-width:2px
+    classDef keypoint fill:#e74c3c,color:#fff,stroke:#c0392b,stroke-width:3px,stroke-dasharray:5 5
+</div>
+<script>mermaid.initialize({ startOnLoad: true, theme: 'default' });</script>
+</body>
+</html>
