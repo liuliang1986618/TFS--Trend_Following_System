@@ -3,1244 +3,827 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>趋势跟随系统 — Dashboard</title>
+<title>趋势跟随交易系统 — Dashboard</title>
 <style>
-/* ===== Reset & Variables ===== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+/* ========== 全局 ========== */
 :root {
-  --bg: #0f1117;
-  --bg-card: #1a1d27;
-  --bg-card-hover: #222534;
-  --bg-sidebar: #13151f;
-  --border: #2a2d3a;
-  --text: #e1e4eb;
-  --text-muted: #8b8fa3;
-  --text-dim: #5a5e73;
-  --green: #26a69a;
-  --green-bg: rgba(38,166,154,0.12);
-  --red: #ef5350;
-  --red-bg: rgba(239,83,80,0.12);
-  --yellow: #ffb74d;
-  --yellow-bg: rgba(255,183,77,0.12);
-  --blue: #42a5f5;
-  --blue-bg: rgba(66,165,245,0.12);
-  --purple: #ab47bc;
-  --orange: #ff7043;
+  --bg-primary: #0f1117;
+  --bg-card: #161b22;
+  --bg-card-hover: #1c2128;
+  --bg-elevated: #21262d;
+  --border: #30363d;
+  --border-light: #484f58;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --green: #238636;
+  --green-bg: rgba(35,134,54,0.15);
+  --red: #da3633;
+  --red-bg: rgba(218,54,51,0.15);
+  --gold: #d29922;
+  --gold-bg: rgba(210,153,34,0.15);
+  --blue: #58a6ff;
+  --blue-bg: rgba(88,166,255,0.12);
+  --teal: #39d353;
+  --orange: #f0883e;
   --radius: 8px;
-  --radius-sm: 4px;
-  --shadow: 0 2px 8px rgba(0,0,0,0.3);
-  --transition: 0.2s ease;
+  --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
 }
 
-html, body { height: 100%; }
+* { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.5;
-  font-size: 14px;
-  display: flex;
-  overflow: hidden;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  min-height: 100vh;
 }
 
-/* ===== Sidebar ===== */
-.sidebar {
-  width: 220px;
-  min-width: 220px;
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.sidebar-header {
-  padding: 16px;
+/* ========== Header ========== */
+.header {
+  background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
   border-bottom: 1px solid var(--border);
-}
-
-.sidebar-header h1 {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: 0.5px;
-}
-
-.sidebar-header .subtitle {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.date-nav {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px;
-}
-
-.date-nav-item {
-  display: block;
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 13px;
-  cursor: pointer;
-  text-align: left;
-  transition: var(--transition);
-  margin-bottom: 2px;
-}
-
-.date-nav-item:hover { background: var(--bg-card-hover); color: var(--text); }
-.date-nav-item.active { background: var(--blue-bg); color: var(--blue); font-weight: 600; }
-.date-nav-item.today { border-left: 3px solid var(--green); }
-
-.sidebar-footer {
-  padding: 12px 16px;
-  border-top: 1px solid var(--border);
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-/* ===== Main ===== */
-.main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-/* ===== Top Bar ===== */
-.topbar {
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-shrink: 0;
-}
-
-.topbar-date {
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.topbar-date small {
-  font-weight: 400;
-  color: var(--text-muted);
-  margin-left: 6px;
-}
-
-.topbar-status {
-  display: flex;
+  flex-wrap: wrap;
   gap: 12px;
-  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-
-.status-dot {
-  width: 8px;
-  height: 8px;
+.header-left h1 {
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #58a6ff, #3fb950);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header-left .subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.health-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.health-strong { background: var(--green-bg); color: var(--teal); border: 1px solid var(--green); }
+.health-normal { background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold); }
+.health-weak { background: var(--red-bg); color: var(--red); border: 1px solid var(--red); }
+.health-dot {
+  width: 10px; height: 10px;
   border-radius: 50%;
+  display: inline-block;
   animation: pulse 2s infinite;
 }
-
-.status-dot.ok { background: var(--green); }
-.status-dot.err { background: var(--red); }
-
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.5; transform:scale(0.8); }
+}
+.health-dot.green { background: var(--teal); }
+.health-dot.gold { background: var(--gold); }
+.health-dot.red { background: var(--red); }
+
+/* ========== Container ========== */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 24px;
 }
 
-/* ===== Overview Cards ===== */
-.overview {
+/* ========== Overview Cards ========== */
+.overview-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
-  padding: 16px 20px;
-  flex-shrink: 0;
+  margin-bottom: 24px;
 }
-
 .overview-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
   text-align: center;
+  transition: border-color 0.2s;
 }
-
+.overview-card:hover { border-color: var(--border-light); }
+.overview-card .number {
+  font-size: 32px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
 .overview-card .label {
   font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.overview-card .value {
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.overview-card .sub {
-  font-size: 11px;
-  color: var(--text-dim);
+  color: var(--text-secondary);
   margin-top: 4px;
 }
+.number.green { color: var(--teal); }
+.number.gold { color: var(--gold); }
+.number.blue { color: var(--blue); }
+.number.red { color: var(--red); }
 
-.overview-card.green .value { color: var(--green); }
-.overview-card.blue .value { color: var(--blue); }
-.overview-card.purple .value { color: var(--purple); }
-.overview-card.orange .value { color: var(--orange); }
-.overview-card.red .value { color: var(--red); }
-
-/* ===== Content Area ===== */
-.content {
-  flex: 1;
+/* ========== Mainline Section ========== */
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 24px 0 12px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.section-title .icon { font-size: 18px; }
+.mainline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.mainline-card {
+  background: linear-gradient(135deg, rgba(210,153,34,0.08) 0%, rgba(210,153,34,0.02) 100%);
+  border: 2px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
   overflow: hidden;
-  padding: 0 20px 16px;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
-
-/* Tabs */
-.tabs {
+.mainline-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(210,153,34,0.15);
+}
+.mainline-card::before {
+  content: '★ 主线';
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 700;
+}
+.mainline-card .sector-name {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.mainline-card .sector-name a {
+  color: var(--gold);
+  text-decoration: none;
+}
+.mainline-card .sector-name a:hover { text-decoration: underline; }
+.mainline-card .indicators {
   display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
+  gap: 8px;
+  flex-wrap: wrap;
 }
-
-.tab-btn {
-  padding: 10px 20px;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: var(--transition);
+.indicator-tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: 600;
 }
+.tag-pass { background: var(--green-bg); color: var(--teal); border: 1px solid rgba(35,134,54,0.4); }
+.tag-fail { background: var(--red-bg); color: var(--red); border: 1px solid rgba(218,54,51,0.4); }
 
-.tab-btn:hover { color: var(--text); }
-.tab-btn.active {
-  color: var(--blue);
-  border-bottom-color: var(--blue);
+/* ========== Table ========== */
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  background: var(--bg-card);
 }
-
-.tab-content {
-  flex: 1;
-  overflow-y: auto;
-  padding-top: 12px;
-}
-
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* ===== Table ===== */
-.data-table {
+table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
 }
-
-.data-table thead {
+thead {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 10;
 }
-
-.data-table th {
-  background: var(--bg-card);
-  color: var(--text-muted);
+th {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
   font-weight: 600;
-  font-size: 11px;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
 }
-
-.data-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: top;
-}
-
-.data-table tbody tr {
+th.sortable {
   cursor: pointer;
-  transition: var(--transition);
+  user-select: none;
 }
-
-.data-table tbody tr:hover { background: var(--bg-card-hover); }
-.data-table tbody tr.expanded { background: var(--bg-card); }
+th.sortable:hover { color: var(--text-primary); }
+th.sortable .sort-arrow { font-size: 10px; margin-left: 4px; }
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tr.row-main { cursor: pointer; transition: background 0.15s; }
+tr.row-main:hover { background: var(--bg-card-hover); }
+tr.row-expanded { background: var(--bg-card-hover); }
+tr.row-main.mainline-row {
+  background: linear-gradient(90deg, rgba(210,153,34,0.06) 0%, transparent 100%);
+  border-left: 3px solid var(--gold);
+}
 
 /* State badges */
 .state-badge {
   display: inline-block;
   padding: 2px 8px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
+  white-space: nowrap;
 }
-
-.state-1 { background: var(--red-bg); color: var(--red); }
-.state-2 { background: var(--yellow-bg); color: var(--yellow); }
-.state-3 { background: var(--blue-bg); color: var(--blue); }
-.state-4 { background: var(--green-bg); color: var(--green); }
-.state-5 { background: var(--green-bg); color: var(--green); }
-.state-3p { background: var(--yellow-bg); color: var(--orange); }
+.state-1 { background: rgba(110,118,129,0.2); color: var(--text-muted); }
+.state-2 { background: rgba(110,118,129,0.25); color: #b0b5c0; }  /* 灰:下跌反弹-观望 */
+.state-3 { background: rgba(66,165,245,0.2); color: #64b5f6; border: 1px solid rgba(66,165,245,0.3); }  /* 蓝:翻转确认-试探 */
+.state-4 { background: var(--green); color: #fff; }  /* 绿:上涨趋势-持仓 */
+.state-5 { background: rgba(255,112,67,0.2); color: #ff8a65; border: 1px solid rgba(255,112,67,0.3); }  /* 橙:上涨回调-警惕 */
+.state-3p { background: var(--red-bg); color: var(--red); border: 1px solid rgba(218,54,51,0.3); }
 
 /* Score bar */
 .score-bar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.score-bar-inner {
-  flex: 1;
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: 3px;
   overflow: hidden;
+  min-width: 50px;
 }
-
-.score-bar-fill {
+.score-fill {
   height: 100%;
-  border-radius: 2px;
+  border-radius: 3px;
   transition: width 0.3s;
 }
 
-.score-bar-fill.high { background: var(--green); }
-.score-bar-fill.mid { background: var(--yellow); }
-.score-bar-fill.low { background: var(--red); }
-
-/* Condition indicators */
+/* Condition dots */
+.condition-dots {
+  display: flex;
+  gap: 4px;
+}
 .cond-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 8px; height: 8px;
   border-radius: 50%;
-  margin-right: 2px;
 }
-
-.cond-dot.pass { background: var(--green); }
+.cond-dot.pass { background: var(--teal); }
 .cond-dot.fail { background: var(--red); }
+.cond-dot.na { background: var(--text-muted); }
 
-/* ===== Expand Row ===== */
-.expand-row { display: none; }
-.expand-row.open { display: table-row; }
-
-.expand-row td {
-  background: var(--bg);
-  padding: 16px 20px;
-  border-bottom: 2px solid var(--border);
-}
-
-.why-section {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.why-card {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 14px;
-  border: 1px solid var(--border);
-}
-
-.why-card h4 {
-  font-size: 12px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-}
-
-.why-card .why-detail {
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.why-card .why-detail.pass { color: var(--green); }
-.why-card .why-detail.fail { color: var(--red); }
-
-.why-section-extra {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.why-extra-item {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-}
-
-.why-extra-item h4 {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
-}
-
-.why-extra-item .val {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-/* ===== Key Actions ===== */
-.key-actions-panel {
-  background: var(--bg-card);
-  border: 1px solid var(--red);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 16px;
-  flex-shrink: 0;
-}
-
-.key-actions-panel h3 {
-  font-size: 14px;
-  color: var(--red);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.key-action-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
-
-.key-action-item:last-child { border-bottom: none; }
-
-.key-action-item .priority-icon { font-size: 18px; }
-.key-action-item .action-label { font-weight: 700; min-width: 56px; }
-.key-action-item .transition-label { color: var(--text-muted); min-width: 50px; }
-.key-action-item .desc { flex: 1; color: var(--text-muted); }
-
-.priority-red .action-label { color: var(--red); }
-.priority-orange .action-label { color: var(--orange); }
-.priority-green .action-label { color: var(--green); }
-.priority-yellow .action-label { color: var(--yellow); }
-
-/* ===== Scenario Cards ===== */
-.scenario-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 14px;
-}
-
-.scenario-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-}
-
-.scenario-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-}
-
-.scenario-card-header .name {
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.scenario-card-header .state {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.scenario-item {
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  border-radius: var(--radius-sm);
-  border-left: 3px solid var(--border);
-}
-
-.scenario-item.prob-high { border-left-color: var(--green); background: var(--green-bg); }
-.scenario-item.prob-mid { border-left-color: var(--yellow); background: var(--yellow-bg); }
-.scenario-item.prob-low { border-left-color: var(--red); background: var(--red-bg); }
-
-.scenario-item .s-label {
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.scenario-item .s-cond {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-.scenario-item .s-action {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* ===== Positions ===== */
-.position-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
-
-.position-row:last-child { border-bottom: none; }
-
-.position-total {
-  padding: 10px 14px;
-  border-top: 1px solid var(--border);
-  font-weight: 700;
-  display: flex;
-  justify-content: space-between;
-}
-
-/* ===== Watchlist ===== */
-.watchlist-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
-
-.watchlist-item:last-child { border-bottom: none; }
-
-.watchlist-item .wl-symbol { font-weight: 700; }
-.watchlist-item .wl-reason { color: var(--text-muted); flex: 1; }
-.watchlist-item .wl-ph { color: var(--blue); font-size: 12px; }
-
-/* ===== Bottom Panel ===== */
-.bottom-panels {
-  flex-shrink: 0;
-  max-height: 320px;
-  overflow-y: auto;
-  padding-bottom: 8px;
-}
-
-.panel-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 14px;
-}
-
-.panel-card h3 {
-  font-size: 14px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.panel-badge {
-  background: var(--blue-bg);
-  color: var(--blue);
-  padding: 1px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-/* ===== External Link ===== */
-.ext-link {
+/* Links */
+a.symbol-link {
   color: var(--blue);
   text-decoration: none;
-  font-size: 12px;
-  transition: var(--transition);
+  font-weight: 600;
 }
+a.symbol-link:hover { text-decoration: underline; }
+a.symbol-link:visited { color: #79c0ff; }
 
-.ext-link:hover { text-decoration: underline; color: var(--text); }
-
-/* ===== Empty / Loading State ===== */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-dim);
+/* Expand detail panel */
+.expand-panel {
+  background: #0d1117;
+  border-top: 1px solid var(--border);
+  padding: 16px 24px;
 }
-
-.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-
-/* ===== Comparison ===== */
-.comp-section {
-  display: flex;
+.expand-panel .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
-  flex-wrap: wrap;
 }
-
-.comp-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 12px;
+.detail-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+.detail-card h4 {
   font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
 }
-
-.comp-tag.up { background: var(--green-bg); color: var(--green); }
-.comp-tag.down { background: var(--red-bg); color: var(--red); }
-.comp-tag.changed { background: var(--yellow-bg); color: var(--yellow); }
-
-/* ===== Breadth ===== */
-.breadth-row {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+.detail-card p {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
 }
-
-.breadth-item {
-  text-align: center;
+.reason-list {
+  list-style: none;
+  padding: 0;
 }
-
-.breadth-item .bval {
-  font-size: 22px;
+.reason-list li {
+  font-size: 13px;
+  padding: 4px 0;
+  padding-left: 16px;
+  position: relative;
+  color: var(--text-secondary);
+}
+.reason-list li::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: var(--blue);
   font-weight: 700;
 }
+.price-data {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--blue);
+}
 
-.breadth-item .blabel {
-  font-size: 11px;
+/* Arrow indicators */
+.arrow-up { color: var(--teal); }
+.arrow-down { color: var(--red); }
+
+/* Expand icon */
+.expand-icon {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-size: 12px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-left: 4px;
+}
+.expand-icon.open { transform: rotate(90deg); }
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 16px 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 32px;
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 1200px) {
-  .overview { grid-template-columns: repeat(3, 1fr); }
-  .why-section { grid-template-columns: 1fr 1fr; }
+/* Search */
+.search-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  color: var(--text-primary);
+  font-size: 13px;
+  width: 220px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box:focus { border-color: var(--blue); }
+.search-box::placeholder { color: var(--text-muted); }
+
+/* Tab navigation */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 16px;
+}
+.tab {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab:hover { color: var(--text-primary); }
+.tab.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
 }
 
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 32px;
+  color: var(--text-muted);
+}
+.empty-state .icon { font-size: 32px; margin-bottom: 8px; }
+
+/* Responsive */
 @media (max-width: 768px) {
-  body { flex-direction: column; }
-  .sidebar { width: 100%; min-width: 100%; max-height: 120px; flex-shrink: 0; }
-  .overview { grid-template-columns: repeat(2, 1fr); padding: 12px; }
-  .why-section { grid-template-columns: 1fr; }
-  .scenario-grid { grid-template-columns: 1fr; }
-  .content { padding: 0 12px 12px; }
-  .topbar { padding: 10px 12px; }
+  .header { flex-direction: column; align-items: flex-start; }
+  .overview-grid { grid-template-columns: repeat(2, 1fr); }
+  .mainline-grid { grid-template-columns: 1fr; }
+  th { font-size: 11px; padding: 8px 6px; }
+  td { font-size: 12px; padding: 6px 8px; }
+}
+
+/* Tooltip */
+.tooltip-hint {
+  border-bottom: 1px dotted var(--text-muted);
+  cursor: help;
+}
+
+/* Summary row */
+.summary-row td {
+  background: var(--bg-elevated);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 6px 12px;
+}
+
+/* ========== Print ========== */
+@media print {
+  body { background: white; color: black; }
+  .header { position: static; }
 }
 </style>
-<script>
-const EMBEDDED_SNAPSHOT = {"meta": {"date": "2026-05-31", "generated_at": "2026-06-01T00:15:14.575676", "version": "1.0"}, "market_overview": {"uptrend_sectors": 2, "active_themes": 0, "trend_stocks": 2, "trend_etfs": 0, "market_mood": "谨慎 — 机会稀少，多看少动", "key_actions_count": 0}, "sectors": [{"symbol": "881131", "name": "白色家电", "type": "sector", "state": 4, "state_label": "上涨趋势", "stage": "mid_late", "stage_label": "中后期", "stage_reasons": ["出现连续下跌——警惕趋势松动", "状态4持续运行，个别信号需关注"], "position_ratio": 1.0, "score": 100, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=9127.54)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨10.3亿 vs 跌9.9亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳6天"}}, "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_rise": false, "consecutive_drop": "True"}, "pivots": {"prev_high": {"date": "2026-05-21 00:00:00", "price": 9127.544}, "prev_low": {"date": "2026-05-14 00:00:00", "price": 8799.663}}, "bk_code": "881131", "external_link": "https://q.10jqka.com.cn/stock/bk/881131/"}, {"symbol": "881277", "name": "电机", "type": "sector", "state": 4, "state_label": "上涨趋势", "stage": "mid_late", "stage_label": "中后期", "stage_reasons": ["出现连续下跌——警惕趋势松动", "状态4持续运行，个别信号需关注"], "position_ratio": 1.0, "score": 100, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=4337.13)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨6.1亿 vs 跌5.0亿)"}, "persistence": {"pass": true, "detail": "近20日阳14/6阴, 最大连阳7天"}}, "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_rise": false, "consecutive_drop": "True"}, "pivots": {"prev_high": {"date": "2026-05-26 00:00:00", "price": 4337.134}, "prev_low": {"date": "2026-05-22 00:00:00", "price": 4036.422}}, "bk_code": "881277", "external_link": "https://q.10jqka.com.cn/stock/bk/881277/"}], "themes": [], "stocks": [{"symbol": "000333", "name": "美的集团", "type": "stock", "state": 4, "state_label": "上涨趋势", "stage": "mid_late", "stage_label": "中后期", "stage_reasons": ["放量但未创新高——可能滞涨", "状态4持续运行，个别信号需关注"], "position_ratio": 1.0, "score": 100, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=83.44)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨0.4亿 vs 跌0.3亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳4天"}}, "signals": {"above_ma20": true, "volume_surge": true, "volume_shrink": false, "consecutive_rise": false, "consecutive_drop": false}, "pivots": {"prev_high": {"date": "2026-05-18 00:00:00", "price": 83.44}, "prev_low": {"date": "2026-05-06 00:00:00", "price": 79.15}}, "external_link": "https://stockpage.10jqka.com.cn/000333/", "stop_loss": 78.75, "broke_prev_high": "False", "broke_prev_low": "False"}, {"symbol": "688981", "name": "中芯国际", "type": "stock", "state": 3, "state_label": "翻转确认中", "stage": "early", "stage_label": "前期", "stage_reasons": ["状态3翻转确认中，处于趋势初期——盈亏比最佳位置"], "position_ratio": 0.166, "score": 60, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=128.12)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨1.3亿 vs 跌1.1亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "signals": {"above_ma20": true, "volume_surge": true, "volume_shrink": false, "consecutive_rise": false, "consecutive_drop": false}, "pivots": {"prev_high": {"date": "2026-05-06 00:00:00", "price": 128.12}, "prev_low": {"date": "2026-05-19 00:00:00", "price": 112.68}}, "external_link": "https://stockpage.10jqka.com.cn/688981/", "stop_loss": 112.12, "broke_prev_high": "True", "broke_prev_low": "False"}], "etfs": [], "key_actions": [], "scenario_plans": [{"symbol": "688981", "name": "中芯国际", "current_state": "翻转确认中", "position": 0.166, "stop_loss": 112.12, "scenarios": [{"label": "场景A(大概率)", "probability": "大概率", "conditions": "回调不破前低, 继续整理", "action": "维持试探仓, 等待确认", "next_state": "状态3→3"}, {"label": "场景B(中概率)", "probability": "中概率", "conditions": "放量再创新高, 结构完整", "action": "加至标准仓(100%)", "next_state": "状态3→4"}, {"label": "场景C(小概率)", "probability": "小概率", "conditions": "放量跌破前低, 假突破确认", "action": "全部清仓止损", "next_state": "状态3→1"}]}, {"symbol": "000333", "name": "美的集团", "current_state": "上涨趋势", "position": 1.0, "stop_loss": 78.75, "scenarios": [{"label": "场景A(大概率)", "probability": "大概率", "conditions": "继续沿MA20上方运行, 无异常信号", "action": "仓位不变, 持股待涨", "next_state": "状态4→4"}, {"label": "场景B(中概率)", "probability": "中概率", "conditions": "缩量回调, 不破前低", "action": "继续持仓, 紧盯前低; 企稳反弹时加仓至1.5倍", "next_state": "状态4→5"}, {"label": "场景C(小概率)", "probability": "小概率", "conditions": "放量跌破前低, 收盘未收复", "action": "减至1/3仓防守", "next_state": "状态4→3'"}]}], "watchlist": [], "comparison": {"new_uptrend": [], "exited_uptrend": [], "note": "首次运行，无前日对比数据 — 明日开始显示趋势变化"}, "market_breadth": {"uptrend_sectors": 2, "state4_sectors": 2, "uptrend_stocks": 2, "uptrend_etfs": 0, "market_health": "弱势"}, "positions": {}};
-const EMBEDDED_DATE = "2026-05-31";
-const EMBEDDED_MODE = true;
-</script>
-
 </head>
 <body>
 
-<!-- ==================== SIDEBAR ==================== -->
-<aside class="sidebar">
-  <div class="sidebar-header">
-    <h1>趋势跟随系统</h1>
-    <div class="subtitle">Trend Following Dashboard</div>
+<div class="header">
+  <div class="header-left">
+    <h1>趋势跟随交易系统</h1>
+    <div class="subtitle">Dashboard &bull; 2026-05-31 &bull; 生成时间 2026-06-01 00:29:52</div>
   </div>
-  <nav class="date-nav" id="dateNav">
-    <div class="empty-state" style="padding:20px">
-      <div style="font-size:12px">加载日期列表中...</div>
-    </div>
-  </nav>
-  <div class="sidebar-footer" id="sidebarFooter">
-    就绪 — 等待加载数据
-  </div>
-</aside>
-
-<!-- ==================== MAIN ==================== -->
-<main class="main">
-  <!-- Top Bar -->
-  <div class="topbar">
-    <div class="topbar-date">
-      <span id="topbarDate">--</span>
-      <small id="topbarGenTime"></small>
-    </div>
-    <div class="topbar-status">
-      <span id="topbarMood" style="font-size:13px;color:var(--text-muted)"></span>
-      <div class="status-dot ok" id="statusDot"></div>
+  <div class="header-right">
+    <input type="text" class="search-box" placeholder="搜索板块/个股..." id="searchInput" oninput="handleSearch()">
+    <div class="health-badge health-weak">
+      <span class="health-dot red"></span>
+      市场健康度: 弱势
     </div>
   </div>
+</div>
 
-  <!-- Overview Cards -->
-  <div class="overview" id="overview"></div>
-
-  <!-- Tabs + Tables -->
-  <div class="content">
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="sectors">板块</button>
-      <button class="tab-btn" data-tab="themes">题材</button>
-      <button class="tab-btn" data-tab="stocks">个股</button>
-      <button class="tab-btn" data-tab="etfs">ETF</button>
+<div class="container">
+  <!-- 概览卡片 -->
+  <div class="overview-grid">
+    <div class="overview-card">
+      <div class="number blue">90</div>
+      <div class="label">全板块总数</div>
     </div>
-    <div class="tab-content">
-      <div class="tab-panel active" id="panel-sectors"></div>
-      <div class="tab-panel" id="panel-themes"></div>
-      <div class="tab-panel" id="panel-stocks"></div>
-      <div class="tab-panel" id="panel-etfs"></div>
+    <div class="overview-card">
+      <div class="number green">5</div>
+      <div class="label">上涨趋势板块 (状态3/4/5)</div>
+    </div>
+    <div class="overview-card">
+      <div class="number gold">3</div>
+      <div class="label">市场主线板块 ★</div>
+    </div>
+    <div class="overview-card">
+      <div class="number green">3</div>
+      <div class="label">状态4 (上涨趋势)</div>
+    </div>
+    <div class="overview-card">
+      <div class="number blue">8</div>
+      <div class="label">趋势个股 (状态3/4/5)</div>
+    </div>
+    <div class="overview-card">
+      <div class="number green">5</div>
+      <div class="label">状态4个股</div>
     </div>
   </div>
 
-  <!-- Bottom Panels: Key Actions + Scenario + Positions + Watchlist -->
-  <div class="bottom-panels" id="bottomPanels">
-    <div class="empty-state">
-      <div class="icon">...</div>
-      <div>选择一个日期加载数据</div>
+  <!-- 市场主线板块 -->
+  <div class="section-title"><span class="icon">⭐</span> 市场主线板块 <span style="color:var(--text-muted);font-weight:400;font-size:12px;">（状态4 + 三条件全满）</span></div>
+  <div id="mainlineContainer"></div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('sectors')" id="tabSectors">板块分析 (90)</button>
+    <button class="tab" onclick="switchTab('stocks')" id="tabStocks">个股分析 (39)</button>
+  </div>
+
+  <!-- 板块表格 -->
+  <div id="sectorsPanel">
+    <div class="section-title"><span class="icon">📊</span> 全板块状态表 <span style="color:var(--text-muted);font-weight:400;font-size:12px;">点击行展开详情</span></div>
+    <div class="table-wrapper">
+      <table id="sectorsTable">
+        <thead>
+          <tr>
+            <th style="width:40px"></th>
+            <th>板块名称</th>
+            <th>代码</th>
+            <th>状态</th>
+            <th>得分</th>
+            <th title="结构/量能/持续性">三条件</th>
+            <th>当前价</th>
+            <th>MA20偏离</th>
+            <th>20日涨跌</th>
+            <th>量比</th>
+            <th>连阳</th>
+            <th>仓位</th>
+          </tr>
+        </thead>
+        <tbody id="sectorsTbody"></tbody>
+      </table>
     </div>
   </div>
-</main>
+
+  <!-- 个股表格 -->
+  <div id="stocksPanel" style="display:none">
+    <div class="section-title"><span class="icon">📈</span> 趋势个股 <span style="color:var(--text-muted);font-weight:400;font-size:12px;">点击行展开详情</span></div>
+    <div class="table-wrapper">
+      <table id="stocksTable">
+        <thead>
+          <tr>
+            <th style="width:40px"></th>
+            <th>股票名称</th>
+            <th>代码</th>
+            <th>状态</th>
+            <th>得分</th>
+            <th title="结构/量能/持续性">三条件</th>
+            <th>当前价</th>
+            <th>MA20偏离</th>
+            <th>20日涨跌</th>
+            <th>止损价</th>
+            <th>仓位</th>
+          </tr>
+        </thead>
+        <tbody id="stocksTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  趋势跟随交易系统 &copy; 2026 &bull; 基于状态机 + 三条件验证 &bull; 数据截止 2026-05-31 &bull; 本系统仅供学习参考，不构成投资建议
+</div>
 
 <script>
-/* ================================================================
-   Dashboard Engine
-   ================================================================ */
+const DATA = {"date": "2026-05-31", "generated_at": "2026-05-31T23:59:59", "overview": {"total_sectors": 90, "uptrend_sectors": 5, "state4_sectors": 3, "mainline_sectors": 3, "trend_stocks": 8, "state4_stocks": 5, "key_actions": 0, "market_health": "弱势"}, "mainline": [{"code": "881131", "name": "白色家电", "type": "sector", "state": 4, "state_label": "上涨趋势", "position": 1.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=9127.54)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨10.3亿 vs 跌9.9亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳6天"}}, "ma20": 8786.2, "price": 8382.397, "ma_deviation": -4.6, "ret_20d": 1.4, "vol_ratio": 1.04, "yang": 12, "yin": 8, "max_consecutive_yang": 6, "prev_high": {"price": 9127.54, "date": "2026-05-21"}, "prev_low": {"price": 8799.66, "date": "2026-05-14"}, "is_mainline": true, "link": "https://q.10jqka.com.cn/stock/bk/881131/", "score": 100, "reasons": ["三条件全满, 强势上涨"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "True", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881277", "name": "电机", "type": "sector", "state": 4, "state_label": "上涨趋势", "position": 1.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=4337.13)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨6.1亿 vs 跌5.0亿)"}, "persistence": {"pass": true, "detail": "近20日阳14/6阴, 最大连阳7天"}}, "ma20": 4017.3, "price": 3848.743, "ma_deviation": -4.2, "ret_20d": 5.9, "vol_ratio": 1.24, "yang": 14, "yin": 6, "max_consecutive_yang": 7, "prev_high": {"price": 4337.13, "date": "2026-05-26"}, "prev_low": {"price": 4036.42, "date": "2026-05-22"}, "is_mainline": true, "link": "https://q.10jqka.com.cn/stock/bk/881277/", "score": 100, "reasons": ["三条件全满, 强势上涨"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "True", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881181", "name": "环境治理", "type": "sector", "state": 4, "state_label": "上涨趋势", "position": 1.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=4768.92)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨22.5亿 vs 跌20.6亿)"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳6天"}}, "ma20": 4589.4, "price": 4326.015, "ma_deviation": -5.7, "ret_20d": -3.8, "vol_ratio": 1.09, "yang": 11, "yin": 9, "max_consecutive_yang": 6, "prev_high": {"price": 4768.92, "date": "2026-05-14"}, "prev_low": {"price": 4437.73, "date": "2026-04-27"}, "is_mainline": true, "link": "https://q.10jqka.com.cn/stock/bk/881181/", "score": 100, "reasons": ["三条件全满, 强势上涨"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}], "sectors": [{"code": "881131", "name": "白色家电", "type": "sector", "state": 4, "state_label": "上涨趋势", "position": 1.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=9127.54)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨10.3亿 vs 跌9.9亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳6天"}}, "ma20": 8786.2, "price": 8382.397, "ma_deviation": -4.6, "ret_20d": 1.4, "vol_ratio": 1.04, "yang": 12, "yin": 8, "max_consecutive_yang": 6, "prev_high": {"price": 9127.54, "date": "2026-05-21"}, "prev_low": {"price": 8799.66, "date": "2026-05-14"}, "is_mainline": true, "link": "https://q.10jqka.com.cn/stock/bk/881131/", "score": 100, "reasons": ["三条件全满, 强势上涨"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "True", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881277", "name": "电机", "type": "sector", "state": 4, "state_label": "上涨趋势", "position": 1.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=4337.13)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨6.1亿 vs 跌5.0亿)"}, "persistence": {"pass": true, "detail": "近20日阳14/6阴, 最大连阳7天"}}, "ma20": 4017.3, "price": 3848.743, "ma_deviation": -4.2, "ret_20d": 5.9, "vol_ratio": 1.24, "yang": 14, "yin": 6, "max_consecutive_yang": 7, "prev_high": {"price": 4337.13, "date": "2026-05-26"}, "prev_low": {"price": 4036.42, "date": "2026-05-22"}, "is_mainline": true, "link": "https://q.10jqka.com.cn/stock/bk/881277/", "score": 100, "reasons": ["三条件全满, 强势上涨"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "True", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881181", "name": "环境治理", "type": "sector", "state": 4, "state_label": "上涨趋势", "position": 1.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=4768.92)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨22.5亿 vs 跌20.6亿)"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳6天"}}, "ma20": 4589.4, "price": 4326.015, "ma_deviation": -5.7, "ret_20d": -3.8, "vol_ratio": 1.09, "yang": 11, "yin": 9, "max_consecutive_yang": 6, "prev_high": {"price": 4768.92, "date": "2026-05-14"}, "prev_low": {"price": 4437.73, "date": "2026-04-27"}, "is_mainline": true, "link": "https://q.10jqka.com.cn/stock/bk/881181/", "score": 100, "reasons": ["三条件全满, 强势上涨"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881123", "name": "其他电子", "type": "sector", "state": 3, "state_label": "翻转确认中", "position": 0.166, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=20775.02)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳13/7阴, 最大连阳6天"}}, "ma20": 23020.0, "price": 23179.776, "ma_deviation": 0.7, "ret_20d": 15.1, "vol_ratio": 0.89, "yang": 13, "yin": 7, "max_consecutive_yang": 6, "prev_high": {"price": 20775.02, "date": "2026-04-23"}, "prev_low": {"price": 22650.33, "date": "2026-05-21"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881123/", "score": 60, "reasons": ["突破前高, 翻转确认中", "站上MA20", "结构通过但量能待确认"], "signals": {"above_ma20": true, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "True", "broke_prev_low": "False"}}, {"code": "881270", "name": "元件", "type": "sector", "state": 3, "state_label": "翻转确认中", "position": 0.166, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=23600.72)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": true, "detail": "近20日阳14/6阴, 最大连阳6天"}}, "ma20": 23151.8, "price": 25553.694, "ma_deviation": 10.4, "ret_20d": 28.0, "vol_ratio": 0.96, "yang": 14, "yin": 6, "max_consecutive_yang": 6, "prev_high": {"price": 23600.72, "date": "2026-05-14"}, "prev_low": {"price": 22103.93, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881270/", "score": 60, "reasons": ["突破前高, 翻转确认中", "站上MA20", "结构通过但量能待确认"], "signals": {"above_ma20": true, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "True", "broke_prev_low": "False"}}, {"code": "881121", "name": "半导体", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=18790.37)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.3x"}, "persistence": {"pass": true, "detail": "近20日阳14/6阴, 最大连阳8天"}}, "ma20": 17170.2, "price": 17238.569, "ma_deviation": 0.4, "ret_20d": 18.0, "vol_ratio": 0.78, "yang": 14, "yin": 6, "max_consecutive_yang": 8, "prev_high": {"price": 18790.37, "date": "2026-05-25"}, "prev_low": {"price": 12234.99, "date": "2026-04-02"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881121/", "score": 35, "reasons": ["站上MA20但未破前高", "结构好转但量能不足"], "signals": {"above_ma20": true, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881174", "name": "厨卫电器", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=6996.93)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨0.7亿 vs 跌0.6亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "ma20": 6557.0, "price": 5957.987, "ma_deviation": -9.1, "ret_20d": -10.7, "vol_ratio": 1.13, "yang": 7, "yin": 13, "max_consecutive_yang": 4, "prev_high": {"price": 6996.93, "date": "2026-05-11"}, "prev_low": {"price": 6533.19, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881174/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": "False", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881278", "name": "电网设备", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=8325.21)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨40.1亿 vs 跌39.7亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 7806.6, "price": 7522.86, "ma_deviation": -3.6, "ret_20d": 1.2, "vol_ratio": 1.01, "yang": 10, "yin": 10, "max_consecutive_yang": 3, "prev_high": {"price": 8325.21, "date": "2026-05-13"}, "prev_low": {"price": 7393.05, "date": "2026-04-29"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881278/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881172", "name": "电子化学品", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=99583.48)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳14/6阴, 最大连阳6天"}}, "ma20": 89621.2, "price": 91810.873, "ma_deviation": 2.4, "ret_20d": 18.7, "vol_ratio": 0.91, "yang": 14, "yin": 6, "max_consecutive_yang": 6, "prev_high": {"price": 99583.48, "date": "2026-05-25"}, "prev_low": {"price": 58708.52, "date": "2026-04-02"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881172/", "score": 35, "reasons": ["站上MA20但未破前高", "结构好转但量能不足"], "signals": {"above_ma20": true, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881280", "name": "风电设备", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=6039.90)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨10.1亿 vs 跌9.6亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 5727.8, "price": 5271.876, "ma_deviation": -8.0, "ret_20d": -7.0, "vol_ratio": 1.05, "yang": 10, "yin": 10, "max_consecutive_yang": 6, "prev_high": {"price": 6039.9, "date": "2026-05-13"}, "prev_low": {"price": 5688.58, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881280/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881167", "name": "非金属材料", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=34758.87)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": true, "detail": "近20日阳13/7阴, 最大连阳5天"}}, "ma20": 33299.1, "price": 33952.517, "ma_deviation": 2.0, "ret_20d": 9.0, "vol_ratio": 0.96, "yang": 13, "yin": 7, "max_consecutive_yang": 5, "prev_high": {"price": 34758.87, "date": "2026-05-13"}, "prev_low": {"price": 32329.87, "date": "2026-05-21"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881167/", "score": 35, "reasons": ["站上MA20但未破前高", "结构好转但量能不足"], "signals": {"above_ma20": true, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881136", "name": "服装家纺", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=3334.84)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨12.1亿 vs 跌10.5亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "ma20": 3209.0, "price": 3023.77, "ma_deviation": -5.8, "ret_20d": -4.2, "vol_ratio": 1.15, "yang": 8, "yin": 12, "max_consecutive_yang": 3, "prev_high": {"price": 3334.84, "date": "2026-05-12"}, "prev_low": {"price": 3089.37, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881136/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "False", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881135", "name": "纺织制造", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=2640.25)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨4.6亿 vs 跌4.2亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "ma20": 2514.6, "price": 2330.248, "ma_deviation": -7.3, "ret_20d": -6.9, "vol_ratio": 1.1, "yang": 6, "yin": 14, "max_consecutive_yang": 3, "prev_high": {"price": 2640.25, "date": "2026-05-12"}, "prev_low": {"price": 2481.65, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881135/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881269", "name": "轨交设备", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=1196.39)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨6.1亿 vs 跌6.0亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 1138.7, "price": 1043.778, "ma_deviation": -8.3, "ret_20d": -8.7, "vol_ratio": 1.02, "yang": 9, "yin": 11, "max_consecutive_yang": 5, "prev_high": {"price": 1196.39, "date": "2026-05-12"}, "prev_low": {"price": 1136.38, "date": "2026-04-28"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881269/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881122", "name": "光学光电子", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=6354.94)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.2x"}, "persistence": {"pass": true, "detail": "近20日阳14/6阴, 最大连阳6天"}}, "ma20": 5994.0, "price": 5906.84, "ma_deviation": -1.5, "ret_20d": 6.4, "vol_ratio": 0.84, "yang": 14, "yin": 6, "max_consecutive_yang": 6, "prev_high": {"price": 6354.94, "date": "2026-05-21"}, "prev_low": {"price": 5820.01, "date": "2026-05-18"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881122/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881177", "name": "互联网电商", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=10095.14)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨6.0亿 vs 跌5.5亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 9589.1, "price": 9060.803, "ma_deviation": -5.5, "ret_20d": 0.3, "vol_ratio": 1.1, "yang": 10, "yin": 10, "max_consecutive_yang": 4, "prev_high": {"price": 10095.14, "date": "2026-05-13"}, "prev_low": {"price": 8981.15, "date": "2026-04-28"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881177/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881166", "name": "军工装备", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=2725.28)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨18.0亿 vs 跌17.5亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 2547.4, "price": 2311.843, "ma_deviation": -9.2, "ret_20d": -6.7, "vol_ratio": 1.03, "yang": 10, "yin": 10, "max_consecutive_yang": 5, "prev_high": {"price": 2725.28, "date": "2026-05-14"}, "prev_low": {"price": 2463.55, "date": "2026-04-29"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881166/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881139", "name": "家居用品", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=4710.20)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨9.4亿 vs 跌9.2亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 4525.7, "price": 4251.538, "ma_deviation": -6.1, "ret_20d": -4.3, "vol_ratio": 1.02, "yang": 10, "yin": 10, "max_consecutive_yang": 6, "prev_high": {"price": 4710.2, "date": "2026-05-12"}, "prev_low": {"price": 4404.74, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881139/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881114", "name": "金属新材料", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=16853.00)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳6天"}}, "ma20": 16152.6, "price": 15709.962, "ma_deviation": -2.7, "ret_20d": 7.8, "vol_ratio": 0.89, "yang": 12, "yin": 8, "max_consecutive_yang": 6, "prev_high": {"price": 16853.0, "date": "2026-05-25"}, "prev_low": {"price": 15692.22, "date": "2026-05-21"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881114/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881116", "name": "建筑装饰", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=4876.89)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨50.4亿 vs 跌47.9亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 4677.9, "price": 4408.946, "ma_deviation": -5.7, "ret_20d": -4.5, "vol_ratio": 1.05, "yang": 10, "yin": 10, "max_consecutive_yang": 6, "prev_high": {"price": 4876.89, "date": "2026-05-13"}, "prev_low": {"price": 4546.08, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881116/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881182", "name": "美容护理", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=5718.70)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨2.2亿 vs 跌2.2亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "ma20": 5398.3, "price": 5094.198, "ma_deviation": -5.6, "ret_20d": -8.7, "vol_ratio": 1.0, "yang": 6, "yin": 14, "max_consecutive_yang": 3, "prev_high": {"price": 5718.7, "date": "2026-05-08"}, "prev_low": {"price": 5515.77, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881182/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881263", "name": "农化制品", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=5824.45)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨17.4亿 vs 跌15.2亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳5/阴15), 空头主导"}}, "ma20": 5392.8, "price": 4915.184, "ma_deviation": -8.9, "ret_20d": -13.9, "vol_ratio": 1.14, "yang": 5, "yin": 15, "max_consecutive_yang": 2, "prev_high": {"price": 5824.45, "date": "2026-04-30"}, "prev_low": {"price": 5543.17, "date": "2026-04-21"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881263/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": "True", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881282", "name": "其他电源设备", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=8033.64)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳4天"}}, "ma20": 7584.0, "price": 7300.707, "ma_deviation": -3.7, "ret_20d": 4.1, "vol_ratio": 0.99, "yang": 11, "yin": 9, "max_consecutive_yang": 4, "prev_high": {"price": 8033.64, "date": "2026-05-14"}, "prev_low": {"price": 7386.75, "date": "2026-05-21"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881282/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881179", "name": "其他社会服务", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=22771.45)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨6.8亿 vs 跌6.1亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 21643.4, "price": 20478.717, "ma_deviation": -5.4, "ret_20d": -1.9, "vol_ratio": 1.11, "yang": 9, "yin": 11, "max_consecutive_yang": 5, "prev_high": {"price": 22771.45, "date": "2026-05-11"}, "prev_low": {"price": 20791.2, "date": "2026-04-28"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881179/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881265", "name": "塑料制品", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=12085.60)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳4天"}}, "ma20": 11713.9, "price": 11294.459, "ma_deviation": -3.6, "ret_20d": 3.2, "vol_ratio": 0.92, "yang": 12, "yin": 8, "max_consecutive_yang": 4, "prev_high": {"price": 12085.6, "date": "2026-05-21"}, "prev_low": {"price": 11484.36, "date": "2026-05-21"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881265/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881134", "name": "食品加工制造", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=5278.45)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨11.5亿 vs 跌10.3亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "ma20": 5085.2, "price": 4909.009, "ma_deviation": -3.5, "ret_20d": -4.4, "vol_ratio": 1.12, "yang": 7, "yin": 13, "max_consecutive_yang": 3, "prev_high": {"price": 5278.45, "date": "2026-05-07"}, "prev_low": {"price": 5053.04, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881134/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881162", "name": "通信服务", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=3545.88)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨22.8亿 vs 跌22.0亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 3307.3, "price": 2975.192, "ma_deviation": -10.0, "ret_20d": -4.4, "vol_ratio": 1.04, "yang": 9, "yin": 11, "max_consecutive_yang": 3, "prev_high": {"price": 3545.88, "date": "2026-05-14"}, "prev_low": {"price": 3376.7, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881162/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881117", "name": "通用设备", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=10631.01)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳5天"}}, "ma20": 10247.0, "price": 9637.74, "ma_deviation": -5.9, "ret_20d": 0.7, "vol_ratio": 0.95, "yang": 11, "yin": 9, "max_consecutive_yang": 5, "prev_high": {"price": 10631.01, "date": "2026-05-21"}, "prev_low": {"price": 10315.63, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881117/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881124", "name": "消费电子", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=14430.79)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.2x"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳6天"}}, "ma20": 13868.8, "price": 13639.752, "ma_deviation": -1.7, "ret_20d": 6.6, "vol_ratio": 0.85, "yang": 12, "yin": 8, "max_consecutive_yang": 6, "prev_high": {"price": 14430.79, "date": "2026-05-21"}, "prev_low": {"price": 13753.69, "date": "2026-05-21"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881124/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881173", "name": "小家电", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=4887.01)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨2.1亿 vs 跌1.7亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 4665.7, "price": 4330.983, "ma_deviation": -7.2, "ret_20d": -6.1, "vol_ratio": 1.24, "yang": 10, "yin": 10, "max_consecutive_yang": 6, "prev_high": {"price": 4887.01, "date": "2026-05-21"}, "prev_low": {"price": 4698.82, "date": "2026-05-14"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881173/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "True", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881175", "name": "医疗服务", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=19135.60)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨11.1亿 vs 跌9.7亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "ma20": 18130.3, "price": 16865.206, "ma_deviation": -7.0, "ret_20d": -9.2, "vol_ratio": 1.14, "yang": 6, "yin": 14, "max_consecutive_yang": 2, "prev_high": {"price": 19135.6, "date": "2026-05-11"}, "prev_low": {"price": 18242.14, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881175/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881171", "name": "自动化设备", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=34269.69)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳14/6阴, 最大连阳6天"}}, "ma20": 32270.0, "price": 31752.561, "ma_deviation": -1.6, "ret_20d": 10.5, "vol_ratio": 0.87, "yang": 14, "yin": 6, "max_consecutive_yang": 6, "prev_high": {"price": 34269.69, "date": "2026-05-21"}, "prev_low": {"price": 28454.79, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881171/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881101", "name": "种植业与林业", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=5021.37)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨8.7亿 vs 跌7.4亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "ma20": 4693.9, "price": 4268.946, "ma_deviation": -9.1, "ret_20d": -11.9, "vol_ratio": 1.18, "yang": 7, "yin": 13, "max_consecutive_yang": 5, "prev_high": {"price": 5021.37, "date": "2026-05-11"}, "prev_low": {"price": 4736.93, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881101/", "score": 35, "reasons": ["均线下方整理, 等待反弹信号"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": "False", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881145", "name": "电力", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳15/5阴, 最大连阳6天"}}, "ma20": 2231.7, "price": 2347.607, "ma_deviation": 5.2, "ret_20d": 10.4, "vol_ratio": 0.9, "yang": 15, "yin": 5, "max_consecutive_yang": 6, "prev_high": {"price": 2378.17, "date": "2026-05-14"}, "prev_low": {"price": 2138.29, "date": "2026-05-22"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881145/", "score": 25, "reasons": ["连续上涨(反弹中)", "站上MA20但未破前高"], "signals": {"above_ma20": true, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": "True", "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881153", "name": "房地产", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=2011.91)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 1893.6, "price": 1806.23, "ma_deviation": -4.6, "ret_20d": -2.1, "vol_ratio": 0.95, "yang": 9, "yin": 11, "max_consecutive_yang": 3, "prev_high": {"price": 2011.91, "date": "2026-05-12"}, "prev_low": {"price": 1807.53, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881153/", "score": 25, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881264", "name": "化学纤维", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=4556.47)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 4270.9, "price": 3867.009, "ma_deviation": -9.5, "ret_20d": -12.3, "vol_ratio": 0.97, "yang": 9, "yin": 11, "max_consecutive_yang": 3, "prev_high": {"price": 4556.47, "date": "2026-05-06"}, "prev_low": {"price": 4308.81, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881264/", "score": 25, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881158", "name": "零售", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=2068.74)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 1980.4, "price": 1929.486, "ma_deviation": -2.6, "ret_20d": -4.0, "vol_ratio": 0.94, "yang": 10, "yin": 10, "max_consecutive_yang": 3, "prev_high": {"price": 2068.74, "date": "2026-05-08"}, "prev_low": {"price": 1973.82, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881158/", "score": 25, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881160", "name": "旅游及酒店", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=3402.09)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "ma20": 2982.6, "price": 2868.979, "ma_deviation": -3.8, "ret_20d": -8.0, "vol_ratio": 1.0, "yang": 6, "yin": 14, "max_consecutive_yang": 1, "prev_high": {"price": 3402.09, "date": "2026-04-16"}, "prev_low": {"price": 3225.81, "date": "2026-04-14"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881160/", "score": 25, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881105", "name": "煤炭开采加工", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 3063.23→2953.87"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨18.5亿 vs 跌17.8亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 2911.8, "price": 2980.568, "ma_deviation": 2.4, "ret_20d": -0.9, "vol_ratio": 1.04, "yang": 10, "yin": 10, "max_consecutive_yang": 3, "prev_high": {"price": 2953.87, "date": "2026-05-19"}, "prev_low": {"price": 2745.68, "date": "2026-05-22"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881105/", "score": 25, "reasons": ["连续上涨(反弹中)", "已突破前高", "站上均线+突破前高, 接近翻转"], "signals": {"above_ma20": true, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": "True", "broke_prev_high": "True", "broke_prev_low": "False"}}, {"code": "881146", "name": "燃气", "type": "sector", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=2119.21)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 2014.7, "price": 1934.94, "ma_deviation": -4.0, "ret_20d": -3.9, "vol_ratio": 1.0, "yang": 10, "yin": 10, "max_consecutive_yang": 3, "prev_high": {"price": 2119.21, "date": "2026-05-20"}, "prev_low": {"price": 1978.26, "date": "2026-05-07"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881146/", "score": 25, "reasons": ["均线下方整理, 等待反弹信号", "结构好转但量能不足"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": "False", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881273", "name": "白酒", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 2321.99→2232.58"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨2.4亿 vs 跌2.0亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳4天"}}, "ma20": 2226.4, "price": 2249.696, "ma_deviation": 1.0, "ret_20d": -1.1, "vol_ratio": 1.22, "yang": 12, "yin": 8, "max_consecutive_yang": 4, "prev_high": {"price": 2232.58, "date": "2026-05-21"}, "prev_low": {"price": 2109.25, "date": "2026-05-25"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881273/", "score": 20, "reasons": ["结构条件不通过"], "signals": {"above_ma20": true, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "True", "broke_prev_low": "False"}}, {"code": "881268", "name": "工程机械", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 3725.92→3598.50"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨8.8亿 vs 跌8.4亿)"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳6天"}}, "ma20": 3517.6, "price": 3290.867, "ma_deviation": -6.4, "ret_20d": -4.4, "vol_ratio": 1.04, "yang": 11, "yin": 9, "max_consecutive_yang": 6, "prev_high": {"price": 3598.5, "date": "2026-05-21"}, "prev_low": {"price": 3345.26, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881268/", "score": 20, "reasons": ["结构条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881284", "name": "环保设备", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 1635.92→1625.84"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨5.8亿 vs 跌5.3亿)"}, "persistence": {"pass": true, "detail": "近20日阳13/7阴, 最大连阳6天"}}, "ma20": 1580.8, "price": 1487.531, "ma_deviation": -5.9, "ret_20d": -2.8, "vol_ratio": 1.11, "yang": 13, "yin": 7, "max_consecutive_yang": 6, "prev_high": {"price": 1625.84, "date": "2026-05-21"}, "prev_low": {"price": 1583.57, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881284/", "score": 20, "reasons": ["结构条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881130", "name": "计算机设备", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 4773.29→4718.01"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨16.5亿 vs 跌16.4亿)"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳6天"}}, "ma20": 4534.1, "price": 4133.146, "ma_deviation": -8.8, "ret_20d": -4.6, "vol_ratio": 1.01, "yang": 11, "yin": 9, "max_consecutive_yang": 6, "prev_high": {"price": 4718.01, "date": "2026-05-21"}, "prev_low": {"price": 4560.29, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881130/", "score": 20, "reasons": ["结构条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881272", "name": "软件开发", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 2258.80→2252.09"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨20.8亿 vs 跌20.4亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳6天"}}, "ma20": 2160.3, "price": 1987.715, "ma_deviation": -8.0, "ret_20d": -5.5, "vol_ratio": 1.02, "yang": 12, "yin": 8, "max_consecutive_yang": 6, "prev_high": {"price": 2252.09, "date": "2026-05-14"}, "prev_low": {"price": 2140.15, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881272/", "score": 20, "reasons": ["结构条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881170", "name": "小金属", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 10349.94→9780.60"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨12.3亿 vs 跌11.6亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳6天"}}, "ma20": 9744.4, "price": 9301.494, "ma_deviation": -4.5, "ret_20d": 1.6, "vol_ratio": 1.05, "yang": 12, "yin": 8, "max_consecutive_yang": 6, "prev_high": {"price": 9780.6, "date": "2026-05-25"}, "prev_low": {"price": 9227.87, "date": "2026-05-20"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881170/", "score": 20, "reasons": ["结构条件不通过", "价格在MA20下方(空头排列)"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881274", "name": "影视院线", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 1609.42→1575.27"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨9.7亿 vs 跌8.6亿)"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳5天"}}, "ma20": 1517.9, "price": 1496.417, "ma_deviation": -1.4, "ret_20d": 0.5, "vol_ratio": 1.13, "yang": 11, "yin": 9, "max_consecutive_yang": 5, "prev_high": {"price": 1575.27, "date": "2026-05-11"}, "prev_low": {"price": 1461.01, "date": "2026-05-26"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881274/", "score": 20, "reasons": ["结构条件不通过", "价格在MA20下方(空头排列)"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881156", "name": "保险", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 2140.21→1989.07"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨3.0亿 vs 跌2.6亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "ma20": 1995.4, "price": 1899.358, "ma_deviation": -4.8, "ret_20d": -6.8, "vol_ratio": 1.15, "yang": 8, "yin": 12, "max_consecutive_yang": 3, "prev_high": {"price": 1989.07, "date": "2026-05-21"}, "prev_low": {"price": 2021.06, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881156/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881138", "name": "包装印刷", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 5221.64→5143.87"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨9.0亿 vs 跌8.6亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 5003.2, "price": 4661.272, "ma_deviation": -6.8, "ret_20d": -4.3, "vol_ratio": 1.05, "yang": 9, "yin": 11, "max_consecutive_yang": 3, "prev_high": {"price": 5143.87, "date": "2026-05-21"}, "prev_low": {"price": 4851.6, "date": "2026-04-28"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881138/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881283", "name": "多元金融", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 1285.76→1241.19"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.3x (涨10.9亿 vs 跌8.5亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 1221.0, "price": 1139.417, "ma_deviation": -6.7, "ret_20d": -7.2, "vol_ratio": 1.28, "yang": 9, "yin": 11, "max_consecutive_yang": 6, "prev_high": {"price": 1241.19, "date": "2026-05-21"}, "prev_low": {"price": 1216.75, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881283/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "False", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881279", "name": "光伏设备", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 10255.31→9987.35"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.2x"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳6天"}}, "ma20": 9633.1, "price": 8908.599, "ma_deviation": -7.5, "ret_20d": -1.7, "vol_ratio": 0.84, "yang": 12, "yin": 8, "max_consecutive_yang": 6, "prev_high": {"price": 9987.35, "date": "2026-05-21"}, "prev_low": {"price": 9557.83, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881279/", "score": 10, "reasons": ["结构条件不通过", "量能条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881169", "name": "贵金属", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 6480.24→5630.82"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨9.7亿 vs 跌9.2亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 5715.5, "price": 5084.841, "ma_deviation": -11.0, "ret_20d": -10.6, "vol_ratio": 1.05, "yang": 9, "yin": 11, "max_consecutive_yang": 5, "prev_high": {"price": 5630.82, "date": "2026-05-26"}, "prev_low": {"price": 5177.55, "date": "2026-05-22"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881169/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "False", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881148", "name": "港口航运", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 1301.25→1282.04"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨17.4亿 vs 跌16.2亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "ma20": 1253.3, "price": 1205.192, "ma_deviation": -3.8, "ret_20d": -2.9, "vol_ratio": 1.07, "yang": 8, "yin": 12, "max_consecutive_yang": 3, "prev_high": {"price": 1282.04, "date": "2026-05-21"}, "prev_low": {"price": 1236.62, "date": "2026-05-18"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881148/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881112", "name": "钢铁", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 1866.06→1842.74"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨25.6亿 vs 跌25.5亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "ma20": 1731.8, "price": 1623.46, "ma_deviation": -6.3, "ret_20d": -10.0, "vol_ratio": 1.0, "yang": 7, "yin": 13, "max_consecutive_yang": 1, "prev_high": {"price": 1842.74, "date": "2026-04-29"}, "prev_low": {"price": 1792.26, "date": "2026-04-28"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881112/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881168", "name": "工业金属", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 5073.90→4845.70"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳4天"}}, "ma20": 4811.2, "price": 4601.394, "ma_deviation": -4.4, "ret_20d": -3.3, "vol_ratio": 0.98, "yang": 12, "yin": 8, "max_consecutive_yang": 4, "prev_high": {"price": 4845.7, "date": "2026-05-25"}, "prev_low": {"price": 4543.76, "date": "2026-05-21"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881168/", "score": 10, "reasons": ["结构条件不通过", "量能条件不通过", "价格在MA20下方(空头排列)"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881132", "name": "黑色家电", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 4937.80→4931.57"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳6天"}}, "ma20": 4759.6, "price": 4474.247, "ma_deviation": -6.0, "ret_20d": -2.1, "vol_ratio": 0.9, "yang": 11, "yin": 9, "max_consecutive_yang": 6, "prev_high": {"price": 4931.57, "date": "2026-05-21"}, "prev_low": {"price": 4547.42, "date": "2026-04-29"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881132/", "score": 10, "reasons": ["结构条件不通过", "量能条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881140", "name": "化学制药", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 6940.73→6884.43"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨24.0亿 vs 跌21.4亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "ma20": 6509.8, "price": 6102.548, "ma_deviation": -6.3, "ret_20d": -7.9, "vol_ratio": 1.12, "yang": 7, "yin": 13, "max_consecutive_yang": 3, "prev_high": {"price": 6884.43, "date": "2026-05-11"}, "prev_low": {"price": 6562.14, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881140/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881151", "name": "机场航运", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 2069.47→1977.19"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨12.5亿 vs 跌11.3亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "ma20": 1965.2, "price": 1937.826, "ma_deviation": -1.4, "ret_20d": -2.6, "vol_ratio": 1.11, "yang": 7, "yin": 13, "max_consecutive_yang": 2, "prev_high": {"price": 1977.19, "date": "2026-05-25"}, "prev_low": {"price": 1888.45, "date": "2026-05-20"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881151/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881103", "name": "农产品加工", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 4128.80→4123.18"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨5.7亿 vs 跌5.6亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "ma20": 3940.0, "price": 3678.996, "ma_deviation": -6.6, "ret_20d": -8.6, "vol_ratio": 1.01, "yang": 6, "yin": 14, "max_consecutive_yang": 2, "prev_high": {"price": 4123.18, "date": "2026-05-11"}, "prev_low": {"price": 4002.21, "date": "2026-04-28"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881103/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "False", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881267", "name": "能源金属", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨4.8亿 vs 跌4.4亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "ma20": 42320.8, "price": 38209.063, "ma_deviation": -9.7, "ret_20d": -9.6, "vol_ratio": 1.09, "yang": 7, "yin": 13, "max_consecutive_yang": 3, "prev_high": {"price": 47874.96, "date": "2026-05-06"}, "prev_low": {"price": 38940.0, "date": "2026-05-20"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881267/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "连续下跌", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "True", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881126", "name": "汽车零部件", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 7260.34→7212.80"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳5天"}}, "ma20": 6999.4, "price": 6489.953, "ma_deviation": -7.3, "ret_20d": -4.0, "vol_ratio": 0.96, "yang": 11, "yin": 9, "max_consecutive_yang": 5, "prev_high": {"price": 7212.8, "date": "2026-05-21"}, "prev_low": {"price": 6718.09, "date": "2026-04-29"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881126/", "score": 10, "reasons": ["结构条件不通过", "量能条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881180", "name": "石油加工贸易", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨10.7亿 vs 跌10.3亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "ma20": 4040.6, "price": 3700.775, "ma_deviation": -8.4, "ret_20d": -9.6, "vol_ratio": 1.04, "yang": 8, "yin": 12, "max_consecutive_yang": 2, "prev_high": {"price": 4229.8, "date": "2026-05-12"}, "prev_low": {"price": 3957.52, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881180/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881129", "name": "通信设备", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 11087.35→10930.03"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳4天"}}, "ma20": 10501.9, "price": 10237.166, "ma_deviation": -2.5, "ret_20d": 5.9, "vol_ratio": 0.95, "yang": 12, "yin": 8, "max_consecutive_yang": 4, "prev_high": {"price": 10930.03, "date": "2026-05-21"}, "prev_low": {"price": 10245.91, "date": "2026-05-21"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881129/", "score": 10, "reasons": ["结构条件不通过", "量能条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881152", "name": "物流", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 5870.04→5642.99"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨7.2亿 vs 跌7.0亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "ma20": 5602.7, "price": 5248.586, "ma_deviation": -6.3, "ret_20d": -7.7, "vol_ratio": 1.04, "yang": 8, "yin": 12, "max_consecutive_yang": 5, "prev_high": {"price": 5642.99, "date": "2026-05-21"}, "prev_low": {"price": 5641.4, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881152/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881144", "name": "医疗器械", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 12562.03→12099.83"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨10.3亿 vs 跌10.0亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 11904.0, "price": 11154.374, "ma_deviation": -6.3, "ret_20d": -6.3, "vol_ratio": 1.03, "yang": 9, "yin": 11, "max_consecutive_yang": 6, "prev_high": {"price": 12099.83, "date": "2026-05-21"}, "prev_low": {"price": 11864.28, "date": "2026-04-28"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881144/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "False", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881133", "name": "饮料制造", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 5315.65→5288.37"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨6.0亿 vs 跌5.6亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 5170.5, "price": 5066.655, "ma_deviation": -2.0, "ret_20d": -0.9, "vol_ratio": 1.08, "yang": 9, "yin": 11, "max_consecutive_yang": 2, "prev_high": {"price": 5288.37, "date": "2026-05-20"}, "prev_low": {"price": 5167.08, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881133/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881107", "name": "油气开采及服务", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 2033.33→1949.19"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨8.4亿 vs 跌8.3亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 1848.6, "price": 1672.649, "ma_deviation": -9.5, "ret_20d": -16.9, "vol_ratio": 1.02, "yang": 9, "yin": 11, "max_consecutive_yang": 4, "prev_high": {"price": 1949.19, "date": "2026-05-20"}, "prev_low": {"price": 1848.8, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881107/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": false, "consecutive_rise": "False", "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881275", "name": "游戏", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨9.9亿 vs 跌9.1亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "ma20": 10134.4, "price": 9265.103, "ma_deviation": -8.6, "ret_20d": -8.7, "vol_ratio": 1.09, "yang": 8, "yin": 12, "max_consecutive_yang": 3, "prev_high": {"price": 10977.52, "date": "2026-05-08"}, "prev_low": {"price": 9766.05, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881275/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881155", "name": "银行", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 1349.84→1312.73"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨32.8亿 vs 跌30.8亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "ma20": 1298.3, "price": 1285.059, "ma_deviation": -1.0, "ret_20d": -3.6, "vol_ratio": 1.07, "yang": 6, "yin": 14, "max_consecutive_yang": 1, "prev_high": {"price": 1312.73, "date": "2026-05-14"}, "prev_low": {"price": 1282.32, "date": "2026-05-18"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881155/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)"], "signals": {"above_ma20": false, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "False"}}, {"code": "881102", "name": "养殖业", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 3158.09→3084.60"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.4x (涨11.5亿 vs 跌8.3亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "ma20": 2943.9, "price": 2743.121, "ma_deviation": -6.8, "ret_20d": -8.5, "vol_ratio": 1.39, "yang": 7, "yin": 13, "max_consecutive_yang": 3, "prev_high": {"price": 3084.6, "date": "2026-05-07"}, "prev_low": {"price": 2963.89, "date": "2026-04-28"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881102/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881165", "name": "综合", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨7.0亿 vs 跌6.3亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 2532.9, "price": 2335.517, "ma_deviation": -7.8, "ret_20d": -10.4, "vol_ratio": 1.11, "yang": 10, "yin": 10, "max_consecutive_yang": 4, "prev_high": {"price": 2688.82, "date": "2026-05-14"}, "prev_low": {"price": 2501.58, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881165/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881157", "name": "证券", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 1521.40→1489.84"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨33.2亿 vs 跌30.9亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 1453.4, "price": 1409.558, "ma_deviation": -3.0, "ret_20d": -2.8, "vol_ratio": 1.07, "yang": 9, "yin": 11, "max_consecutive_yang": 3, "prev_high": {"price": 1489.84, "date": "2026-05-21"}, "prev_low": {"price": 1424.93, "date": "2026-05-18"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881157/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881141", "name": "中药", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 3390.98→3360.12"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨9.8亿 vs 跌9.1亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "ma20": 3220.0, "price": 3107.191, "ma_deviation": -3.5, "ret_20d": -5.4, "vol_ratio": 1.08, "yang": 7, "yin": 13, "max_consecutive_yang": 2, "prev_high": {"price": 3360.12, "date": "2026-05-11"}, "prev_low": {"price": 3242.49, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881141/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881118", "name": "专用设备", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 8730.52→8647.10"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳6天"}}, "ma20": 8437.0, "price": 7927.283, "ma_deviation": -6.0, "ret_20d": -3.0, "vol_ratio": 0.92, "yang": 11, "yin": 9, "max_consecutive_yang": 6, "prev_high": {"price": 8647.1, "date": "2026-05-21"}, "prev_low": {"price": 8083.86, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881118/", "score": 10, "reasons": ["结构条件不通过", "量能条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881137", "name": "造纸", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 2449.56→2350.71"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨7.7亿 vs 跌6.5亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 2336.4, "price": 2197.772, "ma_deviation": -5.9, "ret_20d": -6.0, "vol_ratio": 1.19, "yang": 10, "yin": 10, "max_consecutive_yang": 5, "prev_high": {"price": 2350.71, "date": "2026-05-21"}, "prev_low": {"price": 2241.3, "date": "2026-05-22"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881137/", "score": 10, "reasons": ["结构条件不通过", "持续性条件不通过", "连续下跌", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": "True", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881281", "name": "电池", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 24489.54→23898.17"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 23274.4, "price": 22015.751, "ma_deviation": -5.4, "ret_20d": -3.3, "vol_ratio": 0.96, "yang": 9, "yin": 11, "max_consecutive_yang": 3, "prev_high": {"price": 23898.17, "date": "2026-05-21"}, "prev_low": {"price": 22202.18, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881281/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881149", "name": "公路铁路运输", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 1396.96→1392.86"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 1372.3, "price": 1350.425, "ma_deviation": -1.6, "ret_20d": -1.2, "vol_ratio": 1.0, "yang": 9, "yin": 11, "max_consecutive_yang": 3, "prev_high": {"price": 1392.86, "date": "2026-05-21"}, "prev_low": {"price": 1354.49, "date": "2026-05-18"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881149/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": true, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881108", "name": "化学原料", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 3668.52→3666.91"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "ma20": 3528.8, "price": 3251.899, "ma_deviation": -7.8, "ret_20d": -9.6, "vol_ratio": 0.96, "yang": 7, "yin": 13, "max_consecutive_yang": 1, "prev_high": {"price": 3666.91, "date": "2026-05-15"}, "prev_low": {"price": 3575.2, "date": "2026-05-12"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881108/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881109", "name": "化学制品", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 8236.24→8215.60"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 7987.3, "price": 7545.613, "ma_deviation": -5.5, "ret_20d": -3.5, "vol_ratio": 0.95, "yang": 10, "yin": 10, "max_consecutive_yang": 4, "prev_high": {"price": 8215.6, "date": "2026-05-21"}, "prev_low": {"price": 7714.32, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881109/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881271", "name": "IT服务", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 14984.89→14921.30"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 14213.6, "price": 12983.867, "ma_deviation": -8.7, "ret_20d": -5.2, "vol_ratio": 0.91, "yang": 10, "yin": 10, "max_consecutive_yang": 5, "prev_high": {"price": 14921.3, "date": "2026-05-20"}, "prev_low": {"price": 14190.49, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881271/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881276", "name": "军工电子", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 15494.88→14906.01"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 14557.3, "price": 13312.114, "ma_deviation": -8.6, "ret_20d": -6.0, "vol_ratio": 0.91, "yang": 10, "yin": 10, "max_consecutive_yang": 5, "prev_high": {"price": 14906.01, "date": "2026-05-21"}, "prev_low": {"price": 14313.29, "date": "2026-05-15"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881276/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881178", "name": "教育", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 4431.7, "price": 4168.463, "ma_deviation": -5.9, "ret_20d": -6.7, "vol_ratio": 0.92, "yang": 10, "yin": 10, "max_consecutive_yang": 5, "prev_high": {"price": 4647.34, "date": "2026-05-11"}, "prev_low": {"price": 4447.72, "date": "2026-04-28"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881178/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": true, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881115", "name": "建筑材料", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 6486.00→6313.02"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 6259.4, "price": 6058.733, "ma_deviation": -3.2, "ret_20d": -0.9, "vol_ratio": 0.97, "yang": 10, "yin": 10, "max_consecutive_yang": 4, "prev_high": {"price": 6313.02, "date": "2026-05-21"}, "prev_low": {"price": 6086.6, "date": "2026-05-21"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881115/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881159", "name": "贸易", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 3197.59→3095.36"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 3050.0, "price": 2908.035, "ma_deviation": -4.7, "ret_20d": -4.5, "vol_ratio": 0.99, "yang": 9, "yin": 11, "max_consecutive_yang": 3, "prev_high": {"price": 3095.36, "date": "2026-05-21"}, "prev_low": {"price": 3012.44, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881159/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881128", "name": "汽车服务及其他", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 1185.65→1171.03"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "ma20": 1145.8, "price": 1082.073, "ma_deviation": -5.6, "ret_20d": -6.5, "vol_ratio": 0.9, "yang": 8, "yin": 12, "max_consecutive_yang": 2, "prev_high": {"price": 1171.03, "date": "2026-05-21"}, "prev_low": {"price": 1127.99, "date": "2026-05-18"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881128/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881125", "name": "汽车整车", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 3257.19→3245.24"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "ma20": 3078.6, "price": 2858.438, "ma_deviation": -7.2, "ret_20d": -10.6, "vol_ratio": 0.99, "yang": 6, "yin": 14, "max_consecutive_yang": 2, "prev_high": {"price": 3245.24, "date": "2026-05-07"}, "prev_low": {"price": 3168.96, "date": "2026-04-24"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881125/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "False", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881142", "name": "生物制品", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 6680.10→6381.46"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "ma20": 6281.6, "price": 5912.967, "ma_deviation": -5.9, "ret_20d": -8.2, "vol_ratio": 0.89, "yang": 6, "yin": 14, "max_consecutive_yang": 4, "prev_high": {"price": 6381.46, "date": "2026-05-21"}, "prev_low": {"price": 6354.69, "date": "2026-04-29"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881142/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": "False", "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881164", "name": "文化传媒", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 3076.66→3069.35"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "ma20": 2924.0, "price": 2741.979, "ma_deviation": -6.2, "ret_20d": -4.7, "vol_ratio": 1.0, "yang": 10, "yin": 10, "max_consecutive_yang": 4, "prev_high": {"price": 3069.35, "date": "2026-05-14"}, "prev_low": {"price": 2864.47, "date": "2026-04-28"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881164/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881266", "name": "橡胶制品", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 16430.94→16334.92"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.2x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "ma20": 15742.6, "price": 14578.303, "ma_deviation": -7.4, "ret_20d": -6.7, "vol_ratio": 0.83, "yang": 9, "yin": 11, "max_consecutive_yang": 3, "prev_high": {"price": 16334.92, "date": "2026-05-11"}, "prev_low": {"price": 15394.65, "date": "2026-04-29"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881266/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}, {"code": "881143", "name": "医药商业", "type": "sector", "state": 1, "state_label": "下跌趋势", "position": 0.0, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 5343.34→5105.92"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "ma20": 4843.5, "price": 4539.575, "ma_deviation": -6.3, "ret_20d": -9.9, "vol_ratio": 0.97, "yang": 6, "yin": 14, "max_consecutive_yang": 2, "prev_high": {"price": 5105.92, "date": "2026-05-11"}, "prev_low": {"price": 4988.92, "date": "2026-04-27"}, "is_mainline": false, "link": "https://q.10jqka.com.cn/stock/bk/881143/", "score": 0, "reasons": ["结构条件不通过", "量能条件不通过", "持续性条件不通过", "价格在MA20下方(空头排列)", "已跌破前低"], "signals": {"above_ma20": false, "volume_surge": false, "volume_shrink": false, "consecutive_drop": false, "consecutive_rise": false, "broke_prev_high": "False", "broke_prev_low": "True"}}], "stocks": [{"code": "000333", "name": "美的集团", "type": "stock", "state": 4, "state_label": "上涨趋势", "position": 1.0, "price": 80.85, "stop_loss": 78.75, "ma_deviation": 0.1, "ret_20d": 0.5, "vol_ratio": 1.18, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=83.44)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨0.4亿 vs 跌0.3亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳4天"}}, "is_mainline": true, "link": "https://quote.eastmoney.com/sz000333.html", "score": 100, "max_consecutive_yang": 4}, {"code": "300502", "name": "新易盛", "type": "stock", "state": 4, "state_label": "上涨趋势", "position": 1.0, "price": 706.45, "stop_loss": 557.51, "ma_deviation": 16.5, "ret_20d": 31.9, "vol_ratio": 1.21, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=653.70)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨0.4亿 vs 跌0.3亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳5天"}}, "is_mainline": true, "link": "https://quote.eastmoney.com/sz300502.html", "score": 100, "max_consecutive_yang": 5}, {"code": "300433", "name": "蓝思科技", "type": "stock", "state": 4, "state_label": "上涨趋势", "position": 1.0, "price": 40.5, "stop_loss": 35.08, "ma_deviation": 18.8, "ret_20d": 58.1, "vol_ratio": 1.02, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=40.50)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨1.8亿 vs 跌1.8亿)"}, "persistence": {"pass": true, "detail": "近20日阳14/6阴, 最大连阳6天"}}, "is_mainline": true, "link": "https://quote.eastmoney.com/sz300433.html", "score": 100, "max_consecutive_yang": 6}, {"code": "300274", "name": "阳光电源", "type": "stock", "state": 4, "state_label": "上涨趋势", "position": 1.0, "price": 177.99, "stop_loss": 130.36, "ma_deviation": 14.4, "ret_20d": 37.7, "vol_ratio": 1.22, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=146.10)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨1.0亿 vs 跌0.8亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳4天"}}, "is_mainline": true, "link": "https://quote.eastmoney.com/sz300274.html", "score": 100, "max_consecutive_yang": 4}, {"code": "002371", "name": "北方华创", "type": "stock", "state": 4, "state_label": "上涨趋势", "position": 1.0, "price": 629.87, "stop_loss": 442.77, "ma_deviation": 4.1, "ret_20d": 21.8, "vol_ratio": 1.23, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=721.60)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨0.2亿 vs 跌0.1亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳5天"}}, "is_mainline": true, "link": "https://quote.eastmoney.com/sz002371.html", "score": 100, "max_consecutive_yang": 5}, {"code": "300308", "name": "中际旭创", "type": "stock", "state": 3, "state_label": "翻转确认中", "position": 0.166, "price": 1161.16, "stop_loss": 983.94, "ma_deviation": 14.6, "ret_20d": 40.9, "vol_ratio": 0.99, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=1099.87)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": true, "detail": "近20日阳15/5阴, 最大连阳6天"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz300308.html", "score": 60, "max_consecutive_yang": 6}, {"code": "688981", "name": "中芯国际", "type": "stock", "state": 3, "state_label": "翻转确认中", "position": 0.166, "price": 139.91, "stop_loss": 112.12, "ma_deviation": 8.6, "ret_20d": 22.7, "vol_ratio": 1.2, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=128.12)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨1.3亿 vs 跌1.1亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh688981.html", "score": 60, "max_consecutive_yang": 3}, {"code": "300124", "name": "汇川技术", "type": "stock", "state": 5, "state_label": "上涨中的回调", "position": 1.0, "price": 73.96, "stop_loss": 73.41, "ma_deviation": -2.4, "ret_20d": 20.5, "vol_ratio": 1.48, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=84.05)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.5x (涨0.6亿 vs 跌0.4亿)"}, "persistence": {"pass": true, "detail": "近20日阳12/8阴, 最大连阳6天"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz300124.html", "score": 30, "max_consecutive_yang": 6}, {"code": "000725", "name": "京东方A", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 5.11, "stop_loss": 4.06, "ma_deviation": 11.2, "ret_20d": 23.1, "vol_ratio": 1.13, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨20.3亿 vs 跌18.0亿)"}, "persistence": {"pass": true, "detail": "近20日阳10/9阴, 最大连阳3天"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz000725.html", "score": 20, "max_consecutive_yang": 3}, {"code": "000063", "name": "中兴通讯", "type": "stock", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "price": 36.72, "stop_loss": 34.59, "ma_deviation": -1.3, "ret_20d": 2.0, "vol_ratio": 0.87, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=40.20)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳5天"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz000063.html", "score": 20, "max_consecutive_yang": 5}, {"code": "601138", "name": "工业富联", "type": "stock", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "price": 73.4, "stop_loss": 64.18, "ma_deviation": 8.4, "ret_20d": 7.6, "vol_ratio": 0.9, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=74.00)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳5天"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh601138.html", "score": 20, "max_consecutive_yang": 5}, {"code": "600036", "name": "招商银行", "type": "stock", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "price": 38.01, "stop_loss": 37.51, "ma_deviation": 1.1, "ret_20d": -4.0, "vol_ratio": 1.08, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 40.36→40.04"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨1.0亿 vs 跌1.0亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳4/阴15), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh600036.html", "score": 10, "max_consecutive_yang": 2}, {"code": "000001", "name": "平安银行", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 10.93, "stop_loss": 10.87, "ma_deviation": -0.8, "ret_20d": -4.6, "vol_ratio": 1.15, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨1.1亿 vs 跌1.0亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳4/阴13), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz000001.html", "score": 10, "max_consecutive_yang": 1}, {"code": "000858", "name": "五粮液", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 84.89, "stop_loss": 89.65, "ma_deviation": -3.7, "ret_20d": -15.3, "vol_ratio": 1.56, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 104.00→102.30"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.6x (涨0.5亿 vs 跌0.3亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz000858.html", "score": 10, "max_consecutive_yang": 2}, {"code": "300059", "name": "东方财富", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 19.16, "stop_loss": 19.26, "ma_deviation": -4.9, "ret_20d": -5.0, "vol_ratio": 1.19, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 21.60→21.03"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨4.0亿 vs 跌3.4亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz300059.html", "score": 10, "max_consecutive_yang": 3}, {"code": "688561", "name": "奇安信", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 26.79, "stop_loss": 28.86, "ma_deviation": -10.5, "ret_20d": -10.3, "vol_ratio": 1.04, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 32.25→31.20"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨0.1亿 vs 跌0.1亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh688561.html", "score": 10, "max_consecutive_yang": 2}, {"code": "601318", "name": "中国平安", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 53.5, "stop_loss": 56.77, "ma_deviation": -5.0, "ret_20d": -7.2, "vol_ratio": 1.2, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨1.1亿 vs 跌0.9亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh601318.html", "score": 10, "max_consecutive_yang": 3}, {"code": "600276", "name": "恒瑞医药", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 50.19, "stop_loss": 51.65, "ma_deviation": -3.8, "ret_20d": -8.1, "vol_ratio": 1.41, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.4x (涨1.1亿 vs 跌0.8亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh600276.html", "score": 10, "max_consecutive_yang": 2}, {"code": "002475", "name": "立讯精密", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 73.29, "stop_loss": 67.23, "ma_deviation": 1.3, "ret_20d": 4.9, "vol_ratio": 1.04, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 81.78→74.93"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.0x (涨2.0亿 vs 跌2.0亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz002475.html", "score": 10, "max_consecutive_yang": 3}, {"code": "002230", "name": "科大讯飞", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 47.9, "stop_loss": 46.54, "ma_deviation": -1.7, "ret_20d": -2.6, "vol_ratio": 1.1, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨0.6亿 vs 跌0.6亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz002230.html", "score": 10, "max_consecutive_yang": 3}, {"code": "300750", "name": "宁德时代", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 424.0, "stop_loss": 398.0, "ma_deviation": -0.5, "ret_20d": -0.9, "vol_ratio": 1.22, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 468.75→427.62"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨0.4亿 vs 跌0.3亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz300750.html", "score": 10, "max_consecutive_yang": 1}, {"code": "000568", "name": "泸州老窖", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 91.04, "stop_loss": 89.44, "ma_deviation": -2.9, "ret_20d": -9.1, "vol_ratio": 1.44, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 103.55→93.88"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.4x (涨0.1亿 vs 跌0.1亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz000568.html", "score": 10, "max_consecutive_yang": 2}, {"code": "600031", "name": "三一重工", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 17.94, "stop_loss": 19.21, "ma_deviation": -9.6, "ret_20d": -10.9, "vol_ratio": 1.3, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.3x (涨1.3亿 vs 跌1.0亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh600031.html", "score": 10, "max_consecutive_yang": 3}, {"code": "688036", "name": "传音控股", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 60.2, "stop_loss": 50.71, "ma_deviation": 0.2, "ret_20d": 4.1, "vol_ratio": 1.23, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 65.15→64.38"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨0.2亿 vs 跌0.1亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh688036.html", "score": 10, "max_consecutive_yang": 5}, {"code": "688008", "name": "澜起科技", "type": "stock", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "price": 253.0, "stop_loss": 231.91, "ma_deviation": 4.4, "ret_20d": 45.7, "vol_ratio": 0.98, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=287.34)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh688008.html", "score": 10, "max_consecutive_yang": 4}, {"code": "603259", "name": "药明康德", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 101.6, "stop_loss": 99.12, "ma_deviation": -2.2, "ret_20d": -6.6, "vol_ratio": 1.42, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 111.39→105.94"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.4x (涨0.6亿 vs 跌0.4亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh603259.html", "score": 10, "max_consecutive_yang": 2}, {"code": "600585", "name": "海螺水泥", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 20.15, "stop_loss": 19.16, "ma_deviation": -1.5, "ret_20d": -5.0, "vol_ratio": 1.62, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 23.59→21.73"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.6x (涨0.5亿 vs 跌0.3亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh600585.html", "score": 10, "max_consecutive_yang": 2}, {"code": "600030", "name": "中信证券", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 26.05, "stop_loss": 25.92, "ma_deviation": -1.9, "ret_20d": -4.6, "vol_ratio": 1.24, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 27.84→27.09"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨1.8亿 vs 跌1.5亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴12), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh600030.html", "score": 10, "max_consecutive_yang": 2}, {"code": "600900", "name": "长江电力", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 27.75, "stop_loss": 26.37, "ma_deviation": 2.7, "ret_20d": 3.8, "vol_ratio": 1.27, "conditions": {"structure": {"pass": false, "detail": "无明确的上涨结构(无足够更高高/更高低)"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.3x (涨1.4亿 vs 跌1.1亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳9/阴11), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh600900.html", "score": 10, "max_consecutive_yang": 3}, {"code": "002714", "name": "牧原股份", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 38.07, "stop_loss": 41.45, "ma_deviation": -6.8, "ret_20d": -11.1, "vol_ratio": 1.22, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 44.90→44.61"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨0.5亿 vs 跌0.4亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz002714.html", "score": 10, "max_consecutive_yang": 3}, {"code": "601012", "name": "隆基绿能", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 13.89, "stop_loss": 16.14, "ma_deviation": -11.0, "ret_20d": -18.1, "vol_ratio": 0.9, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 17.80→17.04"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": true, "detail": "近20日阳11/9阴, 最大连阳4天"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh601012.html", "score": 10, "max_consecutive_yang": 4}, {"code": "300474", "name": "景嘉微", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 57.87, "stop_loss": 61.94, "ma_deviation": -11.0, "ret_20d": -6.8, "vol_ratio": 0.83, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 69.85→67.50"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.2x"}, "persistence": {"pass": true, "detail": "近20日阳13/7阴, 最大连阳5天"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz300474.html", "score": 10, "max_consecutive_yang": 5}, {"code": "601899", "name": "紫金矿业", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 30.44, "stop_loss": 29.73, "ma_deviation": -6.4, "ret_20d": -7.6, "vol_ratio": 1.1, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 35.33→32.98"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.1x (涨3.3亿 vs 跌3.0亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh601899.html", "score": 10, "max_consecutive_yang": 1}, {"code": "000651", "name": "格力电器", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 39.17, "stop_loss": 36.43, "ma_deviation": -1.0, "ret_20d": 1.9, "vol_ratio": 1.62, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 40.88→40.85"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.6x (涨0.7亿 vs 跌0.4亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳7/阴13), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz000651.html", "score": 10, "max_consecutive_yang": 2}, {"code": "600809", "name": "山西汾酒", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 128.3, "stop_loss": 128.02, "ma_deviation": -4.2, "ret_20d": -7.5, "vol_ratio": 1.38, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 146.95→134.88"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.4x (涨0.1亿 vs 跌0.1亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh600809.html", "score": 10, "max_consecutive_yang": 4}, {"code": "688111", "name": "金山办公", "type": "stock", "state": 2, "state_label": "下跌中的反弹", "position": 0.0, "price": 238.5, "stop_loss": 240.21, "ma_deviation": -5.6, "ret_20d": -3.7, "vol_ratio": 0.96, "conditions": {"structure": {"pass": true, "detail": "1更高高+1更高低 (初步结构, 前高=282.18)"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳10/阴10), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh688111.html", "score": 10, "max_consecutive_yang": 4}, {"code": "600519", "name": "贵州茅台", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 1326.0, "stop_loss": 1353.25, "ma_deviation": -0.6, "ret_20d": -5.6, "vol_ratio": 1.17, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 1477.41→1458.88"}, "volume": {"pass": true, "detail": "上涨均量>下跌均量 1.2x (涨0.1亿 vs 跌0.0亿)"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sh600519.html", "score": 10, "max_consecutive_yang": 1}, {"code": "002415", "name": "海康威视", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 30.56, "stop_loss": 31.13, "ma_deviation": -7.4, "ret_20d": -9.8, "vol_ratio": 0.91, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 36.26→33.50"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.1x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳6/阴14), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz002415.html", "score": 0, "max_consecutive_yang": 2}, {"code": "002594", "name": "比亚迪", "type": "stock", "state": 1, "state_label": "下跌趋势", "position": 0.0, "price": 96.18, "stop_loss": 92.15, "ma_deviation": -1.5, "ret_20d": -5.2, "vol_ratio": 0.98, "conditions": {"structure": {"pass": false, "detail": "高点持续降低(下跌结构): 105.97→105.64"}, "volume": {"pass": false, "detail": "上涨缩量, 下跌均量是上涨的1.0x"}, "persistence": {"pass": false, "detail": "阴盛阳衰(阳8/阴12), 空头主导"}}, "is_mainline": false, "link": "https://quote.eastmoney.com/sz002594.html", "score": 0, "max_consecutive_yang": 4}]};
+
+// ── Helpers ──
+function fmtPrice(v) { return typeof v === 'number' ? v.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : v; }
+function fmtPct(v) { return typeof v === 'number' ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : v; }
+function fmtRatio(v) { return typeof v === 'number' ? v.toFixed(2) : v; }
+function stateClass(s) { return s === "3'" ? 'state-3p' : 'state-' + s; }
+
+function getScoreColor(s) {
+  if (s >= 80) return 'var(--teal)';
+  if (s >= 60) return 'var(--blue)';
+  if (s >= 40) return 'var(--gold)';
+  if (s >= 20) return 'var(--orange)';
+  return 'var(--red)';
+}
+
+function condDots(c) {
+  return `<div class="condition-dots">${['structure','volume','persistence'].map(k =>
+    `<span class="cond-dot ${c[k].pass ? 'pass' : 'fail'}" title="${c[k].detail}"></span>`
+  ).join('')}</div>`;
+}
+
+function posLabel(p) {
+  if (p === 1.0) return '100%';
+  if (p === 0) return '0%';
+  if (p === 0.166) return '1/6';
+  if (p === 0.333) return '1/3';
+  return (p*100).toFixed(0)+'%';
+}
+
+// ── Render Mainline ──
 (function() {
-  'use strict';
-
-  /* ── State ── */
-  let snapshot = null;
-  let dateList = [];
-  let activeDate = null;
-  let positions = {};
-
-  /* ── DOM refs ── */
-  const $dateNav = document.getElementById('dateNav');
-  const $overview = document.getElementById('overview');
-  const $bottomPanels = document.getElementById('bottomPanels');
-  const $topbarDate = document.getElementById('topbarDate');
-  const $topbarGenTime = document.getElementById('topbarGenTime');
-  const $topbarMood = document.getElementById('topbarMood');
-  const $statusDot = document.getElementById('statusDot');
-  const $sidebarFooter = document.getElementById('sidebarFooter');
-
-  /* ── Init ── */
-  async function init() {
-    await loadPositions();
-    await scanDates();
-    /* auto-load today's date */
-    const today = formatDate(new Date());
-    if (dateList.includes(today)) {
-      loadDate(today);
-    } else if (dateList.length > 0) {
-      loadDate(dateList[dateList.length - 1]);
-    }
+  const ml = DATA.mainline;
+  const container = document.getElementById('mainlineContainer');
+  if (ml.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🔍</div>暂无主线板块（状态4+三条件全满）</div>';
+    return;
   }
-
-  /* ── Format date YYYY-MM-DD ── */
-  function formatDate(d) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
-
-  /* ── Scan available dates ── */
-  async function scanDates() {
-    if (typeof EMBEDDED_MODE !== 'undefined' && EMBEDDED_MODE && typeof EMBEDDED_SNAPSHOT !== 'undefined' && EMBEDDED_SNAPSHOT) { dateList = [EMBEDDED_DATE]; loadDate(EMBEDDED_DATE); return; }
-    try {
-      const resp = await fetch('data/');
-      const text = await resp.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(text, 'text/html');
-      const links = doc.querySelectorAll('a');
-      const re = /trend_snapshot_(\d{4}-\d{2}-\d{2})\.json/;
-      dateList = [];
-      links.forEach(a => {
-        const m = a.href.match(re);
-        if (m) dateList.push(m[1]);
-      });
-      dateList.sort();
-    } catch (e) {
-      /* Fallback: try common dates */
-      console.warn('Cannot scan data/ directory, using fallback:', e);
-      const today = new Date();
-      for (let i = 60; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        /* Skip weekends */
-        if (d.getDay() === 0 || d.getDay() === 6) continue;
-        dateList.push(formatDate(d));
-      }
-    }
-    renderDateNav();
-  }
-
-  /* ── Render date navigation ── */
-  function renderDateNav() {
-    if (dateList.length === 0) {
-      $dateNav.innerHTML = '<div class="empty-state" style="padding:20px"><div style="font-size:12px">未找到快照文件<br>请先运行趋势引擎</div></div>';
-      return;
-    }
-    const today = formatDate(new Date());
-    let html = '';
-    dateList.forEach(d => {
-      const isToday = d === today;
-      const isActive = d === activeDate;
-      let cls = 'date-nav-item';
-      if (isActive) cls += ' active';
-      if (isToday) cls += ' today';
-      html += `<button class="${cls}" data-date="${d}">${isToday ? '📅 ' : ''}${d}</button>`;
-    });
-    $dateNav.innerHTML = html;
-    $dateNav.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', () => loadDate(btn.dataset.date));
-    });
-  }
-
-  /* ── Load positions.json ── */
-  async function loadPositions() {
-    try {
-      const resp = await fetch('../positions.json');
-      if (resp.ok) positions = await resp.json();
-    } catch (e) {
-      positions = {};
-    }
-  }
-
-  /* ── Load a date's snapshot ── */
-  async function loadDate(date) {
-    activeDate = date;
-    $topbarDate.textContent = date;
-    $topbarGenTime.textContent = '';
-    $statusDot.className = 'status-dot ok';
-    $sidebarFooter.textContent = '加载中...';
-    $bottomPanels.innerHTML = '<div class="empty-state"><div class="icon">...</div><div>加载中...</div></div>';
-
-    try {
-      const resp = await fetch(`data/trend_snapshot_${date}.json`);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      snapshot = await resp.json();
-      renderAll();
-      $statusDot.className = 'status-dot ok';
-      $sidebarFooter.textContent = `已加载: ${date}`;
-    } catch (e) {
-      console.error('Load error:', e);
-      $statusDot.className = 'status-dot err';
-      $sidebarFooter.textContent = `加载失败: ${e.message}`;
-      $bottomPanels.innerHTML = `<div class="empty-state"><div class="icon">!</div><div>加载 ${date} 失败<br><small>${e.message}</small></div></div>`;
-      $overview.innerHTML = '';
-      ['sectors','themes','stocks','etfs'].forEach(id => {
-        document.getElementById('panel-' + id).innerHTML = '';
-      });
-    }
-
-    renderDateNav();
-  }
-
-  /* ── Render everything ── */
-  function renderAll() {
-    if (!snapshot) return;
-    renderOverview();
-    renderTable('sectors');
-    renderTable('themes');
-    renderTable('stocks');
-    renderTable('etfs');
-    renderBottomPanels();
-  }
-
-  /* ── Overview Cards ── */
-  function renderOverview() {
-    const o = snapshot.market_overview || {};
-    const actions = snapshot.key_actions || [];
-    $topbarGenTime.textContent = snapshot.meta ? ` | 生成于 ${snapshot.meta.generated_at || ''}` : '';
-    $topbarMood.textContent = o.market_mood || '';
-
-    $overview.innerHTML = `
-      <div class="overview-card green">
-        <div class="label">上涨板块</div>
-        <div class="value">${o.uptrend_sectors ?? 0}</div>
-        <div class="sub">状态3/4/5板块</div>
+  container.innerHTML = '<div class="mainline-grid">' + ml.map(s => `
+    <div class="mainline-card">
+      <div class="sector-name"><a href="${s.link}" target="_blank" rel="noopener">${s.name}</a> <span style="font-size:11px;color:var(--text-muted)">${s.code}</span></div>
+      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">
+        <span>${fmtPrice(s.price)}</span>
+        <span class="${s.ma_deviation >= 0 ? 'arrow-up' : 'arrow-down'}">MA20偏离 ${fmtPct(s.ma_deviation)}</span>
+        <span class="${s.ret_20d >= 0 ? 'arrow-up' : 'arrow-down'}">20日 ${fmtPct(s.ret_20d)}</span>
       </div>
-      <div class="overview-card blue">
-        <div class="label">活跃题材</div>
-        <div class="value">${o.active_themes ?? 0}</div>
-        <div class="sub">状态3/4题材</div>
+      <div class="indicators">
+        <span class="indicator-tag tag-pass">结构: ${s.conditions.structure.pass ? '通过' : '未通过'}</span>
+        <span class="indicator-tag tag-pass">量能: ${s.conditions.volume.pass ? '通过' : '未通过'}</span>
+        <span class="indicator-tag tag-pass">持续性: ${s.conditions.persistence.pass ? '通过' : '未通过'}</span>
+        <span class="indicator-tag tag-pass">得分: ${s.score}/100</span>
       </div>
-      <div class="overview-card purple">
-        <div class="label">趋势个股</div>
-        <div class="value">${o.trend_stocks ?? 0}</div>
-        <div class="sub">状态3/4/5个股</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">
+        ${s.prev_high ? '前高: '+s.prev_high.price.toLocaleString() : '无前高'} |
+        ${s.prev_low ? '前低: '+s.prev_low.price.toLocaleString() : '无前低'}
       </div>
-      <div class="overview-card orange">
-        <div class="label">趋势ETF</div>
-        <div class="value">${o.trend_etfs ?? 0}</div>
-        <div class="sub">状态3/4/5 ETF</div>
-      </div>
-      <div class="overview-card ${actions.length > 0 ? 'red' : 'green'}">
-        <div class="label">操作点</div>
-        <div class="value">${actions.length}</div>
-        <div class="sub">${actions.length > 0 ? '需关注' : '无操作'}</div>
-      </div>
-    `;
-  }
-
-  /* ── Table Render ── */
-  function renderTable(type) {
-    const panel = document.getElementById('panel-' + type);
-    const data = snapshot[type] || [];
-    if (data.length === 0) {
-      panel.innerHTML = '<div class="empty-state"><div class="icon">—</div><div>暂无数据</div></div>';
-      return;
-    }
-
-    let html = '<table class="data-table"><thead><tr>';
-
-    if (type === 'sectors') {
-      html += '<th>板块</th><th>代码</th><th>状态</th><th>阶段</th><th>得分</th><th>条件</th><th>Beta</th><th>链接</th>';
-    } else if (type === 'themes') {
-      html += '<th>题材</th><th>代码</th><th>状态</th><th>阶段</th><th>得分</th><th>条件</th><th>领涨股</th><th>链接</th>';
-    } else if (type === 'stocks') {
-      html += '<th>个股</th><th>代码</th><th>状态</th><th>阶段</th><th>得分</th><th>条件</th><th>止损价</th><th>链接</th>';
-    } else if (type === 'etfs') {
-      html += '<th>ETF</th><th>代码</th><th>状态</th><th>得分</th><th>条件</th><th>置信度</th><th>仓位倍率</th><th>链接</th>';
-    }
-
-    html += '</tr></thead><tbody>';
-    data.forEach((item, idx) => {
-      const stateCls = stateClass(item.state);
-      const scoreCls = item.score >= 70 ? 'high' : item.score >= 40 ? 'mid' : 'low';
-      const conds = item.conditions || {};
-
-      html += `<tr data-row="${type}-${idx}" class="table-row">`;
-
-      if (type === 'sectors') {
-        html += `<td><strong><a class="ext-link" href="${esc(item.external_link)}" target="_blank" onclick="event.stopPropagation()">${esc(item.name)}</a></strong></td>`;
-        html += `<td style="color:var(--text-dim);font-size:12px">${esc(item.bk_code || item.symbol)}</td>`;
-        html += `<td><span class="state-badge ${stateCls}">${esc(item.state_label)}</span></td>`;
-        html += `<td style="font-size:12px;color:var(--text-muted)">${esc(item.stage_label || '—')}</td>`;
-        html += `<td>${renderScore(item.score, scoreCls)}</td>`;
-        html += `<td>${renderCondDots(conds)}</td>`;
-        html += `<td>${item.beta != null ? item.beta : '—'}</td>`;
-        html += `<td><a class="ext-link" href="${esc(item.external_link)}" target="_blank" onclick="event.stopPropagation()">同花顺</a></td>`;
-      } else if (type === 'themes') {
-        html += `<td><strong><a class="ext-link" href="${esc(item.external_link)}" target="_blank" onclick="event.stopPropagation()">${esc(item.name)}</a></strong></td>`;
-        html += `<td style="color:var(--text-dim);font-size:12px">${esc(item.gn_code || item.symbol)}</td>`;
-        html += `<td><span class="state-badge ${stateCls}">${esc(item.state_label)}</span></td>`;
-        html += `<td style="font-size:12px;color:var(--text-muted)">${esc(item.stage_label || '—')}</td>`;
-        html += `<td>${renderScore(item.score, scoreCls)}</td>`;
-        html += `<td>${renderCondDots(conds)}</td>`;
-        html += `<td style="font-size:12px">${renderLeaders(item.leaders)}</td>`;
-        html += `<td><a class="ext-link" href="${esc(item.external_link)}" target="_blank" onclick="event.stopPropagation()">同花顺</a></td>`;
-      } else if (type === 'stocks') {
-        html += `<td><strong><a class="ext-link" href="${esc(item.external_link)}" target="_blank" onclick="event.stopPropagation()">${esc(item.name)}</a></strong></td>`;
-        html += `<td style="color:var(--text-dim);font-size:12px">${esc(item.symbol)}</td>`;
-        html += `<td><span class="state-badge ${stateCls}">${esc(item.state_label)}</span></td>`;
-        html += `<td style="font-size:12px;color:var(--text-muted)">${esc(item.stage_label || '—')}</td>`;
-        html += `<td>${renderScore(item.score, scoreCls)}</td>`;
-        html += `<td>${renderCondDots(conds)}</td>`;
-        html += `<td style="color:${item.stop_loss ? 'var(--red)' : 'var(--text-dim)'}">${item.stop_loss || '—'}</td>`;
-        html += `<td><a class="ext-link" href="${esc(item.external_link)}" target="_blank" onclick="event.stopPropagation()">同花顺</a></td>`;
-      } else if (type === 'etfs') {
-        html += `<td><strong><a class="ext-link" href="${esc(item.external_link)}" target="_blank" onclick="event.stopPropagation()">${esc(item.name)}</a></strong></td>`;
-        html += `<td style="color:var(--text-dim);font-size:12px">${esc(item.symbol)}</td>`;
-        html += `<td><span class="state-badge ${stateCls}">${esc(item.state_label)}</span></td>`;
-        html += `<td>${renderScore(item.score, scoreCls)}</td>`;
-        html += `<td>${renderCondDots(conds)}</td>`;
-        html += `<td style="font-size:12px">${renderConfidence(item)}</td>`;
-        html += `<td>${item.position_multiplier != null ? item.position_multiplier.toFixed(1) + 'x' : '—'}</td>`;
-        html += `<td><a class="ext-link" href="${esc(item.external_link)}" target="_blank" onclick="event.stopPropagation()">同花顺</a></td>`;
-      }
-
-      html += `</tr>`;
-      /* Expand row: "为什么" detail */
-      html += `<tr class="expand-row" id="expand-${type}-${idx}"><td colspan="8">`;
-      html += renderWhySection(item, type);
-      html += `</td></tr>`;
-    });
-    html += '</tbody></table>';
-
-    panel.innerHTML = html;
-
-    /* Click to expand */
-    panel.querySelectorAll('.table-row').forEach(row => {
-      row.addEventListener('click', function() {
-        const expandRow = document.getElementById('expand-' + this.dataset.row);
-        if (expandRow) {
-          const isOpen = expandRow.classList.contains('open');
-          /* close all */
-          panel.querySelectorAll('.expand-row.open').forEach(r => r.classList.remove('open'));
-          panel.querySelectorAll('.table-row.expanded').forEach(r => r.classList.remove('expanded'));
-          if (!isOpen) {
-            expandRow.classList.add('open');
-            this.classList.add('expanded');
-          }
-        }
-      });
-    });
-  }
-
-  /* ── "为什么" section: three conditions + signals + pivots + position ── */
-  function renderWhySection(item, type) {
-    const conds = item.conditions || {};
-    const signals = item.signals || {};
-    const pivots = item.pivots || {};
-
-    let html = '<div class="why-section">';
-
-    /* Three conditions */
-    ['structure', 'volume', 'persistence'].forEach(key => {
-      const c = conds[key] || {};
-      const pass = c.pass ? 'pass' : 'fail';
-      const labelMap = {structure: 'A.结构', volume: 'B.量能', persistence: 'C.持续性'};
-      html += `<div class="why-card">
-        <h4>${labelMap[key]} ${c.pass ? '✓' : '✗'}</h4>
-        <div class="why-detail ${pass}">${esc(c.detail || '无详情')}</div>
-      </div>`;
-    });
-
-    html += '</div><div class="why-section-extra">';
-
-    /* Signals */
-    const sigLabels = [
-      {key: 'above_ma20', label: '站上MA20'},
-      {key: 'volume_surge', label: '放量(>1.2x)'},
-      {key: 'volume_shrink', label: '缩量(<0.8x)'},
-      {key: 'consecutive_rise', label: '连阳'},
-      {key: 'consecutive_drop', label: '连阴'},
-    ];
-    let sigHtml = '';
-    sigLabels.forEach(s => {
-      const val = signals[s.key];
-      const cls = val ? 'pass' : 'fail';
-      sigHtml += `<div style="color:${val ? 'var(--green)' : 'var(--text-dim)'}">${val ? '●' : '○'} ${s.label}</div>`;
-    });
-    html += `<div class="why-extra-item"><h4>信号检测</h4>${sigHtml}</div>`;
-
-    /* Pivots */
-    let pivHtml = '';
-    if (pivots.prev_high) {
-      pivHtml += `<div style="color:var(--green)">前高: ${pivots.prev_high.price} (${pivots.prev_high.date})</div>`;
-    } else {
-      pivHtml += '<div style="color:var(--text-dim)">前高: 无</div>';
-    }
-    if (pivots.prev_low) {
-      pivHtml += `<div style="color:var(--red)">前低: ${pivots.prev_low.price} (${pivots.prev_low.date})</div>`;
-    } else {
-      pivHtml += '<div style="color:var(--text-dim)">前低: 无</div>';
-    }
-    html += `<div class="why-extra-item"><h4>关键价位</h4>${pivHtml}</div>`;
-
-    /* Position derivation */
-    let posHtml = `<div>建议仓位: <strong>${(item.position_ratio * 100).toFixed(0)}%</strong></div>`;
-    if (item.stage_reasons && item.stage_reasons.length > 0) {
-      posHtml += `<div style="font-size:11px;color:var(--text-muted);margin-top:4px">${esc(item.stage_reasons.join('; '))}</div>`;
-    }
-    if (item.stop_loss) {
-      posHtml += `<div style="font-size:12px;color:var(--red);margin-top:4px">止损价: ${item.stop_loss}</div>`;
-    }
-    if (item.confidence != null) {
-      posHtml += `<div style="font-size:12px;color:var(--blue);margin-top:4px">置信度: ${(item.confidence*100).toFixed(0)}% (${esc(item.confidence_source||'')})</div>`;
-    }
-    html += `<div class="why-extra-item"><h4>仓位推导</h4>${posHtml}</div>`;
-
-    html += '</div>';
-    return html;
-  }
-
-  /* ── Render Bottom Panels ── */
-  function renderBottomPanels() {
-    if (!snapshot) return;
-    let html = '';
-
-    /* 1. Key Actions */
-    const actions = snapshot.key_actions || [];
-    if (actions.length > 0) {
-      html += '<div class="panel-card key-actions-panel"><h3>⚡ 关键操作点</h3>';
-      actions.forEach(a => {
-        const priClsMap = {'🔴': 'red', '🟠': 'orange', '🟢': 'green', '🟡': 'yellow'};
-        const priCls = priClsMap[a.priority] || 'yellow';
-        html += `<div class="key-action-item priority-${priCls}">`;
-        html += `<span class="priority-icon">${a.priority}</span>`;
-        html += `<span class="action-label">${esc(a.action)}</span>`;
-        html += `<span class="transition-label">${esc(a.transition)}</span>`;
-        html += `<span class="desc">${esc(a.description)} — ${esc(a.name || a.symbol)}</span>`;
-        html += `<span style="font-size:11px;color:var(--text-dim)">仓位: ${esc(a.position_action)}</span>`;
-        html += `</div>`;
-      });
-      html += '</div>';
-    }
-
-    /* 2. Comparison / Breadth */
-    html += '<div class="panel-card"><h3>市场宽度</h3><div class="breadth-row">';
-    const mb = snapshot.market_breadth || {};
-    html += `<div class="breadth-item"><div class="bval">${mb.uptrend_sectors ?? '—'}</div><div class="blabel">上涨板块</div></div>`;
-    html += `<div class="breadth-item"><div class="bval">${mb.state4_sectors ?? '—'}</div><div class="blabel">状态4板块</div></div>`;
-    html += `<div class="breadth-item"><div class="bval">${mb.uptrend_stocks ?? '—'}</div><div class="blabel">趋势个股</div></div>`;
-    html += `<div class="breadth-item"><div class="bval">${mb.uptrend_etfs ?? '—'}</div><div class="blabel">趋势ETF</div></div>`;
-    html += `<div class="breadth-item"><div class="bval" style="color:${mb.market_health === '强势' ? 'var(--green)' : mb.market_health === '弱势' ? 'var(--red)' : 'var(--yellow)'}">${mb.market_health || '—'}</div><div class="blabel">市场健康度</div></div>`;
-    html += '</div>';
-
-    /* Comparison tags */
-    const comp = snapshot.comparison || {};
-    if (comp.new_uptrend && comp.new_uptrend.length > 0) {
-      html += '<div style="margin-top:12px;font-size:12px"><span class="comp-tag up">▲ 新进入上涨: ' + comp.new_uptrend.length + '个</span></div>';
-    }
-    if (comp.exited_uptrend && comp.exited_uptrend.length > 0) {
-      html += '<div style="margin-top:4px;font-size:12px"><span class="comp-tag down">▼ 退出上涨: ' + comp.exited_uptrend.length + '个</span></div>';
-    }
-    if (comp.note) {
-      html += `<div style="margin-top:4px;font-size:11px;color:var(--text-dim)">${esc(comp.note)}</div>`;
-    }
-    html += '</div>';
-
-    /* 3. Scenario Plans */
-    const plans = snapshot.scenario_plans || [];
-    if (plans.length > 0) {
-      html += '<div class="panel-card"><h3>📋 明日推演</h3><div class="scenario-grid">';
-      plans.forEach(p => {
-        html += `<div class="scenario-card">`;
-        html += `<div class="scenario-card-header">`;
-        html += `<span class="name">${esc(p.name || p.symbol)}</span>`;
-        html += `<span class="state">${esc(p.current_state)} | 仓位: ${(p.position*100).toFixed(0)}% | 止损: ${p.stop_loss || '—'}</span>`;
-        html += `</div>`;
-        (p.scenarios || []).forEach(s => {
-          const probCls = s.probability === '大概率' ? 'prob-high' : s.probability === '中概率' ? 'prob-mid' : 'prob-low';
-          html += `<div class="scenario-item ${probCls}">`;
-          html += `<div class="s-label">${esc(s.label)}</div>`;
-          html += `<div class="s-cond">条件: ${esc(s.conditions)}</div>`;
-          html += `<div class="s-action">操作: ${esc(s.action)} → ${esc(s.next_state)}</div>`;
-          html += `</div>`;
-        });
-        html += `</div>`;
-      });
-      html += '</div></div>';
-    }
-
-    /* 4. Watchlist */
-    const watchlist = snapshot.watchlist || [];
-    if (watchlist.length > 0) {
-      html += '<div class="panel-card"><h3>👀 观察列表 <span class="panel-badge">' + watchlist.length + '</span></h3>';
-      watchlist.forEach(w => {
-        html += `<div class="watchlist-item">`;
-        html += `<span class="wl-symbol">${esc(w.name || w.symbol)}</span>`;
-        html += `<span class="state-badge ${stateClass(w.state)}">${esc(w.state_label)}</span>`;
-        html += `<span class="wl-reason">${esc(w.reason)}</span>`;
-        if (w.prev_high) html += `<span class="wl-ph">前高: ${w.prev_high}</span>`;
-        html += `</div>`;
-      });
-      html += '</div>';
-    }
-
-    /* 5. Positions */
-    html += '<div class="panel-card"><h3>💼 持仓管理</h3>';
-    const posKeys = Object.keys(positions);
-    if (posKeys.length > 0) {
-      let totalValue = 0;
-      posKeys.forEach(k => {
-        const p = positions[k];
-        html += `<div class="position-row">`;
-        html += `<span><strong>${esc(k)}</strong> <span style="font-size:11px;color:var(--text-dim)">${esc(p.name || '')}</span></span>`;
-        html += `<span>${p.shares || 0} 股</span>`;
-        html += `<span>成本: ${p.cost || '—'}</span>`;
-        html += `<span>现价: ${p.current_price || '—'}</span>`;
-        const val = (p.shares || 0) * (p.current_price || 0);
-        html += `<span style="font-weight:600">市值: ${val.toFixed(0)}</span>`;
-        html += `</div>`;
-        totalValue += val;
-      });
-      html += `<div class="position-total"><span>总市值</span><span>${totalValue.toFixed(0)}</span></div>`;
-    } else {
-      html += '<div style="padding:12px;color:var(--text-dim);font-size:13px">暂无持仓数据 — 编辑 dashboard/positions.json 录入持仓</div>';
-    }
-    html += '</div>';
-
-    $bottomPanels.innerHTML = html;
-  }
-
-  /* ── Helpers ── */
-  function esc(s) {
-    if (s == null) return '';
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  function stateClass(state) {
-    if (state === 1) return 'state-1';
-    if (state === 2) return 'state-2';
-    if (state === 3) return 'state-3';
-    if (state === 4) return 'state-4';
-    if (state === 5) return 'state-5';
-    if (state === "3'") return 'state-3p';
-    return '';
-  }
-
-  function renderScore(score, cls) {
-    return `<div class="score-bar"><span style="font-weight:700;font-size:13px;min-width:28px">${score}</span>
-      <div class="score-bar-inner"><div class="score-bar-fill ${cls}" style="width:${score}%"></div></div></div>`;
-  }
-
-  function renderCondDots(conds) {
-    const keys = ['structure', 'volume', 'persistence'];
-    let html = '';
-    keys.forEach(k => {
-      const c = conds[k] || {};
-      html += `<span class="cond-dot ${c.pass ? 'pass' : 'fail'}" title="${esc(c.detail || '')}"></span>`;
-    });
-    return html;
-  }
-
-  function renderLeaders(leaders) {
-    if (!leaders || leaders.length === 0) return '—';
-    return leaders.map(l => `${esc(l.symbol)}(${l.score})`).join(', ');
-  }
-
-  function renderConfidence(item) {
-    const conf = item.confidence;
-    if (conf == null) return '—';
-    const pct = (conf * 100).toFixed(0);
-    const color = conf >= 0.8 ? 'var(--green)' : conf >= 0.6 ? 'var(--yellow)' : conf >= 0.4 ? 'var(--orange)' : 'var(--red)';
-    return `<span style="color:${color};font-weight:600">${pct}%</span>
-      <div style="font-size:10px;color:var(--text-dim)">${esc(item.confidence_source || '')}</div>`;
-  }
-
-  /* ── Tab switching ── */
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      this.classList.add('active');
-      document.getElementById('panel-' + this.dataset.tab).classList.add('active');
-    });
-  });
-
-  /* ── Keyboard shortcuts ── */
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'ArrowLeft' && dateList.length > 0) {
-      const idx = dateList.indexOf(activeDate);
-      if (idx > 0) loadDate(dateList[idx - 1]);
-    } else if (e.key === 'ArrowRight' && dateList.length > 0) {
-      const idx = dateList.indexOf(activeDate);
-      if (idx < dateList.length - 1) loadDate(dateList[idx + 1]);
-    }
-  });
-
-  /* ── Start ── */
-  init();
-
+    </div>
+  `).join('') + '</div>';
 })();
+
+// ── Render Sectors Table ──
+(function() {
+  const tbody = document.getElementById('sectorsTbody');
+  const sectors = DATA.sectors;
+  let html = '';
+  sectors.forEach((s, idx) => {
+    const isMain = s.is_mainline;
+    const pctClass = s.ma_deviation >= 0 ? 'arrow-up' : 'arrow-down';
+    const retClass = s.ret_20d >= 0 ? 'arrow-up' : 'arrow-down';
+    const scoreColor = getScoreColor(s.score);
+    html += `<tr class="row-main ${isMain ? 'mainline-row' : ''}" onclick="toggleExpand(this, 'sector', ${idx})" id="sectorRow${idx}">
+      <td><span class="expand-icon" id="sectorIcon${idx}">▶</span></td>
+      <td><a href="${s.link}" target="_blank" rel="noopener" class="symbol-link" onclick="event.stopPropagation()">${s.name}</a></td>
+      <td style="color:var(--text-muted);font-size:12px">${s.code}</td>
+      <td><span class="state-badge ${stateClass(s.state)}">${s.state_label}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="color:${scoreColor};font-weight:700;font-size:12px">${s.score}</span>
+          <div class="score-bar"><div class="score-fill" style="width:${s.score}%;background:${scoreColor}"></div></div>
+        </div>
+      </td>
+      <td>${condDots(s.conditions)}</td>
+      <td style="font-family:var(--font-mono)">${fmtPrice(s.price)}</td>
+      <td class="${pctClass}" style="font-family:var(--font-mono)">${fmtPct(s.ma_deviation)}</td>
+      <td class="${retClass}" style="font-family:var(--font-mono)">${fmtPct(s.ret_20d)}</td>
+      <td style="font-family:var(--font-mono)">${fmtRatio(s.vol_ratio)}</td>
+      <td style="font-family:var(--font-mono)">${s.max_consecutive_yang}天</td>
+      <td style="font-family:var(--font-mono);font-weight:600">${posLabel(s.position)}</td>
+    </tr>`;
+    // Expanded detail row
+    html += `<tr class="row-expanded" id="sectorDetail${idx}" style="display:none"><td colspan="12"><div class="expand-panel"><div class="detail-grid">
+      <div class="detail-card">
+        <h4>📐 条件A: 结构判断</h4>
+        <p class="${s.conditions.structure.pass ? '' : 'arrow-down'}">${s.conditions.structure.pass ? '<span class="arrow-up">通过</span>' : '<span class="arrow-down">未通过</span>'} — ${s.conditions.structure.detail}</p>
+      </div>
+      <div class="detail-card">
+        <h4>📊 条件B: 量能判断</h4>
+        <p class="${s.conditions.volume.pass ? '' : 'arrow-down'}">${s.conditions.volume.pass ? '<span class="arrow-up">通过</span>' : '<span class="arrow-down">未通过</span>'} — ${s.conditions.volume.detail}</p>
+      </div>
+      <div class="detail-card">
+        <h4>⏱ 条件C: 持续性判断</h4>
+        <p class="${s.conditions.persistence.pass ? '' : 'arrow-down'}">${s.conditions.persistence.pass ? '<span class="arrow-up">通过</span>' : '<span class="arrow-down">未通过</span>'} — ${s.conditions.persistence.detail}</p>
+      </div>
+      <div class="detail-card">
+        <h4>📍 前高 / 前低</h4>
+        <p>
+          ${s.prev_high ? '<span style="color:var(--teal)">前高: <span class="price-data">'+s.prev_high.price.toLocaleString()+'</span> ('+s.prev_high.date+')</span>' : '<span class="arrow-down">未检测到前高</span>'}
+          <br>
+          ${s.prev_low ? '<span style="color:var(--red)">前低: <span class="price-data">'+s.prev_low.price.toLocaleString()+'</span> ('+s.prev_low.date+')</span>' : '<span class="arrow-down">未检测到前低</span>'}
+        </p>
+      </div>
+      <div class="detail-card">
+        <h4>💡 状态判定原因</h4>
+        <ul class="reason-list">
+          ${(s.reasons || []).map(r => '<li>'+r+'</li>').join('')}
+        </ul>
+      </div>
+      <div class="detail-card">
+        <h4>📋 技术指标</h4>
+        <p style="font-size:12px;line-height:1.8">
+          MA20: ${s.ma20 ? s.ma20.toLocaleString() : 'N/A'}<br>
+          均线上方: ${s.signals.above_ma20 ? '<span class="arrow-up">是</span>' : '<span class="arrow-down">否</span>'}<br>
+          放量: ${s.signals.volume_surge ? '<span class="arrow-up">是</span>' : '否'} |
+          缩量: ${s.signals.volume_shrink ? '是' : '否'}<br>
+          连跌: ${s.signals.consecutive_drop ? '<span class="arrow-down">是</span>' : '否'} |
+          连涨: ${s.signals.consecutive_rise ? '<span class="arrow-up">是</span>' : '否'}<br>
+          突破前高: ${s.signals.broke_prev_high ? '<span class="arrow-up">是</span>' : '否'} |
+          跌破前低: ${s.signals.broke_prev_low ? '<span class="arrow-down">是</span>' : '否'}<br>
+          近20日: 阳${s.yang}/阴${s.yin}
+        </p>
+      </div>
+    </div></div></td></tr>`;
+  });
+  tbody.innerHTML = html;
+})();
+
+// ── Render Stocks Table ──
+(function() {
+  const tbody = document.getElementById('stocksTbody');
+  const stocks = DATA.stocks;
+  let html = '';
+  stocks.forEach((s, idx) => {
+    const isMain = s.is_mainline;
+    const pctClass = s.ma_deviation >= 0 ? 'arrow-up' : 'arrow-down';
+    const retClass = s.ret_20d >= 0 ? 'arrow-up' : 'arrow-down';
+    const scoreColor = getScoreColor(s.score);
+    html += `<tr class="row-main ${isMain ? 'mainline-row' : ''}" onclick="toggleExpand(this, 'stock', ${idx})" id="stockRow${idx}">
+      <td><span class="expand-icon" id="stockIcon${idx}">▶</span></td>
+      <td><a href="${s.link}" target="_blank" rel="noopener" class="symbol-link" onclick="event.stopPropagation()">${s.name}</a></td>
+      <td style="color:var(--text-muted);font-size:12px">${s.code}</td>
+      <td><span class="state-badge ${stateClass(s.state)}">${s.state_label}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="color:${scoreColor};font-weight:700;font-size:12px">${s.score}</span>
+          <div class="score-bar"><div class="score-fill" style="width:${s.score}%;background:${scoreColor}"></div></div>
+        </div>
+      </td>
+      <td>${condDots(s.conditions)}</td>
+      <td style="font-family:var(--font-mono)">${fmtPrice(s.price)}</td>
+      <td class="${pctClass}" style="font-family:var(--font-mono)">${fmtPct(s.ma_deviation)}</td>
+      <td class="${retClass}" style="font-family:var(--font-mono)">${fmtPct(s.ret_20d)}</td>
+      <td style="font-family:var(--font-mono);color:var(--red)">${s.stop_loss ? fmtPrice(s.stop_loss) : 'N/A'}</td>
+      <td style="font-family:var(--font-mono);font-weight:600">${posLabel(s.position)}</td>
+    </tr>`;
+    html += `<tr class="row-expanded" id="stockDetail${idx}" style="display:none"><td colspan="11"><div class="expand-panel"><div class="detail-grid">
+      <div class="detail-card">
+        <h4>📐 条件A: 结构判断</h4>
+        <p>${s.conditions.structure.detail}</p>
+      </div>
+      <div class="detail-card">
+        <h4>📊 条件B: 量能判断</h4>
+        <p>${s.conditions.volume.detail}</p>
+      </div>
+      <div class="detail-card">
+        <h4>⏱ 条件C: 持续性判断</h4>
+        <p>${s.conditions.persistence.detail}</p>
+      </div>
+      <div class="detail-card">
+        <h4>🛡 止损价格</h4>
+        <p>${s.stop_loss ? '<span style="color:var(--red);font-size:18px;font-weight:700;font-family:var(--font-mono)">'+s.stop_loss.toLocaleString('zh-CN', {minimumFractionDigits:2})+'</span><br><span style="font-size:11px;color:var(--text-muted)">前低 < '+s.stop_loss.toLocaleString('zh-CN', {minimumFractionDigits:2}) < 止损</span>' : '无前低参考'}</p>
+      </div>
+      <div class="detail-card">
+        <h4>📋 交易指标</h4>
+        <p style="font-size:12px;line-height:1.8">
+          当前价: <span style="font-family:var(--font-mono);color:var(--blue)">${fmtPrice(s.price)}</span><br>
+          MA20偏离: <span class="${pctClass}">${fmtPct(s.ma_deviation)}</span><br>
+          20日涨跌: <span class="${retClass}">${fmtPct(s.ret_20d)}</span><br>
+          量比: <span style="font-family:var(--font-mono)">${fmtRatio(s.vol_ratio)}</span><br>
+          最大连阳: ${s.max_consecutive_yang}天
+        </p>
+      </div>
+    </div></div></td></tr>`;
+  });
+  tbody.innerHTML = html;
+})();
+
+// ── Expand/Collapse ──
+function toggleExpand(row, type, idx) {
+  const detailRow = document.getElementById(type + 'Detail' + idx);
+  const icon = document.getElementById(type + 'Icon' + idx);
+  if (detailRow.style.display === 'none' || detailRow.style.display === '') {
+    detailRow.style.display = '';
+    icon.classList.add('open');
+  } else {
+    detailRow.style.display = 'none';
+    icon.classList.remove('open');
+  }
+}
+
+// ── Tabs ──
+let currentTab = 'sectors';
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabSectors').classList.toggle('active', tab === 'sectors');
+  document.getElementById('tabStocks').classList.toggle('active', tab === 'stocks');
+  document.getElementById('sectorsPanel').style.display = tab === 'sectors' ? '' : 'none';
+  document.getElementById('stocksPanel').style.display = tab === 'stocks' ? '' : 'none';
+}
+
+// ── Search ──
+function handleSearch() {
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+  if (currentTab === 'sectors') {
+    filterTable('sector', DATA.sectors, query);
+  } else {
+    filterTable('stock', DATA.stocks, query);
+  }
+}
+
+function filterTable(type, items, query) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const match = !query || item.name.toLowerCase().includes(query) || item.code.includes(query);
+    const mainRow = document.getElementById(type + 'Row' + i);
+    const detailRow = document.getElementById(type + 'Detail' + i);
+    if (mainRow) mainRow.style.display = match ? '' : 'none';
+    if (detailRow && !match) {
+      detailRow.style.display = 'none';
+      const icon = document.getElementById(type + 'Icon' + i);
+      if (icon) icon.classList.remove('open');
+    }
+  }
+}
+
+// ── Keyboard: Escape closes all details ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const type = currentTab === 'sectors' ? 'sector' : 'stock';
+    const items = currentTab === 'sectors' ? DATA.sectors : DATA.stocks;
+    for (let i = 0; i < items.length; i++) {
+      const detailRow = document.getElementById(type + 'Detail' + i);
+      const icon = document.getElementById(type + 'Icon' + i);
+      if (detailRow) detailRow.style.display = 'none';
+      if (icon) icon.classList.remove('open');
+    }
+  }
+});
 </script>
 </body>
 </html>
