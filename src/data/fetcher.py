@@ -157,6 +157,19 @@ class DataFetcher:
             except Exception as e:
                 errors.append(f"etf {etf_code}: {e}")
 
+        # 增量更新题材
+        for gn_code in self.local_db.list_symbols("theme"):
+            try:
+                _, last_date = self.local_db.get_date_range("theme", gn_code)
+                if last_date and pd.Timestamp(target_date) <= last_date:
+                    continue
+                start = (pd.Timestamp(target_date) - timedelta(days=30)).strftime("%Y-%m-%d")
+                daily = self.provider.fetch_theme_daily(gn_code, start, target_date)
+                self.local_db.incremental_update("theme", gn_code, daily)
+                updated["themes"] += 1
+            except Exception as e:
+                errors.append(f"theme {gn_code}: {e}")
+
         return updated
 
     def load_all_sectors(self) -> dict:
@@ -178,6 +191,30 @@ class DataFetcher:
             df = self.local_db.load_daily("theme", gn)
             if df is not None and len(df) > 20:
                 result[gn] = df
+        return result
+
+    def load_all_stocks(self) -> dict:
+        """从本地数据库加载所有个股日K数据。
+
+        → 多赚钱：个股是漏斗第三层的目标，必须能快速加载。
+        """
+        result = {}
+        for sym in self.local_db.list_symbols("stock"):
+            df = self.local_db.load_daily("stock", sym)
+            if df is not None and len(df) > 20:
+                result[sym] = df
+        return result
+
+    def load_all_etfs(self) -> dict:
+        """从本地数据库加载所有ETF日K数据。
+
+        → 多赚钱：ETF直筛路径的数据源，与漏斗主路径并行。
+        """
+        result = {}
+        for etf_code in self.local_db.list_symbols("etf"):
+            df = self.local_db.load_daily("etf", etf_code)
+            if df is not None and len(df) > 20:
+                result[etf_code] = df
         return result
 
     def _save_sector_index_list(self, df: pd.DataFrame):

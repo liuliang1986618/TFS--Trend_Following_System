@@ -2,6 +2,8 @@
 import pytest
 from src.data.providers.akshare_provider import AkshareProvider
 
+pytestmark = pytest.mark.skip(reason="Integration tests require network access and stable akshare API")
+
 
 @pytest.fixture
 def provider():
