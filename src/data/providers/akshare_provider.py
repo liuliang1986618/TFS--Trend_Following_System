@@ -16,6 +16,7 @@
 → 少亏钱：无限制请求会被API方封禁IP，导致数据源不可用。
   限速确保数据源的持续可用性。
 """
+import logging
 import time
 from typing import List, Optional
 import pandas as pd
@@ -79,8 +80,8 @@ class AkshareProvider(BaseProvider):
             try:
                 result[code] = self.fetch_sector_daily(code, start_date, end_date)
             except Exception as e:
-                print(f"[WARN] fetch_sector_daily failed for {code}: {e}")
-                continue
+                logging.warning(f"fetch_sector_daily failed for {code}: {e}")
+                result[code] = None
         return result
 
     def fetch_sector_constituents(self, bk_code: str) -> pd.DataFrame:
@@ -165,8 +166,8 @@ class AkshareProvider(BaseProvider):
             try:
                 result[sym] = self.fetch_stock_daily(sym, start_date, end_date)
             except Exception as e:
-                print(f"[WARN] fetch_stock_daily failed for {sym}: {e}")
-                continue
+                logging.warning(f"fetch_stock_daily failed for {sym}: {e}")
+                result[sym] = None
         return result
 
     def fetch_etf_list(self) -> pd.DataFrame:
@@ -258,6 +259,6 @@ class AkshareProvider(BaseProvider):
             if col in df.columns:
                 df[col] = df[col].astype(float)
         if "volume" in df.columns:
-            df["volume"] = df["volume"].astype(int)
+            df["volume"] = df["volume"].astype(float)  # 使用float避免精度损失
 
         return df[["open", "high", "low", "close", "volume"]]
