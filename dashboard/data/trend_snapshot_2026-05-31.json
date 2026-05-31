@@ -1,7 +1,7 @@
 {
   "meta": {
     "date": "2026-05-31",
-    "generated_at": "2026-05-31T23:45:12.402099",
+    "generated_at": "2026-06-01T00:15:14.575676",
     "version": "1.0"
   },
   "market_overview": {
@@ -14,7 +14,7 @@
   },
   "sectors": [
     {
-      "symbol": 881131,
+      "symbol": "881131",
       "name": "白色家电",
       "type": "sector",
       "state": 4,
@@ -58,11 +58,11 @@
           "price": 8799.663
         }
       },
-      "bk_code": 881131,
-      "external_link": "https://quote.eastmoney.com/bk/xx.881131.html"
+      "bk_code": "881131",
+      "external_link": "https://q.10jqka.com.cn/stock/bk/881131/"
     },
     {
-      "symbol": 881277,
+      "symbol": "881277",
       "name": "电机",
       "type": "sector",
       "state": 4,
@@ -106,8 +106,8 @@
           "price": 4036.422
         }
       },
-      "bk_code": 881277,
-      "external_link": "https://quote.eastmoney.com/bk/xx.881277.html"
+      "bk_code": "881277",
+      "external_link": "https://q.10jqka.com.cn/stock/bk/881277/"
     }
   ],
   "themes": [],

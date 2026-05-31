@@ -160,7 +160,7 @@ class SnapshotGenerator:
             if betas and code in betas:
                 item["beta"] = betas[code]
                 item["beta_label"] = BetaCalculator.interpret(betas[code])
-            item["external_link"] = f"https://quote.eastmoney.com/bk/xx.{code}.html"
+            item["external_link"] = f"https://q.10jqka.com.cn/stock/bk/{code}/"
             sectors.append(item)
         sectors.sort(key=lambda x: x["score"], reverse=True)
         return sectors
