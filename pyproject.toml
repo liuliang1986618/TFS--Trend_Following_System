@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "trend-following-system"
+version = "1.0.0"
+description = "A股趋势跟随交易系统"
+requires-python = ">=3.10"
+dependencies = [
+    "akshare>=1.14.0",
+    "baostock>=0.8.8",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "pyarrow>=10.0.0",
+]
+
+[project.scripts]
+trend-run = "src.cli:cmd_run"
+trend-dashboard = "src.cli:cmd_dashboard"
+trend-status = "src.cli:cmd_status"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v --tb=short"
