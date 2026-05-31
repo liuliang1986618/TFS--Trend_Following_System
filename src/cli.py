@@ -99,8 +99,12 @@ def cmd_run(date_str: str = None):
 
 
 def cmd_dashboard():
-    """打开HTML Dashboard。"""
-    dashboard_path = os.path.join(os.path.dirname(__file__), "display", "dashboard.html")
+    """打开HTML Dashboard（内嵌数据版，无需服务器，双击即开）。"""
+    # 优先使用内嵌数据的独立版
+    dashboard_path = os.path.join(os.path.dirname(__file__), "..", "dashboard", "index.html")
+    if not os.path.exists(dashboard_path):
+        # 回退到模板版
+        dashboard_path = os.path.join(os.path.dirname(__file__), "display", "dashboard.html")
     if not os.path.exists(dashboard_path):
         print("❌ Dashboard文件不存在，请先运行 `run` 命令")
         return
