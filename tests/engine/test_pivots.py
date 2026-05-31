@@ -75,16 +75,15 @@ class TestPivotDetector:
         → 少亏钱：过期的支撑/阻力位已失去技术意义，参考它们
           会导致错误的止损/止盈位置。
         """
-        n = 80
+        n = 100
         dates = pd.date_range("2026-01-01", periods=n, freq="B")
         closes = [10.0 + i * 0.2 for i in range(20)] + \
-                 [14.0 - i * 0.05 for i in range(60)]
+                 [14.0 - i * 0.05 for i in range(80)]
         volumes = [1000000] * n
         df = make_ohlcv(dates, closes, volumes)
         recent_high = PivotDetector.recent_high(df, max_age=60)
-        if recent_high is not None:
-            days_ago = (df.index[-1] - recent_high["date"]).days
-            assert days_ago <= 70
+        # 极值在79个交易日之外(>60)，应被过滤——返回None
+        assert recent_high is None
 
     def test_get_last_two_highs(self):
         """检测最近2个更高高点（满足结构A条件）。

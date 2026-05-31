@@ -77,7 +77,7 @@ class StageClassifier:
         ret_20d = (closes.iloc[-1] / closes.iloc[-21] - 1) if len(closes) >= 21 else 0
         avg_5d_rate = ret_5d / 5
         avg_20d_rate = ret_20d / 20
-        if avg_20d_rate > 0 and avg_5d_rate > avg_20d_rate * 3:
+        if avg_20d_rate > 0 and avg_5d_rate > avg_20d_rate * 3 and avg_5d_rate > 0.005:
             signals.append(f"斜率加速: 近5日日均涨幅{avg_5d_rate*100:.1f}% vs 20日均速{avg_20d_rate*100:.1f}%")
 
         # 信号2：放量滞涨——多空分歧加大

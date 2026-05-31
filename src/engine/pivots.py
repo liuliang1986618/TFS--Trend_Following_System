@@ -65,7 +65,7 @@ class PivotDetector:
     def recent_high(daily_df: pd.DataFrame, max_age: int = 60) -> Optional[Dict]:
         """获取最近一个有效前高。
 
-        max_age: 最大有效自然日天数
+        max_age: 最大有效交易日数（设计文档§2.3: ≤60个交易日）
 
         Returns:
             {"date": Timestamp, "price": float} 或 None
@@ -76,8 +76,9 @@ class PivotDetector:
 
         last_date = daily_df.index[-1]
         for idx in reversed(pivot_highs.index):
-            days_diff = (last_date - idx).days
-            if days_diff <= max_age:
+            # 使用交易日计数（索引位置差）而非日历日
+            trading_days_diff = len(daily_df.loc[idx:last_date]) - 1
+            if trading_days_diff <= max_age:
                 return {
                     "date": idx,
                     "price": float(pivot_highs.loc[idx, "high"]),
@@ -97,8 +98,9 @@ class PivotDetector:
 
         last_date = daily_df.index[-1]
         for idx in reversed(pivot_lows.index):
-            days_diff = (last_date - idx).days
-            if days_diff <= max_age:
+            # 使用交易日计数（索引位置差）而非日历日
+            trading_days_diff = len(daily_df.loc[idx:last_date]) - 1
+            if trading_days_diff <= max_age:
                 return {
                     "date": idx,
                     "price": float(pivot_lows.loc[idx, "low"]),
@@ -106,8 +108,10 @@ class PivotDetector:
         return None
 
     @staticmethod
-    def get_last_n_highs(daily_df: pd.DataFrame, n: int = 2) -> List[Dict]:
+    def get_last_n_highs(daily_df: pd.DataFrame, n: int = 2, max_age: int = 60) -> List[Dict]:
         """获取最近n个有效前高（按时间升序）。
+
+        max_age: 最大有效交易日数（设计文档§2.3: ≤60个交易日）
 
         → 多赚钱：2个更高高=完整上涨结构=状态3→4的买点确认。
           这是仓位从1/3加到100%的核心依据。
@@ -119,7 +123,9 @@ class PivotDetector:
         last_date = daily_df.index[-1]
         valid = []
         for idx in pivot_highs.index:
-            if (last_date - idx).days <= 60:
+            # 使用交易日计数（索引位置差）而非日历日
+            trading_days_diff = len(daily_df.loc[idx:last_date]) - 1
+            if trading_days_diff <= max_age:
                 valid.append({
                     "date": idx,
                     "price": float(pivot_highs.loc[idx, "high"]),
@@ -129,8 +135,10 @@ class PivotDetector:
         return valid[-n:] if len(valid) >= n else valid
 
     @staticmethod
-    def get_last_n_lows(daily_df: pd.DataFrame, n: int = 2) -> List[Dict]:
+    def get_last_n_lows(daily_df: pd.DataFrame, n: int = 2, max_age: int = 60) -> List[Dict]:
         """获取最近n个有效前低（按时间升序）。
+
+        max_age: 最大有效交易日数（设计文档§2.3: ≤60个交易日）
 
         → 少亏钱：2个更高低=上涨结构完整。前低依次抬高=回调深度在收窄，
           趋势越来越健康。前低不再抬高=上涨结构松动=预警信号。
@@ -142,7 +150,9 @@ class PivotDetector:
         last_date = daily_df.index[-1]
         valid = []
         for idx in pivot_lows.index:
-            if (last_date - idx).days <= 60:
+            # 使用交易日计数（索引位置差）而非日历日
+            trading_days_diff = len(daily_df.loc[idx:last_date]) - 1
+            if trading_days_diff <= max_age:
                 valid.append({
                     "date": idx,
                     "price": float(pivot_lows.loc[idx, "low"]),

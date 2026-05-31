@@ -47,6 +47,8 @@ class TrendState:
     volume_surge: bool = False
     volume_shrink: bool = False
     above_ma20: bool = False
+    broke_prev_high: bool = False  # 是否突破前高
+    broke_prev_low: bool = False   # 是否跌破前低
 
 
 class StateMachine:
@@ -64,7 +66,7 @@ class StateMachine:
         4: "上涨趋势", 5: "上涨中的回调", "3'": "转跌确认中",
     }
     POSITIONS = {
-        1: 0.0, 2: 0.0, 3: 0.25, 4: 1.0, 5: 1.0, "3'": 0.333,
+        1: 0.0, 2: 0.0, 3: 0.166, 4: 1.0, 5: 1.0, "3'": 0.333,
     }
 
     @classmethod
@@ -120,6 +122,13 @@ class StateMachine:
                 state = 3  # 突破前高但尚未完全确认
             else:
                 state = 2  # 反弹未突破
+        elif struct_ok:
+            # 结构OK但量能或持续性其一不足 → 可能是早期翻转或反弹
+            # → 少亏钱：宁可判为状态2/3进一步观察，也不判为状态1错失机会
+            if broke_prev_high and above_ma20:
+                state = 3  # 突破前高+站上均线 → 翻转确认中
+            else:
+                state = 2  # 反弹未突破 → 继续观察
         elif not struct_ok and above_ma20 and consecutive_rise:
             state = 2
         elif consecutive_drop and broke_prev_low and volume_surge:
@@ -141,6 +150,8 @@ class StateMachine:
             volume_surge=volume_surge,
             volume_shrink=volume_shrink,
             above_ma20=above_ma20,
+            broke_prev_high=broke_prev_high,
+            broke_prev_low=broke_prev_low,
         )
 
     @classmethod
