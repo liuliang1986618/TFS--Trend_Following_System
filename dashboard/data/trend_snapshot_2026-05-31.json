@@ -1,162 +1,213 @@
 {
   "meta": {
     "date": "2026-05-31",
-    "generated_at": "2026-05-31T23:37:15.162775",
+    "generated_at": "2026-05-31T23:45:12.402099",
     "version": "1.0"
   },
   "market_overview": {
-    "uptrend_sectors": 1,
-    "active_themes": 1,
-    "trend_stocks": 1,
+    "uptrend_sectors": 2,
+    "active_themes": 0,
+    "trend_stocks": 2,
     "trend_etfs": 0,
     "market_mood": "谨慎 — 机会稀少，多看少动",
     "key_actions_count": 0
   },
   "sectors": [
     {
-      "symbol": "BK0488",
-      "name": "银行",
+      "symbol": 881131,
+      "name": "白色家电",
       "type": "sector",
       "state": 4,
       "state_label": "上涨趋势",
-      "stage": "mid",
-      "stage_label": "中期",
+      "stage": "mid_late",
+      "stage_label": "中后期",
       "stage_reasons": [
-        "状态4健康运行，无异常信号——主升浪持股"
+        "出现连续下跌——警惕趋势松动",
+        "状态4持续运行，个别信号需关注"
       ],
       "position_ratio": 1.0,
       "score": 100,
       "conditions": {
         "structure": {
           "pass": true,
-          "detail": "1更高高+1更高低 (初步结构, 前高=14.78)"
+          "detail": "1更高高+1更高低 (初步结构, 前高=9127.54)"
         },
         "volume": {
           "pass": true,
-          "detail": "近20日无阴线, 极强多头(涨均量远超跌均量)"
+          "detail": "上涨均量>下跌均量 1.0x (涨10.3亿 vs 跌9.9亿)"
         },
         "persistence": {
           "pass": true,
-          "detail": "近20日阳20/0阴, 最大连阳20天"
+          "detail": "近20日阳12/8阴, 最大连阳6天"
         }
       },
       "signals": {
-        "above_ma20": true,
+        "above_ma20": false,
         "volume_surge": false,
         "volume_shrink": false,
-        "consecutive_rise": "False",
-        "consecutive_drop": false
+        "consecutive_rise": false,
+        "consecutive_drop": "True"
       },
       "pivots": {
         "prev_high": {
-          "date": "2026-05-01 00:00:00",
-          "price": 14.78417635476582
+          "date": "2026-05-21 00:00:00",
+          "price": 9127.544
         },
         "prev_low": {
-          "date": "2026-05-05 00:00:00",
-          "price": 14.035535877114299
+          "date": "2026-05-14 00:00:00",
+          "price": 8799.663
         }
       },
-      "bk_code": "BK0488",
-      "external_link": "https://quote.eastmoney.com/bk/xx.BK0488.html"
-    }
-  ],
-  "themes": [
+      "bk_code": 881131,
+      "external_link": "https://quote.eastmoney.com/bk/xx.881131.html"
+    },
     {
-      "symbol": "GN003",
-      "name": "白酒",
-      "type": "theme",
+      "symbol": 881277,
+      "name": "电机",
+      "type": "sector",
       "state": 4,
       "state_label": "上涨趋势",
-      "stage": "mid",
-      "stage_label": "中期",
+      "stage": "mid_late",
+      "stage_label": "中后期",
       "stage_reasons": [
-        "状态4健康运行，无异常信号——主升浪持股"
+        "出现连续下跌——警惕趋势松动",
+        "状态4持续运行，个别信号需关注"
       ],
       "position_ratio": 1.0,
       "score": 100,
       "conditions": {
         "structure": {
           "pass": true,
-          "detail": "1更高高+1更高低 (初步结构, 前高=18.87)"
+          "detail": "1更高高+1更高低 (初步结构, 前高=4337.13)"
         },
         "volume": {
           "pass": true,
-          "detail": "近20日无阴线, 极强多头(涨均量远超跌均量)"
+          "detail": "上涨均量>下跌均量 1.2x (涨6.1亿 vs 跌5.0亿)"
         },
         "persistence": {
           "pass": true,
-          "detail": "近20日阳20/0阴, 最大连阳20天"
+          "detail": "近20日阳14/6阴, 最大连阳7天"
         }
       },
       "signals": {
-        "above_ma20": true,
+        "above_ma20": false,
         "volume_surge": false,
         "volume_shrink": false,
-        "consecutive_rise": "False",
-        "consecutive_drop": false
+        "consecutive_rise": false,
+        "consecutive_drop": "True"
       },
       "pivots": {
         "prev_high": {
-          "date": "2026-05-08 00:00:00",
-          "price": 18.871465832451236
+          "date": "2026-05-26 00:00:00",
+          "price": 4337.134
         },
         "prev_low": {
-          "date": "2026-05-05 00:00:00",
-          "price": 17.758276395955832
+          "date": "2026-05-22 00:00:00",
+          "price": 4036.422
         }
       },
-      "gn_code": "GN003",
-      "external_link": "https://q.10jqka.com.cn/gn/detail/code/GN003/"
+      "bk_code": 881277,
+      "external_link": "https://quote.eastmoney.com/bk/xx.881277.html"
     }
   ],
+  "themes": [],
   "stocks": [
     {
-      "symbol": "600519",
-      "name": "贵州茅台",
+      "symbol": "000333",
+      "name": "美的集团",
       "type": "stock",
       "state": 4,
       "state_label": "上涨趋势",
-      "stage": "mid",
-      "stage_label": "中期",
+      "stage": "mid_late",
+      "stage_label": "中后期",
       "stage_reasons": [
-        "状态4健康运行，无异常信号——主升浪持股"
+        "放量但未创新高——可能滞涨",
+        "状态4持续运行，个别信号需关注"
       ],
       "position_ratio": 1.0,
       "score": 100,
       "conditions": {
         "structure": {
           "pass": true,
-          "detail": "1更高高+1更高低 (初步结构, 前高=1599.93)"
+          "detail": "1更高高+1更高低 (初步结构, 前高=83.44)"
         },
         "volume": {
           "pass": true,
-          "detail": "近20日无阴线, 极强多头(涨均量远超跌均量)"
+          "detail": "上涨均量>下跌均量 1.2x (涨0.4亿 vs 跌0.3亿)"
         },
         "persistence": {
           "pass": true,
-          "detail": "近20日阳20/0阴, 最大连阳20天"
+          "detail": "近20日阳12/8阴, 最大连阳4天"
         }
       },
       "signals": {
         "above_ma20": true,
-        "volume_surge": false,
+        "volume_surge": true,
         "volume_shrink": false,
-        "consecutive_rise": "False",
+        "consecutive_rise": false,
         "consecutive_drop": false
       },
       "pivots": {
         "prev_high": {
-          "date": "2026-03-13 00:00:00",
-          "price": 1599.9251277553874
+          "date": "2026-05-18 00:00:00",
+          "price": 83.44
         },
         "prev_low": {
-          "date": "2026-05-12 00:00:00",
-          "price": 1599.1623682833151
+          "date": "2026-05-06 00:00:00",
+          "price": 79.15
         }
       },
-      "external_link": "https://stockpage.10jqka.com.cn/600519/",
-      "stop_loss": 1591.17,
+      "external_link": "https://stockpage.10jqka.com.cn/000333/",
+      "stop_loss": 78.75,
+      "broke_prev_high": "False",
+      "broke_prev_low": "False"
+    },
+    {
+      "symbol": "688981",
+      "name": "中芯国际",
+      "type": "stock",
+      "state": 3,
+      "state_label": "翻转确认中",
+      "stage": "early",
+      "stage_label": "前期",
+      "stage_reasons": [
+        "状态3翻转确认中，处于趋势初期——盈亏比最佳位置"
+      ],
+      "position_ratio": 0.166,
+      "score": 60,
+      "conditions": {
+        "structure": {
+          "pass": true,
+          "detail": "1更高高+1更高低 (初步结构, 前高=128.12)"
+        },
+        "volume": {
+          "pass": true,
+          "detail": "上涨均量>下跌均量 1.2x (涨1.3亿 vs 跌1.1亿)"
+        },
+        "persistence": {
+          "pass": false,
+          "detail": "阴盛阳衰(阳10/阴10), 空头主导"
+        }
+      },
+      "signals": {
+        "above_ma20": true,
+        "volume_surge": true,
+        "volume_shrink": false,
+        "consecutive_rise": false,
+        "consecutive_drop": false
+      },
+      "pivots": {
+        "prev_high": {
+          "date": "2026-05-06 00:00:00",
+          "price": 128.12
+        },
+        "prev_low": {
+          "date": "2026-05-19 00:00:00",
+          "price": 112.68
+        }
+      },
+      "external_link": "https://stockpage.10jqka.com.cn/688981/",
+      "stop_loss": 112.12,
       "broke_prev_high": "True",
       "broke_prev_low": "False"
     }
@@ -165,11 +216,41 @@
   "key_actions": [],
   "scenario_plans": [
     {
-      "symbol": "600519",
-      "name": "贵州茅台",
+      "symbol": "688981",
+      "name": "中芯国际",
+      "current_state": "翻转确认中",
+      "position": 0.166,
+      "stop_loss": 112.12,
+      "scenarios": [
+        {
+          "label": "场景A(大概率)",
+          "probability": "大概率",
+          "conditions": "回调不破前低, 继续整理",
+          "action": "维持试探仓, 等待确认",
+          "next_state": "状态3→3"
+        },
+        {
+          "label": "场景B(中概率)",
+          "probability": "中概率",
+          "conditions": "放量再创新高, 结构完整",
+          "action": "加至标准仓(100%)",
+          "next_state": "状态3→4"
+        },
+        {
+          "label": "场景C(小概率)",
+          "probability": "小概率",
+          "conditions": "放量跌破前低, 假突破确认",
+          "action": "全部清仓止损",
+          "next_state": "状态3→1"
+        }
+      ]
+    },
+    {
+      "symbol": "000333",
+      "name": "美的集团",
       "current_state": "上涨趋势",
       "position": 1.0,
-      "stop_loss": 1591.17,
+      "stop_loss": 78.75,
       "scenarios": [
         {
           "label": "场景A(大概率)",
@@ -202,9 +283,9 @@
     "note": "首次运行，无前日对比数据 — 明日开始显示趋势变化"
   },
   "market_breadth": {
-    "uptrend_sectors": 1,
-    "state4_sectors": 1,
-    "uptrend_stocks": 1,
+    "uptrend_sectors": 2,
+    "state4_sectors": 2,
+    "uptrend_stocks": 2,
     "uptrend_etfs": 0,
     "market_health": "弱势"
   },
