@@ -177,10 +177,13 @@ Python 趋势跟随交易系统
 ---
 
 ## 已有数据
-- 10个交易日完整快照：`dashboard/trend_dashboard_{date}.html`
+
+- **822个交易日完整数据**（2023-01-03 ~ 2026-05-29，3年+），90个板块指数日K全部覆盖
 - 每日快照JSON：`dashboard/data/trend_snapshot_{date}.json`
 - 完整分析数据：`dashboard/data/dashboard_data.json`
+- 板块日K parquet：`dashboard/data/sector_{code}.parquet`（含2023~2026全量历史）
 - 场景推演已有雏形：`src/analysis/scenario.py`（ScenarioEngine类，6种状态各2-3个场景）
+- **推演验证数据量充足**：821天历史×90板块=73,890次推演验证机会，统计意义充分
 
 ## 设计约束
 1. 在现有Dashboard页面内实现，不另起页面
