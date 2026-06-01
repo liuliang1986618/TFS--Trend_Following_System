@@ -112,21 +112,22 @@ class StateMachine:
             broke_prev_low = closes.iloc[-1] < prev_low["price"]
 
         # 独立状态判定
-        # 硬门槛: MA20下方最多判为状态3(试探), 绝不能判状态4(满仓)
-        # 环境治理案例: 三条件全过但价格在MA20下方-5.7%, 近15天持续下跌
-        # → 少亏钱: 不在均线下方重仓, 这是保命铁律
-        max_state = 3 if not above_ma20 else 5  # MA20下方封顶状态3
+        # MA20硬门槛
+        ma20_below = not above_ma20
+        ma20_far_below = ma20_below and closes.iloc[-1] < closes.rolling(20).mean().iloc[-1] * 0.95  # -5%以下
 
         if struct_ok and volume_ok and persist_ok:
-            if consecutive_drop and not broke_prev_low and volume_shrink:
-                state = 5  # 上涨中的正常回调
+            if not above_ma20:
+                state = 3  # 三条件全过但MA20下方→最多翻转确认
+            elif consecutive_drop and not broke_prev_low and volume_shrink:
+                state = 5
             else:
-                state = 4  # 健康上涨
+                state = 4
         elif struct_ok and persist_ok and not volume_ok:
             if above_ma20:
                 state = 4 if broke_prev_high else 3
             else:
-                state = 2  # MA20下方, 结构+持续性好但无量→最多反弹
+                state = 2
         elif struct_ok and not volume_ok and not persist_ok:
             if broke_prev_high and above_ma20:
                 state = 3
@@ -155,9 +156,12 @@ class StateMachine:
         else:
             state = 1
 
-        # MA20硬门槛: 状态4/5必须在MA20上方
+        # MA20硬门槛
         if state in (4, 5) and not above_ma20:
-            state = 3  # 降级为翻转确认
+            state = 3
+        # MA20远低于(-5%): 状态3也不可信, 降为状态2
+        if state == 3 and ma20_far_below:
+            state = 2
 
         return TrendState(
             state=state,
