@@ -88,9 +88,12 @@ h += '<div class="header"><div style="display:flex;align-items:center;gap:12px">
 
 # Overview row
 ov_items = [
-    (ov['total_sectors'],'全板块','#8b949e'),(ov['uptrend_sectors'],'上涨(3/4/5)','#58a6ff'),
-    (ov.get('reversal_sectors',0),'翻转关注🔵','#42a5f5'),(ov['mainline_sectors'],'主线★','#d29922'),
-    (ov['trend_stocks'],'趋势个股','#3fb950'),(ov.get('trend_etfs',0),'趋势ETF','#a371f7'),
+    (ov['total_sectors'],'全部板块','#8b949e'),
+    (ov['uptrend_sectors'],'上涨趋势板块','#58a6ff'),
+    (ov.get('reversal_sectors',0),'翻转确认中','#42a5f5'),
+    (ov['mainline_sectors'],'主线板块','#d29922'),
+    (ov['trend_stocks'],'上涨趋势个股','#3fb950'),
+    (ov.get('trend_etfs',0),'上涨趋势ETF','#a371f7'),
 ]
 h += '<div class="overview">'
 for v,l,c in ov_items:
@@ -105,7 +108,7 @@ h += '</div></div>'
 
 # Watching
 if watching:
-    h += '<div class="panel"><h2 style="color:#8b949e">👀 观察区（状态2 — 接近突破MA20）</h2><div class="focus-grid">'
+    h += '<div class="panel"><h2 style="color:#8b949e">👀 观察区（反弹中 — 接近突破，随时可能进入上涨趋势）</h2><div class="focus-grid">'
     for s in watching:
         h += card(s, False)
     h += '</div></div>'
