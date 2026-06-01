@@ -76,8 +76,15 @@ h += '<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0d1117;
 # Header
 hc_map = {"强势":"#39d353","正常":"#d29922","弱势":"#da3633"}
 hc = hc_map.get(ov["market_health"],"#da3633")
-h += '<div class="header"><div style="display:flex;align-items:center;gap:12px"><h1>趋势跟随交易系统</h1><select onchange="if(this.value)window.location.href=this.value" style="background:#161b22;border:1px solid #30363d;color:#e6edf3;padding:4px 8px;border-radius:4px;font-size:12px;cursor:pointer"><option>%s</option></select></div><div style="font-size:10px;color:#8b949e">板块→个股 漏斗筛选 · 800只核心标的</div></div><span style="background:rgba(%s,0.15);color:%s;border:1px solid %s;padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700">%s</span></div>' % (
-    data["date"], "35,134,54" if ov["market_health"]=="强势" else "210,153,34" if ov["market_health"]=="正常" else "218,54,51", hc, hc, ov["market_health"])
+# Date selector
+daily_dates = data.get("daily_snapshots", [data["date"]])
+date_opts = ""
+for d in sorted(daily_dates, reverse=True):
+    sel = " selected" if d == data["date"] else ""
+    date_opts += '<option value="trend_dashboard_%s.html"%s>%s</option>' % (d, sel, d)
+
+h += '<div class="header"><div style="display:flex;align-items:center;gap:12px"><h1>趋势跟随交易系统</h1><select onchange="if(this.value)window.location.href=this.value" style="background:#161b22;border:1px solid #30363d;color:#e6edf3;padding:4px 8px;border-radius:4px;font-size:12px;cursor:pointer">%s</select></div><div style="font-size:10px;color:#8b949e">板块→个股 漏斗筛选 · 800只核心标的 · %d天历史</div></div><span style="background:rgba(%s,0.15);color:%s;border:1px solid %s;padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700">%s</span></div>' % (
+    date_opts, len(daily_dates), "35,134,54" if ov["market_health"]=="强势" else "210,153,34" if ov["market_health"]=="正常" else "218,54,51", hc, hc, ov["market_health"])
 
 # Overview row
 ov_items = [
@@ -149,7 +156,31 @@ if etfs:
         h += '<td style="font-weight:600">%d%%</td></tr>' % int(e["position"]*100)
     h += '</tbody></table></div>'
 
-h += '<div class="footer">趋势跟随交易系统 | 焦点%d板块 | 趋势%d个股 | %dETF | %s | ★主线 🔵翻转 | 免责声明:仅供辅助参考</div></body></html>' % (len(focus), len(stocks), len(etfs), data["date"])
+# Backtest section
+bt = data.get("backtest", {})
+if bt:
+    h += '<div class="panel"><h2>📊 回测结果（%s — 状态机板块轮动策略）<span style="color:#8b949e;font-weight:400;font-size:11px"> 基于状态2→3买入, 状态1/3\'止损</span></h2>' % bt.get("period","")
+    h += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">'
+    h += '<div class="card"><div class="v" style="color:%s">%+.1f%%</div><div class="l">总收益</div></div>' % ("#26a69a" if bt.get("total_return",0)>=0 else "#ef5350", bt.get("total_return",0))
+    h += '<div class="card"><div class="v" style="color:#ef5350">%.1f%%</div><div class="l">最大回撤</div></div>' % bt.get("max_drawdown",0)
+    h += '<div class="card"><div class="v" style="color:#58a6ff">%d</div><div class="l">交易次数</div></div>' % bt.get("num_trades",0)
+    h += '<div class="card"><div class="v" style="color:#8b949e">%s</div><div class="l">初始资金</div></div>' % ("{:,}".format(int(bt.get("initial_capital",0))))
+    h += '<div class="card"><div class="v" style="color:%s">%s</div><div class="l">最终权益</div></div>' % ("#26a69a" if bt.get("final_equity",0)>=bt.get("initial_capital",1) else "#ef5350", "{:,}".format(int(bt.get("final_equity",0))))
+    h += '</div>'
+    # Recent trades
+    trades_list = bt.get("trades", [])[-5:]
+    if trades_list:
+        h += '<div style="font-size:12px;color:#8b949e;margin-bottom:4px">最近交易:</div>'
+        h += '<div class="all-t"><table><thead><tr><th>日期</th><th>标的</th><th>操作</th><th>价格</th><th>盈亏</th></tr></thead><tbody>'
+        for t in trades_list:
+            pnl_str = "%+.1f%%" % t.get("pnl_pct",0) if "pnl_pct" in t else "-"
+            pnl_color = "#26a69a" if t.get("pnl_pct",0) >= 0 else "#ef5350"
+            h += '<tr><td>%s</td><td>%s</td><td style="color:%s">%s</td><td>%.2f</td><td style="color:%s">%s</td></tr>' % (
+                t["date"], t["code"], "#26a69a" if t["action"]=="买入" else "#ef5350", t["action"], t["price"], pnl_color, pnl_str)
+        h += '</tbody></table></div>'
+    h += '</div>'
+
+h += '<div class="footer">趋势跟随交易系统 | 焦点%d板块 | 趋势%d个股 | %dETF | %s | %d天回测 | ★主线 🔵翻转 | 免责声明:仅供辅助参考</div></body></html>' % (len(focus), len(stocks), len(etfs), data["date"], len(daily_dates))
 
 with open("dashboard/index.html", "w") as f: f.write(h)
 with open("dashboard/trend_dashboard_%s.html" % data["date"], "w") as f: f.write(h)
