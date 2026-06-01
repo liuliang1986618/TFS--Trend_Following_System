@@ -270,6 +270,21 @@ for code, filepath in stock_files:
     is_yang_s = recent["close"] > recent["open"]
     max_cons_s = 0
     cur_s = 0
+    # 阳线阴线计数
+    yang_s = int(up_mask_s.sum())
+    yin_s = int(down_mask_s.sum())
+    # 前高
+    ph_s = PivotDetector.recent_high(df)
+    # 状态原因
+    reasons_s = []
+    if ts.state == 4:
+        reasons_s.append("三条件全满, 上涨趋势确认")
+    elif ts.state == 3:
+        reasons_s.append("翻转确认中, 试探仓位")
+    elif ts.state == 2:
+        reasons_s.append("下跌中的反弹, 等待突破前高确认")
+    elif ts.state == 1:
+        reasons_s.append("下跌趋势, 空仓观望")
     for v in is_yang_s:
         if bool(v):
             cur_s += 1
@@ -301,15 +316,30 @@ for code, filepath in stock_files:
         "ma_deviation": ma_deviation,
         "ret_20d": ret20,
         "vol_ratio": vol_ratio,
+        "ma20": round(ma20, 1),
+        "yang": yang_s,
+        "yin": yin_s,
+        "max_consecutive_yang": max_cons_s,
         "conditions": {
             "structure": {"pass": ts.conditions["structure"].pass_, "detail": ts.conditions["structure"].detail},
             "volume": {"pass": ts.conditions["volume"].pass_, "detail": ts.conditions["volume"].detail},
             "persistence": {"pass": ts.conditions["persistence"].pass_, "detail": ts.conditions["persistence"].detail},
         },
+        "signals": {
+            "above_ma20": bool(ts.above_ma20),
+            "volume_surge": bool(ts.volume_surge),
+            "volume_shrink": bool(ts.volume_shrink),
+            "consecutive_drop": bool(ts.consecutive_drop),
+            "consecutive_rise": bool(ts.consecutive_rise),
+            "broke_prev_high": bool(ts.broke_prev_high) if hasattr(ts, 'broke_prev_high') else False,
+            "broke_prev_low": bool(ts.broke_prev_low) if hasattr(ts, 'broke_prev_low') else False,
+        },
+        "reasons": reasons_s,
+        "prev_high": {"price": round(ph["price"], 2), "date": str(ph["date"])[:10]} if ph else None,
+        "prev_low": {"price": round(pl["price"], 2), "date": str(pl["date"])[:10]} if pl else None,
         "is_mainline": ts.state == 4 and ts.conditions["structure"].pass_ and ts.conditions["volume"].pass_ and ts.conditions["persistence"].pass_,
         "link": f"https://quote.eastmoney.com/{market}{code}.html",
         "score": score,
-        "max_consecutive_yang": max_cons_s,
     })
 
 all_stocks.sort(key=lambda x: -x["score"])

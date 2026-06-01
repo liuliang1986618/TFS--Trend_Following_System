@@ -589,6 +589,8 @@ function fmtPrice(v) {{ return typeof v === 'number' ? v.toLocaleString('zh-CN',
 function fmtPct(v) {{ return typeof v === 'number' ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : v; }}
 function fmtRatio(v) {{ return typeof v === 'number' ? v.toFixed(2) : v; }}
 function stateClass(s) {{ return s === "3'" ? 'state-3p' : 'state-' + s; }}
+function sig(item, key) {{ return (item.signals && item.signals[key]) || false; }}
+function safeVal(v, fallback) {{ return v !== undefined && v !== null ? v : (fallback || 'N/A'); }}
 
 function getScoreColor(s) {{
   if (s >= 80) return 'var(--teal)';
@@ -703,13 +705,13 @@ function posLabel(p) {{
         <h4>📋 技术指标</h4>
         <p style="font-size:12px;line-height:1.8">
           MA20: ${{s.ma20 ? s.ma20.toLocaleString() : 'N/A'}}<br>
-          均线上方: ${{s.signals.above_ma20 ? '<span class="arrow-up">是</span>' : '<span class="arrow-down">否</span>'}}<br>
-          放量: ${{s.signals.volume_surge ? '<span class="arrow-up">是</span>' : '否'}} |
-          缩量: ${{s.signals.volume_shrink ? '是' : '否'}}<br>
-          连跌: ${{s.signals.consecutive_drop ? '<span class="arrow-down">是</span>' : '否'}} |
-          连涨: ${{s.signals.consecutive_rise ? '<span class="arrow-up">是</span>' : '否'}}<br>
-          突破前高: ${{s.signals.broke_prev_high ? '<span class="arrow-up">是</span>' : '否'}} |
-          跌破前低: ${{s.signals.broke_prev_low ? '<span class="arrow-down">是</span>' : '否'}}<br>
+          均线上方: ${{sig(s,'above_ma20') ? '<span class="arrow-up">是</span>' : '<span class="arrow-down">否</span>'}}<br>
+          放量: ${{sig(s,'volume_surge') ? '<span class="arrow-up">是</span>' : '否'}} |
+          缩量: ${{sig(s,'volume_shrink') ? '是' : '否'}}<br>
+          连跌: ${{sig(s,'consecutive_drop') ? '<span class="arrow-down">是</span>' : '否'}} |
+          连涨: ${{sig(s,'consecutive_rise') ? '<span class="arrow-up">是</span>' : '否'}}<br>
+          突破前高: ${{sig(s,'broke_prev_high') ? '<span class="arrow-up">是</span>' : '否'}} |
+          跌破前低: ${{sig(s,'broke_prev_low') ? '<span class="arrow-down">是</span>' : '否'}}<br>
           近20日: 阳${{s.yang}}/阴${{s.yin}}
         </p>
       </div>
