@@ -10,7 +10,6 @@ import json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pandas as pd
-import urllib.parse
 import numpy as np
 from src.engine.state_machine import StateMachine
 from src.engine.conditions import TrendConditions
@@ -194,7 +193,7 @@ for _, row in sectors_df.iterrows():
         "prev_high": {"price": round(ph["price"], 2), "date": str(ph["date"])[:10]} if ph else None,
         "prev_low": {"price": round(pl["price"], 2), "date": str(pl["date"])[:10]} if pl else None,
         "is_mainline": is_mainline,
-        "link": f"https://so.eastmoney.com/news/s?keyword={urllib.parse.quote(name)}",
+        "link": f"https://q.10jqka.com.cn/thshy/detail/code/{code}/",
         "score": score,
         "reasons": reasons,
         "signals": {
