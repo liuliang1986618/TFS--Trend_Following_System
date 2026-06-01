@@ -112,23 +112,36 @@ class StateMachine:
             broke_prev_low = closes.iloc[-1] < prev_low["price"]
 
         # 独立状态判定
+        # 设计文档§2.1: 三条件缺一不可，但结构+持续性双满足=趋势已形成的强信号
         if struct_ok and volume_ok and persist_ok:
             if consecutive_drop and not broke_prev_low and volume_shrink:
                 state = 5  # 上涨中的正常回调
             else:
                 state = 4  # 健康上涨
+        elif struct_ok and persist_ok and not volume_ok:
+            # 结构+持续性双满足，仅量能不足 → 大概率是上涨趋势中的短暂缩量
+            # 半导体案例: +17.5%, 14/6阳/阴, 连阳8天，仅因2天极端放量暴跌拉低量比
+            # → 少亏钱: 不应判为状态2(观望)而错失趋势，应判为状态3(试探)或状态4(确认)
+            if above_ma20:
+                state = 4 if broke_prev_high else 3  # 站上均线=至少翻转确认
+            else:
+                state = 3  # 即使均线下方，结构+持续性也值得试探
         elif struct_ok and not volume_ok and not persist_ok:
             if broke_prev_high:
                 state = 3  # 突破前高但尚未完全确认
             else:
                 state = 2  # 反弹未突破
-        elif struct_ok:
-            # 结构OK但量能或持续性其一不足 → 可能是早期翻转或反弹
-            # → 少亏钱：宁可判为状态2/3进一步观察，也不判为状态1错失机会
+        elif struct_ok and volume_ok and not persist_ok:
+            # 结构+量能OK，持续性不足 → 可能是趋势启动初期
             if broke_prev_high and above_ma20:
-                state = 3  # 突破前高+站上均线 → 翻转确认中
+                state = 3
             else:
-                state = 2  # 反弹未突破 → 继续观察
+                state = 2
+        elif struct_ok:
+            if broke_prev_high and above_ma20:
+                state = 3
+            else:
+                state = 2
         elif not struct_ok and above_ma20 and consecutive_rise:
             state = 2
         elif consecutive_drop and broke_prev_low and volume_surge:
