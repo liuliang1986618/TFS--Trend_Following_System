@@ -264,12 +264,17 @@ for s_l in all_sectors:
 empty_ldr = sum(1 for s_l in all_sectors if not s_l.get("leaders"))
 print(f"  板块龙头: {len(all_sectors)-empty_ldr}/{len(all_sectors)} 有数据")
 
-# ETF→板块关联
-for s_l in all_sectors:
-    s_l["etfs"] = []
-    for e_l in all_etfs:
-        if s_l["name"] in e_l["name"] or any(kw in e_l["name"] for kw in s_l["name"]):
-            s_l["etfs"].append({"symbol":e_l["code"],"name":e_l["name"],"state":e_l["state"],"state_label":e_l["state_label"]})
+# ETF→板块关联 (从etf_results.json加载)
+if os.path.exists(f"{data_dir}/etf_results.json"):
+    import json as _json
+    with open(f"{data_dir}/etf_results.json") as _f:
+        _all_etfs = _json.load(_f).get("all", [])
+    for s_l in all_sectors:
+        s_l["etfs"] = []
+        for e_l in _all_etfs:
+            ec = e_l.get("code", e_l.get("symbol", ""))
+            if s_l["name"] in e_l["name"] or any(kw in e_l["name"] for kw in s_l["name"]):
+                s_l["etfs"].append({"symbol":ec,"name":e_l["name"],"state":e_l["state"],"state_label":e_l["state_label"]})
 
 data = {
     "date": date_str,
