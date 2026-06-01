@@ -39,7 +39,9 @@ def card(s, is_ml):
         pct(s.get("ma_deviation",0)), pct(s.get("ret_20d",0)), s.get("yang",0), s.get("yin",0),
         s.get("max_consecutive_yang",0), int(s["position"]*100))
     # leaders
-    leaders = s.get("leaders", [])
+    # 过滤龙头: 必须是状态3/4/5且有正收益
+    all_leaders = s.get("leaders", [])
+    leaders = [l for l in all_leaders if l["ret20"] > 0]
     if leaders:
         h += '<div style="font-size:10px;color:#d29922;font-weight:700;margin:8px 0 4px">🏆 龙头个股（近20日涨幅排名）</div>'
         h += '<table style="width:100%;font-size:11px;border-collapse:collapse">'
