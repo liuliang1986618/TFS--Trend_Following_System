@@ -62,9 +62,10 @@ def card(s, is_ml):
         h += '<table style="width:100%;font-size:11px;border-collapse:collapse">'
         h += '<tr style="color:#8b949e;font-size:10px"><th style="text-align:left;padding:2px 4px">ETF</th><th style="text-align:left;padding:2px 4px">状态</th><th style="text-align:left;padding:2px 4px">代码</th></tr>'
         for e in etfs:
-            mkt = "sh" if e["symbol"].startswith("5") else "sz"
-            url = "https://quote.eastmoney.com/%s%s.html" % (mkt, e["symbol"])
-            h += '<tr><td style="padding:2px 4px"><a href="%s" target="_blank" style="color:#a371f7">%s</a></td><td style="padding:2px 4px">%s</td><td style="padding:2px 4px;color:#8b949e;font-size:10px">%s</td></tr>' % (url, e["name"], badge(e["state"], e["state_label"]), e["symbol"])
+            ec = e.get("code", e.get("symbol", ""))
+            mkt = "sh" if ec.startswith("5") else "sz"
+            url = "https://quote.eastmoney.com/%s%s.html" % (mkt, ec)
+            h += '<tr><td style="padding:2px 4px"><a href="%s" target="_blank" style="color:#a371f7">%s</a></td><td style="padding:2px 4px">%s</td><td style="padding:2px 4px;color:#8b949e;font-size:10px">%s</td></tr>' % (url, e["name"], badge(e["state"], e["state_label"]), ec)
         h += '</table>'
     return h + '</div>'
 
@@ -137,7 +138,7 @@ if etfs:
         c = e.get("conditions", {})
         h += '<tr>'
         h += '<td><a href="%s" target="_blank" style="font-weight:600">%s</a></td>' % (e["link"], e["name"])
-        h += '<td style="color:#8b949e;font-size:11px">%s</td>' % e["symbol"]
+        h += '<td style="color:#8b949e;font-size:11px">%s</td>' % e["code"]
         h += '<td>%s</td>' % badge(e["state"], e["state_label"])
         h += '<td style="font-weight:700">%s</td>' % e["score"]
         for k in ["structure","volume","persistence"]:
