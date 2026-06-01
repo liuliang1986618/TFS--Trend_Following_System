@@ -181,6 +181,96 @@ elif uptrend_sectors >= 8:
 else:
     health = "弱势"
 
+
+# ====== 龙头计算：baostock行业全覆盖 ======
+print("\n计算板块龙头...")
+import baostock as bs_l, re as re_l
+bs_l.login()
+rs_l = bs_l.query_stock_industry()
+stock_ind_l = {}
+while (rs_l.error_code=='0') & rs_l.next():
+    row = rs_l.get_row_data()
+    code = row[1].replace("sh.","").replace("sz.","")
+    ind = row[3]
+    m = re_l.match(r'[A-Z]\d+(.+)', ind) if ind else None
+    stock_ind_l[code] = m.group(1) if m else ind
+
+rs2_l = bs_l.query_stock_basic()
+code_name_l = {}
+while (rs2_l.error_code=='0') & rs2_l.next():
+    row = rs2_l.get_row_data()
+    code_name_l[row[0].replace("sh.","").replace("sz.","")] = row[1]
+bs_l.logout()
+
+bs_to_sector_l = {
+    "计算机、通信和其他电子设备制造业": ["半导体","元件","光学光电子","消费电子","电子化学品","其他电子"],
+    "酒、饮料和精制茶制造业": ["白酒","饮料制造","食品饮料"],
+    "货币金融服务": ["银行"],"资本市场服务": ["证券"],"保险业": ["保险"],
+    "电力、热力生产和供应业": ["电力","燃气"],
+    "电气机械和器材制造业": ["电机","白色家电","电池","光伏设备","风电设备","电网设备","其他电源设备","家电","小家电","黑色家电"],
+    "汽车制造业": ["汽车整车","汽车零部件"],
+    "软件和信息技术服务业": ["软件开发","IT服务","计算机应用"],
+    "医药制造业": ["医药生物","化学制药","中药","生物制品"],
+    "专用设备制造业": ["医疗器械","自动化设备","工程机械","轨交设备","环保设备","农化制品"],
+    "煤炭开采和洗选业": ["煤炭开采加工"],"黑色金属冶炼和压延加工业": ["钢铁"],
+    "有色金属冶炼和压延加工业": ["工业金属","小金属","金属新材料","能源金属"],
+    "有色金属矿采选业": ["贵金属","工业金属"],
+    "石油和天然气开采业": ["油气开采及服务","石油加工贸易"],
+    "化学原料和化学制品制造业": ["化学制品","化学原料","化学纤维","塑料","橡胶制品"],
+    "非金属矿物制品业": ["建筑材料","非金属材料"],
+    "房地产业": ["房地产开发","房地产服务"],
+    "生态保护和环境治理业": ["环境治理","环保"],
+    "铁路、船舶、航空航天和其他运输设备制造业": ["军工装备","军工电子","轨交设备"],
+    "电信、广播电视和卫星传输服务": ["通信服务","通信设备"],
+    "互联网和相关服务": ["互联网电商"],"零售业": ["零售","贸易"],"批发业": ["贸易","零售"],
+    "食品制造业": ["食品加工制造","调味品"],"农副食品加工业": ["农产品加工","养殖业"],
+    "农业": ["种植业与林业"],"畜牧业": ["养殖业"],"渔业": ["养殖业"],
+    "纺织业": ["纺织制造"],"纺织服装、服饰业": ["服装家纺"],
+    "造纸和纸制品业": ["造纸"],"印刷和记录媒介复制业": ["包装印刷"],
+    "家具制造业": ["家居用品"],"化学纤维制造业": ["化学纤维"],
+    "橡胶和塑料制品业": ["塑料","橡胶制品"],"通用设备制造业": ["通用设备","自动化设备"],
+    "金属制品业": ["金属新材料"],"道路运输业": ["公路铁路运输","物流"],
+    "水上运输业": ["港口航运"],"航空运输业": ["机场航运"],
+    "仓储业": ["物流"],"邮政业": ["物流"],"住宿业": ["酒店餐饮"],"餐饮业": ["酒店餐饮"],
+    "租赁业": ["其他社会服务"],"商务服务业": ["其他社会服务"],
+    "研究和试验发展": ["医疗服务"],"专业技术服务业": ["其他社会服务"],
+    "卫生": ["医疗器械","医疗服务"],"新闻和出版业": ["文化传媒","传媒"],
+    "广播、电视、电影和影视录音制作业": ["影视院线","文化传媒"],
+    "娱乐业": ["游戏","旅游及酒店"],"综合": ["综合"],"废弃资源综合利用业": ["环保"],
+}
+
+for s_l in all_sectors:
+    sname = s_l["name"]
+    candidates = []
+    for code in code_name_l:
+        ind = stock_ind_l.get(code, "")
+        matched = bs_to_sector_l.get(ind, [])
+        if sname not in matched: continue
+        path = f"{data_dir}/stock_{code}.parquet"
+        if not os.path.exists(path): continue
+        df = pd.read_parquet(path)
+        if len(df) < 20: continue
+        ts = StateMachine.classify(df)
+        price = float(df["close"].iloc[-1])
+        ret20 = (price / float(df["close"].iloc[-21]) - 1) * 100
+        candidates.append({
+            "code":code,"name":code_name_l.get(code,code),"ret20":round(ret20,1),
+            "state":ts.state,"state_label":ts.state_label,
+        })
+    candidates.sort(key=lambda x: (-(x["state"] in (3,4,5)), -x["ret20"]))
+    s_l["leaders"] = candidates[:5]
+    s_l["related_stocks"] = [c["code"] for c in candidates[:10]]
+
+empty_ldr = sum(1 for s_l in all_sectors if not s_l.get("leaders"))
+print(f"  板块龙头: {len(all_sectors)-empty_ldr}/{len(all_sectors)} 有数据")
+
+# ETF→板块关联
+for s_l in all_sectors:
+    s_l["etfs"] = []
+    for e_l in all_etfs:
+        if s_l["name"] in e_l["name"] or any(kw in e_l["name"] for kw in s_l["name"]):
+            s_l["etfs"].append({"symbol":e_l["code"],"name":e_l["name"],"state":e_l["state"],"state_label":e_l["state_label"]})
+
 data = {
     "date": date_str,
     "generated_at": "2026-06-01T00:00:00",
