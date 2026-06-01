@@ -117,6 +117,40 @@ a:hover{{text-decoration:underline}}
 </div>
 '''
 
+# 漏斗结构可视化
+state_count = {}
+for s in sectors:
+    st = s['state']
+    state_count[st] = state_count.get(st, 0) + 1
+funnel_html = f'''<div class="mainline" style="margin-bottom:16px;border-color:rgba(88,166,255,0.3);background:linear-gradient(135deg,rgba(88,166,255,0.05),rgba(88,166,255,0.01))">
+<h2 style="color:#58a6ff">&#128315; 漏斗筛选结构</h2>
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0;font-size:13px">
+<span style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px 16px;text-align:center">
+<div style="font-size:24px;font-weight:800;color:#8b949e">{overview['total_sectors']}</div>
+<div style="font-size:11px;color:#8b949e">全市场板块</div>
+</span>
+<span style="color:#8b949e;font-size:20px">&rarr;</span>
+<span style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px 16px;text-align:center">
+<div style="font-size:24px;font-weight:800;color:#58a6ff">{overview['uptrend_sectors']}</div>
+<div style="font-size:11px;color:#58a6ff">状态3/4/5 板块</div>
+</span>
+<span style="color:#8b949e;font-size:20px">&rarr;</span>
+<span style="background:#161b22;border:2px solid #d29922;border-radius:8px;padding:12px 16px;text-align:center">
+<div style="font-size:24px;font-weight:800;color:#d29922">{overview['mainline_sectors']}</div>
+<div style="font-size:11px;color:#d29922">&#9733; 主线板块</div>
+</span>
+<span style="color:#8b949e;font-size:20px">&rarr;</span>
+<span style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px 16px;text-align:center">
+<div style="font-size:24px;font-weight:800;color:#3fb950">{overview['trend_stocks']}</div>
+<div style="font-size:11px;color:#3fb950">趋势个股</div>
+</span>
+</div>
+<div style="font-size:11px;color:#8b949e;margin-top:8px">
+状态分布: 状态4({state_count.get(4,0)}个) | 状态3({state_count.get(3,0)}个) | 状态2({state_count.get(2,0)}个) | 状态1({state_count.get(1,0)}个)
+</div>
+</div>'''
+html += funnel_html
+
 # 主线板块
 if mainline:
     html += '<div class="mainline"><h2>⭐ 市场主线板块</h2><div class="ml-grid">'
