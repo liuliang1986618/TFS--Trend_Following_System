@@ -53,6 +53,17 @@ def card(s, is_ml):
         h += '</table>'
     else:
         h += '<div style="font-size:10px;color:#8b949e;margin-top:4px">暂无成分股映射数据</div>'
+    # ETFs
+    etfs = s.get("etfs", [])
+    if etfs:
+        h += '<div style="font-size:10px;color:#a371f7;font-weight:700;margin:8px 0 4px">📦 相关ETF</div>'
+        h += '<table style="width:100%;font-size:11px;border-collapse:collapse">'
+        h += '<tr style="color:#8b949e;font-size:10px"><th style="text-align:left;padding:2px 4px">ETF</th><th style="text-align:left;padding:2px 4px">状态</th><th style="text-align:left;padding:2px 4px">代码</th></tr>'
+        for e in etfs:
+            mkt = "sh" if e["symbol"].startswith("5") else "sz"
+            url = "https://quote.eastmoney.com/%s%s.html" % (mkt, e["symbol"])
+            h += '<tr><td style="padding:2px 4px"><a href="%s" target="_blank" style="color:#a371f7">%s</a></td><td style="padding:2px 4px">%s</td><td style="padding:2px 4px;color:#8b949e;font-size:10px">%s</td></tr>' % (url, e["name"], badge(e["state"], e["state_label"]), e["symbol"])
+        h += '</table>'
     return h + '</div>'
 
 # ====== HTML ======
@@ -69,7 +80,7 @@ h += '<div class="header"><div><h1>趋势跟随交易系统</h1><div style="font
 ov_items = [
     (ov['total_sectors'],'全板块','#8b949e'),(ov['uptrend_sectors'],'上涨(3/4/5)','#58a6ff'),
     (ov.get('reversal_sectors',0),'翻转关注🔵','#42a5f5'),(ov['mainline_sectors'],'主线★','#d29922'),
-    (ov['active_themes'],'活跃题材','#a371f7'),(ov['trend_stocks'],'趋势个股','#3fb950'),
+    (ov['trend_stocks'],'趋势个股','#3fb950'),(ov.get('trend_etfs',0),'趋势ETF','#a371f7'),
 ]
 h += '<div class="overview">'
 for v,l,c in ov_items:
@@ -113,7 +124,27 @@ for s in stocks:
     h += '<td style="font-weight:600">%d%%</td></tr>' % int(s["position"]*100)
 h += '</tbody></table></div>'
 
-h += '<div class="footer">趋势跟随交易系统 | 焦点%d板块 | 趋势%d个股 | %s | ★主线 🔵翻转 | 免责声明:仅供辅助参考</div></body></html>' % (len(focus), len(stocks), data["date"])
+# ETF section
+etfs = data.get("etfs", [])
+if etfs:
+    h += '<div class="panel"><h2>📦 ETF直筛（%d只 — 与漏斗并行路径）<span style="color:#8b949e;font-weight:400;font-size:11px"> baostock真实数据</span></h2></div>' % len(etfs)
+    h += '<div class="all-t"><table><thead><tr><th>名称</th><th>代码</th><th>状态</th><th>得分</th><th>A</th><th>B</th><th>C</th><th>MA20偏离</th><th>20日涨跌</th><th>仓位</th></tr></thead><tbody>'
+    for e in etfs:
+        c = e.get("conditions", {})
+        h += '<tr>'
+        h += '<td><a href="%s" target="_blank" style="font-weight:600">%s</a></td>' % (e["link"], e["name"])
+        h += '<td style="color:#8b949e;font-size:11px">%s</td>' % e["symbol"]
+        h += '<td>%s</td>' % badge(e["state"], e["state_label"])
+        h += '<td style="font-weight:700">%s</td>' % e["score"]
+        for k in ["structure","volume","persistence"]:
+            p = c.get(k, {}).get("pass", False) if c else False
+            h += '<td style="color:%s">%s</td>' % (cp(p), ci(p))
+        h += '<td style="color:%s">%s</td>' % ("#26a69a" if e.get("ma_deviation",0)>=0 else "#ef5350", pct(e.get("ma_deviation",0)))
+        h += '<td style="color:%s">%s</td>' % ("#26a69a" if e.get("ret_20d",0)>=0 else "#ef5350", pct(e.get("ret_20d",0)))
+        h += '<td style="font-weight:600">%d%%</td></tr>' % int(e["position"]*100)
+    h += '</tbody></table></div>'
+
+h += '<div class="footer">趋势跟随交易系统 | 焦点%d板块 | 趋势%d个股 | %dETF | %s | ★主线 🔵翻转 | 免责声明:仅供辅助参考</div></body></html>' % (len(focus), len(stocks), len(etfs), data["date"])
 
 with open("dashboard/index.html", "w") as f: f.write(h)
 with open("dashboard/trend_dashboard_%s.html" % data["date"], "w") as f: f.write(h)
