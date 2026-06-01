@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Final dashboard: 1-row overview, expanded cards, leaders with reasons, sector/theme columns, ETFs"""
 import json
+from datetime import datetime
 
 with open("dashboard/data/dashboard_data.json") as f:
     data = json.load(f)
@@ -70,20 +71,28 @@ def card(s, is_ml):
 
 # ====== HTML ======
 h = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>趋势跟随交易系统</title>'
-h += '<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px}.header{background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}.header h1{font-size:17px;background:linear-gradient(90deg,#58a6ff,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.overview{display:flex;gap:0;margin:10px 20px;border:1px solid #30363d;border-radius:8px;overflow:hidden;flex-wrap:wrap}.ov-item{flex:1;min-width:80px;padding:10px 12px;text-align:center;background:#161b22;border-right:1px solid #30363d}.ov-item:last-child{border-right:none}.ov-item .v{font-size:20px;font-weight:800}.ov-item .l{font-size:9px;color:#8b949e;margin-top:1px}.panel{margin:0 20px 12px}.panel h2{font-size:14px;margin-bottom:8px}.focus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:10px}.all-t{overflow-x:auto;border:1px solid #30363d;border-radius:6px;margin:10px 20px 16px}.all-t table{width:100%;border-collapse:collapse;font-size:11px;min-width:1100px}.all-t thead th{background:#21262d;padding:5px 7px;text-align:left;font-size:10px;color:#8b949e;border-bottom:2px solid #30363d;font-weight:600;white-space:nowrap}.all-t tbody td{padding:4px 7px;border-bottom:1px solid #21262d;white-space:nowrap}.all-t tbody tr:hover{background:rgba(88,166,255,0.03)}a{color:#58a6ff;text-decoration:none;font-weight:600}a:hover{text-decoration:underline}.search{margin:8px 20px}.search input{width:100%;padding:6px 12px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:12px;outline:none}.footer{padding:10px 20px;border-top:1px solid #30363d;text-align:center;color:#8b949e;font-size:10px}</style></head><body>'
+h += '<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px}.header{background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}.header h1{font-size:17px;background:linear-gradient(90deg,#58a6ff,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.overview{display:flex;gap:0;margin:10px 20px;border:1px solid #30363d;border-radius:8px;overflow:hidden;flex-wrap:wrap}.ov-item{flex:1;min-width:80px;padding:10px 12px;text-align:center;background:#161b22;border-right:1px solid #30363d}.ov-item:last-child{border-right:none}.ov-item .v{font-size:20px;font-weight:800}.ov-item .l{font-size:9px;color:#8b949e;margin-top:1px}.panel{margin:0 20px 12px}.panel h2{font-size:14px;margin-bottom:8px}.focus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:10px}.all-t{overflow-x:auto;border:1px solid #30363d;border-radius:6px;margin:10px 20px 16px}.all-t table{width:100%;border-collapse:collapse;font-size:11px;min-width:1100px}.all-t thead th{background:#21262d;padding:5px 7px;text-align:left;font-size:10px;color:#8b949e;border-bottom:2px solid #30363d;font-weight:600;white-space:nowrap}.all-t tbody td{padding:4px 7px;border-bottom:1px solid #21262d;white-space:nowrap}.all-t tbody tr:hover{background:rgba(88,166,255,0.03)}a{color:#58a6ff;text-decoration:none;font-weight:600}a:hover{text-decoration:underline}.search{margin:8px 20px}.search input{width:100%;padding:6px 12px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:12px;outline:none}.footer{padding:10px 20px;border-top:1px solid #30363d;text-align:center;color:#8b949e;font-size:10px}.date-bar{display:flex;gap:6px;padding:8px 20px;overflow-x:auto;border-bottom:1px solid #30363d;background:#0d1117;flex-wrap:wrap}.date-chip{background:#161b22;border:1px solid #30363d;color:#8b949e;padding:6px 14px;border-radius:16px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:all 0.15s}.date-chip:hover{background:#1c2128;border-color:#58a6ff;color:#e6edf3}.date-chip.active{background:rgba(88,166,255,0.15);border-color:#58a6ff;color:#58a6ff}</style></head><body>'
 
 # Header
 hc_map = {"强势":"#39d353","正常":"#d29922","弱势":"#da3633"}
 hc = hc_map.get(ov["market_health"],"#da3633")
-# Date selector
-daily_dates = data.get("daily_snapshots", [data["date"]])
-date_opts = ""
-for d in sorted(daily_dates, reverse=True):
-    sel = " selected" if d == data["date"] else ""
-    date_opts += '<option value="trend_dashboard_%s.html"%s>%s</option>' % (d, sel, d)
 
-h += '<div class="header"><div style="display:flex;align-items:center;gap:12px"><h1>趋势跟随交易系统</h1><select onchange="if(this.value)window.location.href=this.value" style="background:#161b22;border:1px solid #30363d;color:#e6edf3;padding:4px 8px;border-radius:4px;font-size:12px;cursor:pointer">%s</select></div><div style="font-size:10px;color:#8b949e">板块→个股 漏斗筛选 · 800只核心标的 · %d天历史</div></div><span style="background:rgba(%s,0.15);color:%s;border:1px solid %s;padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700">%s</span></div>' % (
-    date_opts, len(daily_dates), "35,134,54" if ov["market_health"]=="强势" else "210,153,34" if ov["market_health"]=="正常" else "218,54,51", hc, hc, ov["market_health"])
+# Build date bar: beautiful horizontal chips
+daily_dates = data.get("daily_snapshots", [data["date"]])
+weekdays_cn = ["周一","周二","周三","周四","周五","周六","周日"]
+date_chips = ""
+for d in sorted(daily_dates):
+    dt = datetime.strptime(d, "%Y-%m-%d")
+    wd = weekdays_cn[dt.weekday()]
+    label = "%s %s" % (wd, d[5:])  # "周一 05-18"
+    active = " active" if d == data["date"] else ""
+    date_chips += '<a href="trend_dashboard_%s.html" class="date-chip%s">%s</a>' % (d, active, label)
+
+h += '<div class="header"><div><h1>趋势跟随交易系统</h1></div><span style="background:rgba(%s,0.15);color:%s;border:1px solid %s;padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700">%s</span></div>' % (
+    "35,134,54" if ov["market_health"]=="强势" else "210,153,34" if ov["market_health"]=="正常" else "218,54,51", hc, hc, ov["market_health"])
+
+# Date navigation bar
+h += '<div class="date-bar">%s</div>' % date_chips
 
 # Overview row
 ov_items = [
