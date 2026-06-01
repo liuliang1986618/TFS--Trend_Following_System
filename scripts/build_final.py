@@ -54,7 +54,7 @@ def card(s, is_ml):
             h += '<tr><td style="padding:2px 4px"><a href="%s" target="_blank" style="color:#58a6ff;font-weight:600">%s</a></td><td style="text-align:right;padding:2px 4px;color:%s">%+.1f%%</td><td style="padding:2px 4px;color:#8b949e;font-size:10px">%s</td></tr>' % (url, ldr["name"], rc, ldr["ret20"], reason)
         h += '</table>'
     else:
-        h += '<div style="font-size:10px;color:#8b949e;margin-top:4px">暂无成分股映射数据</div>'
+        h += '<div style="font-size:10px;color:#8b949e;margin-top:4px">⚠️ 成分股数据不完整（板块趋势基于同花顺指数自身OHLCV数据），akshare成分股接口不可用</div>'
     # ETFs
     etfs = s.get("etfs", [])
     if etfs:
