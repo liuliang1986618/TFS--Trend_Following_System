@@ -10,6 +10,8 @@ with open(f"{PROJECT_ROOT}/dashboard/data/dashboard_data.json") as f:
     data = json.load(f)
 
 json_str = json.dumps(data, ensure_ascii=False, default=str)
+# 防止 </script> 破坏 HTML script 标签
+json_str = json_str.replace("</script>", "<\\/script>").replace("</Script>", "<\\/Script>")
 
 html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -478,7 +480,7 @@ a.symbol-link:visited {{ color: #79c0ff; }}
   <div class="header-right">
     <input type="text" class="search-box" placeholder="搜索板块/个股..." id="searchInput" oninput="handleSearch()">
     <div class="health-badge { 'health-strong' if data['overview']['market_health'] == '强势' else 'health-normal' if data['overview']['market_health'] == '正常' else 'health-weak' }">
-      <span class="health-dot { 'green' if data['overview']['market_health'] == '强势' else 'gole' if data['overview']['market_health'] == '正常' else 'red' }"></span>
+      <span class="health-dot { 'green' if data['overview']['market_health'] == '强势' else 'gold' if data['overview']['market_health'] == '正常' else 'red' }"></span>
       市场健康度: {data['overview']['market_health']}
     </div>
   </div>
