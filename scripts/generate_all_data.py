@@ -429,6 +429,14 @@ data = {
     "stocks": trend_stocks,
 }
 
+# Add date list for navigation
+_dates_set = set()
+for _f in os.listdir(data_dir):
+    if _f.startswith("sector_") and _f.endswith(".parquet"):
+        _ddf = pd.read_parquet(f"{data_dir}/{_f}")
+        _dates_set.update(_ddf.index.date)
+data["daily_snapshots"] = [_d.strftime("%Y-%m-%d") for _d in sorted(_dates_set)[-10:]]
+
 with open(f"{data_dir}/dashboard_data.json", "w") as f:
     json.dump(data, f, ensure_ascii=False, default=str)
 
