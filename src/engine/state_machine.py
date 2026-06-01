@@ -112,27 +112,27 @@ class StateMachine:
             broke_prev_low = closes.iloc[-1] < prev_low["price"]
 
         # 独立状态判定
-        # 设计文档§2.1: 三条件缺一不可，但结构+持续性双满足=趋势已形成的强信号
+        # 硬门槛: MA20下方最多判为状态3(试探), 绝不能判状态4(满仓)
+        # 环境治理案例: 三条件全过但价格在MA20下方-5.7%, 近15天持续下跌
+        # → 少亏钱: 不在均线下方重仓, 这是保命铁律
+        max_state = 3 if not above_ma20 else 5  # MA20下方封顶状态3
+
         if struct_ok and volume_ok and persist_ok:
             if consecutive_drop and not broke_prev_low and volume_shrink:
                 state = 5  # 上涨中的正常回调
             else:
                 state = 4  # 健康上涨
         elif struct_ok and persist_ok and not volume_ok:
-            # 结构+持续性双满足，仅量能不足 → 大概率是上涨趋势中的短暂缩量
-            # 半导体案例: +17.5%, 14/6阳/阴, 连阳8天，仅因2天极端放量暴跌拉低量比
-            # → 少亏钱: 不应判为状态2(观望)而错失趋势，应判为状态3(试探)或状态4(确认)
             if above_ma20:
-                state = 4 if broke_prev_high else 3  # 站上均线=至少翻转确认
+                state = 4 if broke_prev_high else 3
             else:
-                state = 3  # 即使均线下方，结构+持续性也值得试探
+                state = 2  # MA20下方, 结构+持续性好但无量→最多反弹
         elif struct_ok and not volume_ok and not persist_ok:
-            if broke_prev_high:
-                state = 3  # 突破前高但尚未完全确认
+            if broke_prev_high and above_ma20:
+                state = 3
             else:
-                state = 2  # 反弹未突破
+                state = 2
         elif struct_ok and volume_ok and not persist_ok:
-            # 结构+量能OK，持续性不足 → 可能是趋势启动初期
             if broke_prev_high and above_ma20:
                 state = 3
             else:
@@ -145,11 +145,15 @@ class StateMachine:
         elif not struct_ok and above_ma20 and consecutive_rise:
             state = 2
         elif consecutive_drop and broke_prev_low and volume_surge:
-            state = "3'"  # 放量跌破，转跌警告
+            state = "3'"
         elif consecutive_rise and not broke_prev_high:
             state = 2
         else:
-            state = 1  # 默认空头
+            state = 1
+
+        # MA20硬门槛: 状态4/5必须在MA20上方
+        if state in (4, 5) and not above_ma20:
+            state = 3  # 降级为翻转确认
 
         return TrendState(
             state=state,
