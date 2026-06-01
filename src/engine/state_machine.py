@@ -142,6 +142,10 @@ class StateMachine:
                 state = 3
             else:
                 state = 2
+        elif not struct_ok and above_ma20 and persist_ok:
+            # 电力案例: 结构未确认但持续性+MA20上方+正收益 → 至少翻转确认
+            # → 多赚钱: 不因结构检测滞后而错过真实趋势
+            state = 3
         elif not struct_ok and above_ma20 and consecutive_rise:
             state = 2
         elif consecutive_drop and broke_prev_low and volume_surge:
