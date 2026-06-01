@@ -75,7 +75,7 @@ h += '<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0d1117;
 # Header
 hc_map = {"强势":"#39d353","正常":"#d29922","弱势":"#da3633"}
 hc = hc_map.get(ov["market_health"],"#da3633")
-h += '<div class="header"><div><h1>趋势跟随交易系统</h1><div style="font-size:10px;color:#8b949e">%s · 板块→个股 漏斗筛选</div></div><span style="background:rgba(%s,0.15);color:%s;border:1px solid %s;padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700">%s</span></div>' % (
+h += '<div class="header"><div style="display:flex;align-items:center;gap:12px"><h1>趋势跟随交易系统</h1><select onchange="if(this.value)window.location.href=this.value" style="background:#161b22;border:1px solid #30363d;color:#e6edf3;padding:4px 8px;border-radius:4px;font-size:12px;cursor:pointer"><option>%s</option></select></div><div style="font-size:10px;color:#8b949e">板块→个股 漏斗筛选 · 800只核心标的</div></div><span style="background:rgba(%s,0.15);color:%s;border:1px solid %s;padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700">%s</span></div>' % (
     data["date"], "35,134,54" if ov["market_health"]=="强势" else "210,153,34" if ov["market_health"]=="正常" else "218,54,51", hc, hc, ov["market_health"])
 
 # Overview row
