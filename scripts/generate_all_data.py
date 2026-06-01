@@ -119,7 +119,7 @@ print(f"  板块: {len(all_sectors)}个 | 状态4: {sum(1 for s in all_sectors i
 print("\n2. 题材层 (20个)")
 theme_files = sorted([f for f in os.listdir(data_dir) if f.startswith("theme_") and f.endswith(".parquet")])
 themes_df = pd.read_json(f"{data_dir}/theme_list.json")
-theme_name_map = {str(row["code"]): row["theme_name"] for _, row in themes_df.iterrows()}
+theme_name_map = {str(row["code"]): row["name"] for _, row in themes_df.iterrows()}
 
 all_themes = []
 for f in theme_files:
