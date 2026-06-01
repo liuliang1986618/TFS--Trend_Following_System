@@ -1,15 +1,31 @@
 #!/usr/bin/env python3
 """趋势跟随系统 — 每日全自动运行脚本
 用法: python3 scripts/daily_run.py [date]
-不传日期则默认今天
+不传日期则默认今天。如果当天数据未更新，自动等待重试最多2小时。
+
+数据源更新时间:
+  - akshare(同花顺): 收盘后~15:15
+  - baostock: ~17:00-18:00
+  - 推荐执行时间: 17:30
 """
-import sys, os, subprocess, json
-from datetime import datetime
+import sys, os, subprocess, json, time
+from datetime import datetime, timedelta
 
 PROJECT = "/Users/liuliang19/Desktop/project/trend_following_system"
 os.chdir(PROJECT)
 
 date_str = sys.argv[1] if len(sys.argv) > 1 else datetime.now().strftime("%Y-%m-%d")
+
+# 如果是今天的数据，检查A股是否已收盘
+today = datetime.now().strftime("%Y-%m-%d")
+if date_str >= today:
+    now = datetime.now()
+    market_close = now.replace(hour=15, minute=0, second=0)
+    if now < market_close:
+        print(f"⏰ A股尚未收盘(15:00)，当前{now.strftime('%H:%M')}，等待中...")
+        wait_seconds = (market_close - now).total_seconds()
+        time.sleep(min(wait_seconds, 7200))
+        print("继续执行...")
 print("=" * 60)
 print(f"🚀 趋势跟随系统 — 每日自动运行 — {date_str}")
 print("=" * 60)
