@@ -103,7 +103,7 @@ sectors_df = pd.read_json(f"{data_dir}/sector_list.json")
 all_sectors = []
 for _, row in sectors_df.iterrows():
     code = str(row["code"])
-    name = row["sector_name"]
+    name = row["name"]
     path = f"{data_dir}/sector_{code}.parquet"
     if not os.path.exists(path): continue
     df = pd.read_parquet(path)
