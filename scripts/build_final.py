@@ -41,12 +41,11 @@ def card(s, is_ml):
     # leaders
     # 过滤龙头: 必须是状态3/4/5且有正收益
     all_leaders = s.get("leaders", [])
-    leaders = [l for l in all_leaders if l["ret20"] > 0]
-    if leaders:
+    if all_leaders:
         h += '<div style="font-size:10px;color:#d29922;font-weight:700;margin:8px 0 4px">🏆 龙头个股（近20日涨幅排名）</div>'
         h += '<table style="width:100%;font-size:11px;border-collapse:collapse">'
         h += '<tr style="color:#8b949e;font-size:10px"><th style="text-align:left;padding:2px 4px">个股</th><th style="text-align:right;padding:2px 4px">涨幅</th><th style="text-align:left;padding:2px 4px">入选原因</th></tr>'
-        for i, ldr in enumerate(leaders):
+        for i, ldr in enumerate(all_leaders[:5]):
             mkt = "sh" if ldr["code"].startswith("6") else "sz"
             rc = "#26a69a" if ldr["ret20"] > 0 else "#ef5350"
             reason = "涨幅板块内第%d, 近20日%+.1f%%" % (i+1, ldr["ret20"])
