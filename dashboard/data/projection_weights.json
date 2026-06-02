@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "version": "1.0",
+    "updated_at": "2026-06-02T01:43:26.405198",
+    "description": "推演场景权重 — 由反思引擎自动调整"
+  },
+  "weights": {
+    "1": {
+      "scenario_a": 0.7699999999999994,
+      "scenario_b": 0.23000000000000054,
+      "scenario_c": 0.0,
+      "last_adjusted": "2026-06-02",
+      "reason": "20日窗口错484次"
+    },
+    "2": {
+      "scenario_a": 0.7203616756257527,
+      "scenario_b": 0.25887579661343424,
+      "scenario_c": 0.020762527760813075,
+      "last_adjusted": "2026-06-02",
+      "reason": "20日窗口错62次"
+    },
+    "3": {
+      "scenario_a": 0.6572366200055709,
+      "scenario_b": 0.3218131506234679,
+      "scenario_c": 0.02,
+      "last_adjusted": "2026-06-02",
+      "reason": "20日窗口错486次"
+    },
+    "4": {
+      "scenario_a": 0.8055445907056543,
+      "scenario_b": 0.1744554092943457,
+      "scenario_c": 0.02,
+      "last_adjusted": "2026-06-02",
+      "reason": "20日窗口错488次"
+    },
+    "5": {
+      "scenario_a": 0.5,
+      "scenario_b": 0.3,
+      "scenario_c": 0.2,
+      "last_adjusted": "",
+      "reason": ""
+    },
+    "3p": {
+      "scenario_a": 0.45235208206306576,
+      "scenario_b": 0.29943754192551114,
+      "scenario_c": 0.24821037601142315,
+      "last_adjusted": "2026-06-02",
+      "reason": "20日窗口错64次"
+    }
+  }
+}

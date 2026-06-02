@@ -1,0 +1,339 @@
+{
+  "meta": {
+    "generated_at": "2026-06-02T00:11:56.010446",
+    "total_entries": 172019,
+    "correct": 61730,
+    "accuracy": 0.3589,
+    "integrity_check": {
+      "passed": true,
+      "warnings": [],
+      "stats": {
+        "total": 172019,
+        "unique_dates": 802,
+        "unique_symbols": 90,
+        "states_covered": [
+          "1",
+          "3",
+          "2",
+          "5",
+          "4",
+          "3p"
+        ],
+        "empty_fields": 0
+      }
+    }
+  },
+  "patterns": [
+    {
+      "pattern_id": "PTN_3_3",
+      "condition": "当前状态=3 且预测=3",
+      "weight_adjustment": {
+        "A": 0.01,
+        "B": 0,
+        "C": -0.01
+      },
+      "confidence": 0.95,
+      "occurrences": 14786,
+      "last_seen": "2026-05-28"
+    },
+    {
+      "pattern_id": "PTN_3_1",
+      "condition": "当前状态=3 且预测=1",
+      "weight_adjustment": {
+        "A": -0.02,
+        "B": 0,
+        "C": 0.02
+      },
+      "confidence": 0.95,
+      "occurrences": 1917,
+      "last_seen": "2026-05-28"
+    },
+    {
+      "pattern_id": "PTN_1_2",
+      "condition": "当前状态=1 且预测=2",
+      "weight_adjustment": {
+        "A": -0.02,
+        "B": 0,
+        "C": 0.02
+      },
+      "confidence": 0.95,
+      "occurrences": 1657,
+      "last_seen": "2026-05-28"
+    },
+    {
+      "pattern_id": "PTN_2_2",
+      "condition": "当前状态=2 且预测=2",
+      "weight_adjustment": {
+        "A": -0.02,
+        "B": 0,
+        "C": 0.02
+      },
+      "confidence": 0.95,
+      "occurrences": 5638,
+      "last_seen": "2026-05-28"
+    },
+    {
+      "pattern_id": "PTN_2_3",
+      "condition": "当前状态=2 且预测=3",
+      "weight_adjustment": {
+        "A": 0.01,
+        "B": 0,
+        "C": -0.01
+      },
+      "confidence": 0.95,
+      "occurrences": 899,
+      "last_seen": "2026-05-27"
+    },
+    {
+      "pattern_id": "PTN_3_4",
+      "condition": "当前状态=3 且预测=4",
+      "weight_adjustment": {
+        "A": 0.02,
+        "B": 0,
+        "C": -0.02
+      },
+      "confidence": 0.95,
+      "occurrences": 1506,
+      "last_seen": "2026-05-27"
+    },
+    {
+      "pattern_id": "PTN_4_4",
+      "condition": "当前状态=4 且预测=4",
+      "weight_adjustment": {
+        "A": 0.02,
+        "B": 0,
+        "C": -0.02
+      },
+      "confidence": 0.95,
+      "occurrences": 7289,
+      "last_seen": "2026-05-28"
+    },
+    {
+      "pattern_id": "PTN_2_1",
+      "condition": "当前状态=2 且预测=1",
+      "weight_adjustment": {
+        "A": -0.02,
+        "B": 0,
+        "C": 0.02
+      },
+      "confidence": 0.95,
+      "occurrences": 1778,
+      "last_seen": "2026-05-25"
+    },
+    {
+      "pattern_id": "PTN_1_1",
+      "condition": "当前状态=1 且预测=1",
+      "weight_adjustment": {
+        "A": -0.02,
+        "B": 0,
+        "C": 0.02
+      },
+      "confidence": 0.95,
+      "occurrences": 25848,
+      "last_seen": "2026-05-28"
+    },
+    {
+      "pattern_id": "PTN_3p_1",
+      "condition": "当前状态=3p 且预测=1",
+      "weight_adjustment": {
+        "A": -0.02,
+        "B": 0,
+        "C": 0.02
+      },
+      "confidence": 0.95,
+      "occurrences": 290,
+      "last_seen": "2026-05-27"
+    },
+    {
+      "pattern_id": "PTN_3p_3p",
+      "condition": "当前状态=3p 且预测=3p",
+      "weight_adjustment": {
+        "A": 0,
+        "B": 0.02,
+        "C": -0.02
+      },
+      "confidence": 0.95,
+      "occurrences": 76,
+      "last_seen": "2026-03-20"
+    },
+    {
+      "pattern_id": "PTN_4_5",
+      "condition": "当前状态=4 且预测=5",
+      "weight_adjustment": {
+        "A": 0,
+        "B": 0.02,
+        "C": -0.02
+      },
+      "confidence": 0.95,
+      "occurrences": 29,
+      "last_seen": "2026-02-12"
+    },
+    {
+      "pattern_id": "PTN_5_4",
+      "condition": "当前状态=5 且预测=4",
+      "weight_adjustment": {
+        "A": 0.02,
+        "B": 0,
+        "C": -0.02
+      },
+      "confidence": 0.5333333333333333,
+      "occurrences": 16,
+      "last_seen": "2026-02-13"
+    }
+  ],
+  "adjustments": [
+    {
+      "state": "3",
+      "scenario": "B",
+      "delta": -0.0045,
+      "reason": "B场景在状态3下错误17691次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "3",
+      "scenario": "C",
+      "delta": -0.0044,
+      "reason": "C场景在状态3下错误17280次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "3",
+      "scenario": "A",
+      "delta": -0.0011,
+      "reason": "A场景在状态3下错误4411次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "1",
+      "scenario": "A",
+      "delta": -0.0013,
+      "reason": "A场景在状态1下错误4033次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "1",
+      "scenario": "B",
+      "delta": -0.0087,
+      "reason": "B场景在状态1下错误28224次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "2",
+      "scenario": "B",
+      "delta": -0.0044,
+      "reason": "B场景在状态2下错误7732次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "2",
+      "scenario": "C",
+      "delta": -0.0039,
+      "reason": "C场景在状态2下错误6853次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "2",
+      "scenario": "A",
+      "delta": -0.0017,
+      "reason": "A场景在状态2下错误2993次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "4",
+      "scenario": "B",
+      "delta": -0.0045,
+      "reason": "B场景在状态4下错误9151次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "4",
+      "scenario": "C",
+      "delta": -0.0045,
+      "reason": "C场景在状态4下错误9180次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "4",
+      "scenario": "A",
+      "delta": -0.0009,
+      "reason": "A场景在状态4下错误1891次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "3p",
+      "scenario": "A",
+      "delta": -0.005,
+      "reason": "A场景在状态3p下错误370次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "3p",
+      "scenario": "B",
+      "delta": -0.004,
+      "reason": "B场景在状态3p下错误294次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "3p",
+      "scenario": "C",
+      "delta": -0.0011,
+      "reason": "C场景在状态3p下错误80次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "5",
+      "scenario": "A",
+      "delta": -0.0024,
+      "reason": "A场景在状态5下错误25次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "5",
+      "scenario": "B",
+      "delta": -0.0038,
+      "reason": "B场景在状态5下错误40次",
+      "date": "2026-06-02"
+    },
+    {
+      "state": "5",
+      "scenario": "C",
+      "delta": -0.0039,
+      "reason": "C场景在状态5下错误41次",
+      "date": "2026-06-02"
+    }
+  ],
+  "error_summary": {
+    "by_category": {
+      "正确": {
+        "count": 61730,
+        "correct": 61730,
+        "incorrect": 0,
+        "accuracy": 1.0
+      },
+      "可优化": {
+        "count": 72304,
+        "correct": 0,
+        "incorrect": 72304,
+        "accuracy": 0.0
+      },
+      "不可控": {
+        "count": 37985,
+        "correct": 0,
+        "incorrect": 37985,
+        "accuracy": 0.0
+      }
+    },
+    "top_lessons": [
+      "状态3下场B场景权重需微调: 实际3≠预测4，假突破→回落到区间内",
+      "状态3下场C场景权重需微调: 实际3≠预测1，假跌破→快速收复",
+      "状态3下场A场景权重需微调: 实际1≠预测3，未分类: 预测3→实际1",
+      "状态3下场B场景权重需微调: 实际1≠预测4，转跌信号被漏判",
+      "状态1下场A场景权重需微调: 实际3≠预测1，假跌破→快速收复",
+      "外部噪声（区间震荡（方向不明确）），不调整权重以避免过度拟合",
+      "状态1下场A场景权重需微调: 实际2≠预测1，假跌破→快速收复",
+      "状态2下场B场景权重需微调: 实际2≠预测3，未分类: 预测3→实际2",
+      "状态2下场C场景权重需微调: 实际2≠预测1，假跌破→快速收复",
+      "状态2下场C场景权重需微调: 实际3≠预测1，假跌破→快速收复"
+    ]
+  }
+}

@@ -1,0 +1,528 @@
+{
+  "meta": {
+    "generated_at": "2026-06-02T00:11:56.474016",
+    "total_rules": 36,
+    "integrity_check": {
+      "passed": true,
+      "warnings": [
+        "⚠️ 最少板块仅560天数据，预期≥700天"
+      ],
+      "stats": {
+        "total_sectors": 90,
+        "total_records": 67410,
+        "min_days": 560,
+        "max_days": 803
+      }
+    }
+  },
+  "transition_matrix": {
+    "1": {
+      "total": 29897,
+      "to": {
+        "1": {
+          "count": 25859,
+          "pct": 0.865
+        },
+        "3": {
+          "count": 2038,
+          "pct": 0.068
+        },
+        "2": {
+          "count": 1657,
+          "pct": 0.055
+        },
+        "3p": {
+          "count": 285,
+          "pct": 0.01
+        },
+        "4": {
+          "count": 58,
+          "pct": 0.002
+        }
+      }
+    },
+    "2": {
+      "total": 8635,
+      "to": {
+        "2": {
+          "count": 5640,
+          "pct": 0.653
+        },
+        "1": {
+          "count": 1778,
+          "pct": 0.206
+        },
+        "3": {
+          "count": 900,
+          "pct": 0.104
+        },
+        "4": {
+          "count": 313,
+          "pct": 0.036
+        },
+        "3p": {
+          "count": 4,
+          "pct": 0.0
+        }
+      }
+    },
+    "3": {
+      "total": 19197,
+      "to": {
+        "3": {
+          "count": 14786,
+          "pct": 0.77
+        },
+        "1": {
+          "count": 1917,
+          "pct": 0.1
+        },
+        "4": {
+          "count": 1506,
+          "pct": 0.078
+        },
+        "2": {
+          "count": 972,
+          "pct": 0.051
+        },
+        "5": {
+          "count": 11,
+          "pct": 0.001
+        }
+      }
+    },
+    "3p": {
+      "total": 370,
+      "to": {
+        "1": {
+          "count": 290,
+          "pct": 0.784
+        },
+        "3p": {
+          "count": 76,
+          "pct": 0.205
+        },
+        "2": {
+          "count": 3,
+          "pct": 0.008
+        },
+        "3": {
+          "count": 1,
+          "pct": 0.003
+        }
+      }
+    },
+    "4": {
+      "total": 9180,
+      "to": {
+        "4": {
+          "count": 7289,
+          "pct": 0.794
+        },
+        "3": {
+          "count": 1389,
+          "pct": 0.151
+        },
+        "2": {
+          "count": 390,
+          "pct": 0.042
+        },
+        "1": {
+          "count": 83,
+          "pct": 0.009
+        },
+        "5": {
+          "count": 29,
+          "pct": 0.003
+        }
+      }
+    },
+    "5": {
+      "total": 41,
+      "to": {
+        "3": {
+          "count": 19,
+          "pct": 0.463
+        },
+        "4": {
+          "count": 16,
+          "pct": 0.39
+        },
+        "2": {
+          "count": 4,
+          "pct": 0.098
+        },
+        "1": {
+          "count": 1,
+          "pct": 0.024
+        },
+        "5": {
+          "count": 1,
+          "pct": 0.024
+        }
+      }
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "FREQ_1_1",
+      "description": "状态1→1: 历史频率86.5%",
+      "condition": "当前状态=1",
+      "action": "预测1（频率86.5%, 共25859次）",
+      "confidence": 0.95,
+      "support": 25859,
+      "source": "frequency_analysis",
+      "priority": 2
+    },
+    {
+      "rule_id": "FREQ_2_2",
+      "description": "状态2→2: 历史频率65.3%",
+      "condition": "当前状态=2",
+      "action": "预测2（频率65.3%, 共5640次）",
+      "confidence": 0.95,
+      "support": 5640,
+      "source": "frequency_analysis",
+      "priority": 2
+    },
+    {
+      "rule_id": "FREQ_3_3",
+      "description": "状态3→3: 历史频率77.0%",
+      "condition": "当前状态=3",
+      "action": "预测3（频率77.0%, 共14786次）",
+      "confidence": 0.95,
+      "support": 14786,
+      "source": "frequency_analysis",
+      "priority": 2
+    },
+    {
+      "rule_id": "FREQ_3p_1",
+      "description": "状态3p→1: 历史频率78.4%",
+      "condition": "当前状态=3p",
+      "action": "预测1（频率78.4%, 共290次）",
+      "confidence": 0.95,
+      "support": 290,
+      "source": "frequency_analysis",
+      "priority": 2
+    },
+    {
+      "rule_id": "FREQ_4_4",
+      "description": "状态4→4: 历史频率79.4%",
+      "condition": "当前状态=4",
+      "action": "预测4（频率79.4%, 共7289次）",
+      "confidence": 0.95,
+      "support": 7289,
+      "source": "frequency_analysis",
+      "priority": 2
+    },
+    {
+      "rule_id": "FREQ_5_3",
+      "description": "状态5→3: 历史频率46.3%",
+      "condition": "当前状态=5",
+      "action": "预测3（频率46.3%, 共19次）",
+      "confidence": 0.926829268292683,
+      "support": 19,
+      "source": "frequency_analysis",
+      "priority": 2
+    },
+    {
+      "rule_id": "FREQ_5_4",
+      "description": "状态5→4: 历史频率39.0%",
+      "condition": "当前状态=5",
+      "action": "预测4（频率39.0%, 共16次）",
+      "confidence": 0.7804878048780488,
+      "support": 16,
+      "source": "frequency_analysis",
+      "priority": 2
+    },
+    {
+      "rule_id": "ERR_3",
+      "description": "状态3预测常偏差→3（39366次可优化错误）",
+      "condition": "当前状态=3",
+      "action": "考虑增加→3的权重分配",
+      "confidence": 0.7,
+      "support": 39366,
+      "source": "error_correction",
+      "priority": 3
+    },
+    {
+      "rule_id": "ERR_1",
+      "description": "状态1预测常偏差→3（4376次可优化错误）",
+      "condition": "当前状态=1",
+      "action": "考虑增加→3的权重分配",
+      "confidence": 0.7,
+      "support": 4376,
+      "source": "error_correction",
+      "priority": 3
+    },
+    {
+      "rule_id": "ERR_2",
+      "description": "状态2预测常偏差→2（14901次可优化错误）",
+      "condition": "当前状态=2",
+      "action": "考虑增加→2的权重分配",
+      "confidence": 0.7,
+      "support": 14901,
+      "source": "error_correction",
+      "priority": 3
+    },
+    {
+      "rule_id": "ERR_4",
+      "description": "状态4预测常偏差→4（12904次可优化错误）",
+      "condition": "当前状态=4",
+      "action": "考虑增加→4的权重分配",
+      "confidence": 0.7,
+      "support": 12904,
+      "source": "error_correction",
+      "priority": 3
+    },
+    {
+      "rule_id": "ERR_3p",
+      "description": "状态3p预测常偏差→1（668次可优化错误）",
+      "condition": "当前状态=3p",
+      "action": "考虑增加→1的权重分配",
+      "confidence": 0.7,
+      "support": 668,
+      "source": "error_correction",
+      "priority": 3
+    },
+    {
+      "rule_id": "ERR_5",
+      "description": "状态5预测常偏差→3（89次可优化错误）",
+      "condition": "当前状态=5",
+      "action": "考虑增加→3的权重分配",
+      "confidence": 0.7,
+      "support": 89,
+      "source": "error_correction",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_1_场A",
+      "description": "状态1下场A场景准确率43.3%，常预测→1",
+      "condition": "当前状态=1 且使用场A场景",
+      "action": "保持场A场景权重（准确率43.3%）",
+      "confidence": 0.6487734680900907,
+      "support": 25848,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "FREQ_2_1",
+      "description": "状态2→1: 历史频率20.6%",
+      "condition": "当前状态=2",
+      "action": "预测1（频率20.6%, 共1778次）",
+      "confidence": 0.4118123914302258,
+      "support": 1778,
+      "source": "frequency_analysis",
+      "priority": 3
+    },
+    {
+      "rule_id": "FREQ_3p_3p",
+      "description": "状态3p→3p: 历史频率20.5%",
+      "condition": "当前状态=3p",
+      "action": "预测3p（频率20.5%, 共76次）",
+      "confidence": 0.41081081081081083,
+      "support": 76,
+      "source": "frequency_analysis",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_4_场A",
+      "description": "状态4下场A场景准确率26.5%，常预测→4",
+      "condition": "当前状态=4 且使用场A场景",
+      "action": "保持场A场景权重（准确率26.5%）",
+      "confidence": 0.39700435729847494,
+      "support": 7289,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_3p_场C",
+      "description": "状态3p下场C场景准确率26.1%，常预测→1",
+      "condition": "当前状态=3p 且使用场C场景",
+      "action": "保持场C场景权重（准确率26.1%）",
+      "confidence": 0.3918918918918919,
+      "support": 290,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_3_场A",
+      "description": "状态3下场A场景准确率25.7%，常预测→3",
+      "condition": "当前状态=3 且使用场A场景",
+      "action": "保持场A场景权重（准确率25.7%）",
+      "confidence": 0.3851122571235089,
+      "support": 14786,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_2_场A",
+      "description": "状态2下场A场景准确率21.8%，常预测→2",
+      "condition": "当前状态=2 且使用场A场景",
+      "action": "保持场A场景权重（准确率21.8%）",
+      "confidence": 0.32661337040899086,
+      "support": 5638,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "FREQ_4_3",
+      "description": "状态4→3: 历史频率15.1%",
+      "condition": "当前状态=4",
+      "action": "预测3（频率15.1%, 共1389次）",
+      "confidence": 0.3026143790849673,
+      "support": 1389,
+      "source": "frequency_analysis",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_5_场A",
+      "description": "状态5下场A场景准确率13.0%，常预测→4",
+      "condition": "当前状态=5 且使用场A场景",
+      "action": "保持场A场景权重（准确率13.0%）",
+      "confidence": 0.1951219512195122,
+      "support": 16,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_2_场C",
+      "description": "状态2下场C场景准确率6.9%，常预测→1",
+      "condition": "当前状态=2 且使用场C场景",
+      "action": "保持场C场景权重（准确率6.9%）",
+      "confidence": 0.1030008110300081,
+      "support": 1778,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_3p_场B",
+      "description": "状态3p下场B场景准确率6.8%，常预测→3p",
+      "condition": "当前状态=3p 且使用场B场景",
+      "action": "保持场B场景权重（准确率6.8%）",
+      "confidence": 0.1027027027027027,
+      "support": 76,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_2_场B",
+      "description": "状态2下场B场景准确率3.5%，常预测→3",
+      "condition": "当前状态=2 且使用场B场景",
+      "action": "保持场B场景权重（准确率3.5%）",
+      "confidence": 0.05207971266365427,
+      "support": 899,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_3_场C",
+      "description": "状态3下场C场景准确率3.3%，常预测→1",
+      "condition": "当前状态=3 且使用场C场景",
+      "action": "保持场C场景权重（准确率3.3%）",
+      "confidence": 0.04992967651195499,
+      "support": 1917,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_1_场B",
+      "description": "状态1下场B场景准确率2.8%，常预测→2",
+      "condition": "当前状态=1 且使用场B场景",
+      "action": "保持场B场景权重（准确率2.8%）",
+      "confidence": 0.04158997356179512,
+      "support": 1657,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_3_场B",
+      "description": "状态3下场B场景准确率2.6%，常预测→4",
+      "condition": "当前状态=3 且使用场B场景",
+      "action": "保持场B场景权重（准确率2.6%）",
+      "confidence": 0.03922487888732615,
+      "support": 1506,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "PTN_4_场B",
+      "description": "状态4下场B场景准确率0.1%，常预测→5",
+      "condition": "当前状态=4 且使用场B场景",
+      "action": "保持场B场景权重（准确率0.1%）",
+      "confidence": 0.0015795206971677559,
+      "support": 29,
+      "source": "correct_pattern",
+      "priority": 3
+    },
+    {
+      "rule_id": "FREQ_2_3",
+      "description": "状态2→3: 历史频率10.4%",
+      "condition": "当前状态=2",
+      "action": "预测3（频率10.4%, 共900次）",
+      "confidence": 0.20845396641574984,
+      "support": 900,
+      "source": "frequency_analysis",
+      "priority": 4
+    },
+    {
+      "rule_id": "FREQ_3_1",
+      "description": "状态3→1: 历史频率10.0%",
+      "condition": "当前状态=3",
+      "action": "预测1（频率10.0%, 共1917次）",
+      "confidence": 0.19971870604781997,
+      "support": 1917,
+      "source": "frequency_analysis",
+      "priority": 4
+    },
+    {
+      "rule_id": "FREQ_5_2",
+      "description": "状态5→2: 历史频率9.8%",
+      "condition": "当前状态=5",
+      "action": "预测2（频率9.8%, 共4次）",
+      "confidence": 0.1951219512195122,
+      "support": 4,
+      "source": "frequency_analysis",
+      "priority": 4
+    },
+    {
+      "rule_id": "FREQ_3_4",
+      "description": "状态3→4: 历史频率7.8%",
+      "condition": "当前状态=3",
+      "action": "预测4（频率7.8%, 共1506次）",
+      "confidence": 0.1568995155493046,
+      "support": 1506,
+      "source": "frequency_analysis",
+      "priority": 4
+    },
+    {
+      "rule_id": "FREQ_1_3",
+      "description": "状态1→3: 历史频率6.8%",
+      "condition": "当前状态=1",
+      "action": "预测3（频率6.8%, 共2038次）",
+      "confidence": 0.13633474930595044,
+      "support": 2038,
+      "source": "frequency_analysis",
+      "priority": 4
+    },
+    {
+      "rule_id": "FREQ_1_2",
+      "description": "状态1→2: 历史频率5.5%",
+      "condition": "当前状态=1",
+      "action": "预测2（频率5.5%, 共1657次）",
+      "confidence": 0.11084724219821387,
+      "support": 1657,
+      "source": "frequency_analysis",
+      "priority": 4
+    },
+    {
+      "rule_id": "FREQ_3_2",
+      "description": "状态3→2: 历史频率5.1%",
+      "condition": "当前状态=3",
+      "action": "预测2（频率5.1%, 共972次）",
+      "confidence": 0.10126582278481013,
+      "support": 972,
+      "source": "frequency_analysis",
+      "priority": 4
+    }
+  ]
+}
