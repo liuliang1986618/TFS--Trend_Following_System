@@ -165,7 +165,8 @@ html += '</div>'
 html += f'<div class="footer">趋势跟随交易系统 | akshare+baostock | {date_str} | ★主线=状态4全满 🔵翻转=状态3临界 | 免责声明:仅供辅助参考</div>'
 html += '<script>function switchTab(t){document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.remove("active")});event.target.classList.add("active");["sectors","themes","stocks"].forEach(function(id){document.getElementById("tab-"+id).classList.add("hidden")});document.getElementById("tab-"+t).classList.remove("hidden")}document.addEventListener("keydown",function(e){if(e.key==="Escape")document.querySelectorAll(".detail-row").forEach(function(r){r.classList.remove("open");r.style.display="none"})})</script></body></html>'
 
-for path in ["dashboard/index.html", f"dashboard/trend_dashboard_{date_str}.html"]:
+# index.html 已由 build_nav_index.py 生成为导航壳(侧边栏+iframe)，此处只写报告
+for path in [f"dashboard/trend_dashboard_{date_str}.html"]:
     with open(path, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"✅ {path} ({os.path.getsize(path)/1024:.1f}KB)")
