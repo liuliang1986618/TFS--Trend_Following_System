@@ -13,18 +13,19 @@ from datetime import datetime
 with open("dashboard/data/dashboard_data.json") as f:
     data = json.load(f)
 
-# Phase A: 加载历史状态缓存（优先全量，回退快照）
+# Phase A: 加载历史状态缓存（用全量缓存，取最近10天，得分和状态完整）
 history_data = {}
-for hist_path in ["dashboard/data/history_states_full.json", "dashboard/data/history_states.json"]:
-    if os.path.exists(hist_path) and not history_data:
-        with open(hist_path) as f:
+full_cache_path = "dashboard/data/history_states_full.json"
+if os.path.exists(full_cache_path):
+    with open(full_cache_path) as f:
+        full_cache = json.load(f).get("sectors", {})
+    for code, recs in full_cache.items():
+        if recs: history_data[code] = recs[-10:]
+if not history_data:
+    snap_path = "dashboard/data/history_states.json"
+    if os.path.exists(snap_path):
+        with open(snap_path) as f:
             history_data = json.load(f).get("sectors", {})
-        if history_data:
-            # 只取最近10天用于展示，避免HTML过大
-            trimmed = {}
-            for code, recs in history_data.items():
-                if recs: trimmed[code] = recs[-10:]
-            history_data = trimmed
 
 # Phase B/C: 加载推演回测结果（汇总数据，~50KB）
 projection_data = {}
@@ -178,28 +179,27 @@ def sparkline_svg(code, w=80, h=18):
         scores[0], scores[-1])
     return svg
 
-def card(s, is_ml):
+def make_card(s, is_ml=False, ss_dict=None, w_dict=None):
+    """生成板块卡片HTML。ss_dict和w_dict可选传入用于历史日期,默认用全局sector_stats和weights_data"""
+    if ss_dict is None: ss_dict = sector_stats
+    if w_dict is None: w_dict = weights_data
     c = s['conditions']; icon = '★' if is_ml else '🔵'
     bc = 'rgba(210,153,34,0.6)' if is_ml else 'rgba(66,165,245,0.4)'
     code = s.get("code", s.get("symbol", ""))
     h = '<div class="card-clickable" style="background:#161b22;border:2px solid %s;border-radius:8px;padding:12px" onclick="showTrajectory(\'%s\')">' % (bc, code)
-    # title with 5d state bar
     h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">'
     h += '<div style="font-size:14px;font-weight:700">%s <a href="%s" target="_blank" style="color:#e6edf3;text-decoration:none">%s</a> <span style="font-size:10px;color:#8b949e">%s</span></div>' % (icon, s["link"], s["name"], code)
     h += badge(s["state"], s["state_label"])
     h += '</div>'
-    # 5-day state bar (Phase A)
     if code:
         bar = state_bar_5d(code)
-        if bar:
-            h += bar
-    # Projection indicator (Phase B) - 根据当前状态显示具体预测
-    if code and weights_data:
+        if bar: h += bar
+    # 明日推演
+    if code and w_dict:
         state_key = str(s.get("state", "")).replace("'", "p")
-        w = weights_data.get(state_key, {})
+        w = w_dict.get(state_key, {})
         if w:
             pa = w.get("scenario_a", 0); pb = w.get("scenario_b", 0); pc = w.get("scenario_c", 0)
-            # 根据当前状态给具体的标签
             st = str(s.get("state", ""))
             if st == "4": la,lb,lc = "继续上涨","转为回调","转为转跌"
             elif st == "3": la,lb,lc = "继续整理","突破上涨","假突破下跌"
@@ -215,9 +215,9 @@ def card(s, is_ml):
             if pc > 0.02 and lc:
                 h += '<span style="color:%s;background:rgba(218,54,51,0.15);padding:1px 6px;border-radius:8px">%s %.0f%%</span>' % ("#da3633", lc, pc*100)
             h += '</div>'
-        # V2实盘指标(持续天数+明日概率+历史对比)
-    if code and sector_stats:
-        ss = sector_stats.get(code, {})
+    # 实盘指标
+    if code and ss_dict:
+        ss = ss_dict.get(code, {})
         if ss:
             sk = ss.get("streak_days", 0); pr = ss.get("tomorrow_prob", 0)
             av = ss.get("avg_uptrend_days", 0); mx = ss.get("max_uptrend_days", 0)
@@ -237,33 +237,32 @@ def card(s, is_ml):
                 h += '<div style="font-size:10px;margin:3px 0"><span style="color:#42a5f5;font-weight:700">🔄翻转%d天</span> <span style="color:#8b949e">| 明天继续整理%.0f%%</span></div>'%(sk,pr*100)
             elif st == "1":
                 h += '<div style="font-size:10px;margin:3px 0;color:#6e7681">📉下跌%d天 | 继续跌%.0f%%</div>'%(sk,pr*100)
-    # 3 conditions
-    h += '<div style="display:flex;gap:12px;font-size:11px;margin-bottom:6px;flex-wrap:wrap">'
-    for k,lb in [("structure","A"),("volume","B"),("persistence","C")]:
+    # 三条件(分三行)
+    h += '<div style="font-size:11px;margin-bottom:6px">'
+    for k,lb in [("structure","A 结构"),("volume","B 量能"),("persistence","C 持续性")]:
         p = c[k]["pass"]
-        h += '<span style="white-space:nowrap"><span style="color:%s">%s</span> %s: %s</span>' % (cp(p), "✅" if p else "❌", lb, c[k]["detail"])
+        h += '<div style="margin:1px 0"><span style="color:%s">%s</span> %s: %s</div>' % (cp(p), "✅" if p else "❌", lb, c[k]["detail"])
     h += '</div>'
-    # metrics
+    # 技术指标
     h += '<div style="font-size:10px;color:#8b949e">MA20:%s | 20日:%s | 阳%d/阴%d | 连阳%d天 | 仓位:%d%%%s</div>' % (
         pct(s.get("ma_deviation",0)), pct(s.get("ret_20d",0)), s.get("yang",0), s.get("yin",0),
         s.get("max_consecutive_yang",0), int(s["position"]*100),
         sparkline_svg(code) if code else "")
-    # leaders
-    # 过滤龙头: 必须是状态3/4/5且有正收益
+    # 龙头
     all_leaders = s.get("leaders", [])
     if all_leaders:
         h += '<div style="font-size:10px;color:#d29922;font-weight:700;margin:8px 0 4px">🏆 龙头个股（近20日涨幅排名）</div>'
         h += '<table style="width:100%;font-size:11px;border-collapse:collapse">'
         h += '<tr style="color:#8b949e;font-size:10px"><th style="text-align:left;padding:2px 4px">个股</th><th style="text-align:right;padding:2px 4px">涨幅</th><th style="text-align:left;padding:2px 4px">入选原因</th></tr>'
         for i, ldr in enumerate(all_leaders[:5]):
-            mkt = "sh" if ldr["code"].startswith("6") else "sz"
-            rc = "#26a69a" if ldr["ret20"] > 0 else "#ef5350"
-            reason = "涨幅板块内第%d, 近20日%+.1f%%" % (i+1, ldr["ret20"])
+            mkt = "sh" if str(ldr.get("code","")).startswith("6") else "sz"
+            rc = "#26a69a" if ldr.get("ret20",0) > 0 else "#ef5350"
+            reason = ldr.get("reason","涨幅板块内第%d"%(i+1))
             url = "https://quote.eastmoney.com/%s%s.html" % (mkt, ldr["code"])
-            h += '<tr><td style="padding:2px 4px"><a href="%s" target="_blank" style="color:#58a6ff;font-weight:600">%s</a></td><td style="text-align:right;padding:2px 4px;color:%s">%+.1f%%</td><td style="padding:2px 4px;color:#8b949e;font-size:10px">%s</td></tr>' % (url, ldr["name"], rc, ldr["ret20"], reason)
+            h += '<tr><td style="padding:2px 4px"><a href="%s" target="_blank" style="color:#58a6ff;font-weight:600">%s</a></td><td style="text-align:right;padding:2px 4px;color:%s">%+.1f%%</td><td style="padding:2px 4px;color:#8b949e;font-size:10px">%s</td></tr>' % (url, ldr.get("name",ldr["code"]), rc, ldr.get("ret20",0), reason)
         h += '</table>'
     else:
-        h += '<div style="font-size:10px;color:#8b949e;margin-top:4px">⚠️ 成分股数据不完整（板块趋势基于同花顺指数自身OHLCV数据），akshare成分股接口不可用</div>'
+        h += '<div style="font-size:10px;color:#8b949e;margin-top:4px">⚠️ 暂无龙头数据</div>'
     # ETFs
     etfs = s.get("etfs", [])
     if etfs:
@@ -272,13 +271,16 @@ def card(s, is_ml):
         h += '<tr style="color:#8b949e;font-size:10px"><th style="text-align:left;padding:2px 4px">ETF</th><th style="text-align:left;padding:2px 4px">状态</th><th style="text-align:left;padding:2px 4px">代码</th></tr>'
         for e in etfs:
             ec = e.get("code", e.get("symbol", ""))
-            mkt = "sh" if ec.startswith("5") else "sz"
+            mkt = "sh" if str(ec).startswith("5") else "sz"
             url = "https://quote.eastmoney.com/%s%s.html" % (mkt, ec)
-            h += '<tr><td style="padding:2px 4px"><a href="%s" target="_blank" style="color:#a371f7">%s</a></td><td style="padding:2px 4px">%s</td><td style="padding:2px 4px;color:#8b949e;font-size:10px">%s</td></tr>' % (url, e["name"], badge(e["state"], e["state_label"]), ec)
+            h += '<tr><td style="padding:2px 4px"><a href="%s" target="_blank" style="color:#a371f7">%s</a></td><td style="padding:2px 4px">%s</td><td style="padding:2px 4px;color:#8b949e;font-size:10px">%s</td></tr>' % (url, e.get("name",""), badge(e.get("state",1), e.get("state_label","未知")), ec)
         h += '</table>'
     return h + '</div>'
 
-# ====== HTML ======
+# 向后兼容
+def card(s, is_ml): return make_card(s, is_ml)
+
+# ====== HTML生成 ======
 h = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>趋势跟随交易系统</title>'
 h += '<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px}.header{background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}.header h1{font-size:17px;background:linear-gradient(90deg,#58a6ff,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.overview{display:flex;gap:0;margin:10px 20px;border:1px solid #30363d;border-radius:8px;overflow:hidden;flex-wrap:wrap}.ov-item{flex:1;min-width:80px;padding:10px 12px;text-align:center;background:#161b22;border-right:1px solid #30363d}.ov-item:last-child{border-right:none}.ov-item .v{font-size:20px;font-weight:800}.ov-item .l{font-size:9px;color:#8b949e;margin-top:1px}.panel{margin:0 20px 12px}.panel h2{font-size:14px;margin-bottom:8px}.focus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:10px}.all-t{overflow-x:auto;border:1px solid #30363d;border-radius:6px;margin:10px 20px 16px}.all-t table{width:100%;border-collapse:collapse;font-size:11px;min-width:1100px}.all-t thead th{background:#21262d;padding:5px 7px;text-align:left;font-size:10px;color:#8b949e;border-bottom:2px solid #30363d;font-weight:600;white-space:nowrap}.all-t tbody td{padding:4px 7px;border-bottom:1px solid #21262d;white-space:nowrap}.all-t tbody tr:hover{background:rgba(88,166,255,0.03)}a{color:#58a6ff;text-decoration:none;font-weight:600}a:hover{text-decoration:underline}.search{margin:8px 20px}.search input{width:100%;padding:6px 12px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:12px;outline:none}.footer{padding:10px 20px;border-top:1px solid #30363d;text-align:center;color:#8b949e;font-size:10px}.date-bar{display:flex;gap:6px;padding:8px 20px;overflow-x:auto;border-bottom:1px solid #30363d;background:#0d1117;flex-wrap:wrap}.date-chip{background:#161b22;border:1px solid #30363d;color:#8b949e;padding:6px 14px;border-radius:16px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:all 0.15s}.date-chip:hover{background:#1c2128;border-color:#58a6ff;color:#e6edf3}.date-chip.active{background:rgba(88,166,255,0.15);border-color:#58a6ff;color:#58a6ff}.date-chip.month-label{background:transparent;border-color:transparent;color:#d29922;font-weight:800;font-size:11px;pointer-events:none}.show-more-btn{background:#161b22;border:1px dashed #30363d;color:#58a6ff;padding:6px 14px;border-radius:16px;font-size:11px;cursor:pointer;white-space:nowrap}.show-more-btn:hover{border-color:#58a6ff}.trajectory-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;justify-content:center;align-items:center}.trajectory-overlay.show{display:flex}.trajectory-panel{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}.trajectory-panel h3{font-size:16px;margin-bottom:12px;color:#58a6ff}.trajectory-panel .close-btn{float:right;background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer;line-height:1}.trajectory-panel .close-btn:hover{color:#e6edf3}.trajectory-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #21262d;font-size:12px}.trajectory-row .t-date{width:80px;color:#8b949e;font-size:11px}.trajectory-row .t-state{width:12px;height:12px;border-radius:50%;flex-shrink:0}.trajectory-row .t-conds{display:flex;gap:4px;font-size:10px}.t-cond{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}.t-cond.pass{background:rgba(38,166,154,0.2);color:#26a69a}.t-cond.fail{background:rgba(239,83,80,0.2);color:#ef5350}.card-clickable{cursor:pointer;transition:all 0.15s}.card-clickable:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(88,166,255,0.1)}.app-layout{display:flex;flex:1;overflow:hidden}.date-sidebar{width:260px;min-width:260px;background:#0d1117;border-right:1px solid #30363d;overflow-y:auto;flex-shrink:0}.date-sidebar h3{position:sticky;top:0;background:#161b22;padding:10px 12px;font-size:12px;color:#58a6ff;border-bottom:1px solid #30363d;z-index:10}.date-row{display:flex;align-items:center;gap:5px;padding:5px 10px;border-bottom:1px solid rgba(48,54,61,0.3);cursor:pointer;font-size:11px;min-height:40px}.date-row:hover{background:#161b22}.date-row.active{background:rgba(88,166,255,0.1);border-left:3px solid #58a6ff}.date-row .d{font-size:10px;color:#8b949e;min-width:40px}.date-row .w{font-size:9px;color:#6e7681;min-width:26px}.date-row .n{font-size:10px;font-weight:700;padding:1px 4px;border-radius:6px;min-width:32px;text-align:center}.date-row .s{font-size:9px;color:#8b949e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}.date-row .h{width:6px;height:6px;border-radius:50%;flex-shrink:0}.main-content{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px 16px;height:100vh}.mnth-divider{padding:6px 12px;font-size:10px;color:#d29922;font-weight:700;background:#161b22;border-bottom:1px solid #30363d}</style></head><body>'
 
@@ -547,6 +549,8 @@ else:
     h += 'var HEALTH_DATA = null;'
 h += 'var DATE_NAV = %s;' % json.dumps(date_nav, ensure_ascii=False)
 h += 'var TODAY_DATE = "%s";' % data["date"]
+# 历史日期数据不再嵌入主页(已生成独立HTML文件)
+h += 'var DATE_FULL = null;'
 h += '''
 var STATE_COLORS = {1:"#6e7681",2:"#8b949e",3:"#42a5f5",4:"#26a69a",5:"#d29922","3p":"#da3633"};
 var STATE_LABELS = {1:"下跌趋势",2:"下跌反弹",3:"翻转确认中",4:"上涨趋势",5:"上涨回调","3p":"转跌确认中"};
@@ -587,22 +591,17 @@ function hideTrajectory(e) {
 document.addEventListener("keydown", function(e) { if (e.key === "Escape") document.getElementById("trajectoryOverlay").classList.remove("show"); });
 </script>'''
 
-# 左侧日期导航渲染JS
+# 日期导航渲染JS(支持动态切换,不跳转页面)
 h += '''<script>
 function renderDateNav(){
   var nav=document.getElementById("dateNav");if(!nav||!DATE_NAV||!DATE_NAV.length)return;
-  var h="";var now=new Date();var todayStr=now.getFullYear()+"-"+
-    String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+  var h='<span style="font-size:10px;color:#d29922;font-weight:700;padding:4px 8px;white-space:nowrap;flex-shrink:0">📅</span>';
   for(var i=0;i<Math.min(DATE_NAV.length,60);i++){
-    var d=DATE_NAV[i];var isToday=d.date==TODAY_DATE;
-    var bg=isToday?"rgba(88,166,255,0.2)":"#161b22";
-    var bd=isToday?"1px solid #58a6ff":"1px solid #30363d";
-    var clr=isToday?"#58a6ff":"#8b949e";
-    h+="<a href=\\"trend_dashboard_"+d.date+".html\\" style=\\"background:"+bg+
-      ";border:"+bd+";color:"+clr+
-      ";padding:4px 10px;border-radius:12px;font-size:10px;font-weight:600;"+
-      "text-decoration:none;white-space:nowrap;flex-shrink:0\\">"+
-      d.date.substring(5)+" "+d.weekday+" "+d.uptrend_count+"涨</a>";
+    var d=DATE_NAV[i],isA=d.date==TODAY_DATE;
+    var bg=isA?"rgba(88,166,255,0.2)":"#161b22";
+    var bd=isA?"1px solid #58a6ff":"1px solid #30363d";
+    var clr=isA?"#58a6ff":"#8b949e";
+    h+='<a href="trend_dashboard_'+d.date+'.html" style="background:'+bg+';border:'+bd+';color:'+clr+';padding:4px 10px;border-radius:12px;font-size:10px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0">'+d.date.substring(5)+' '+d.weekday+' '+d.uptrend_count+'涨</a>';
   }
   nav.innerHTML=h;
 }
@@ -615,3 +614,115 @@ with open("dashboard/index.html", "w") as f: f.write(h)
 with open("dashboard/trend_dashboard_%s.html" % data["date"], "w") as f: f.write(h)
 print("✅ dashboard/index.html (%dKB)" % (len(h)/1024))
 print("焦点=%d板块 个股=%d只" % (len(focus), len(stocks)))
+
+# ====== 生成历史日期页面(使用同一个make_card函数保证格式100%一致) ======
+print("📦 生成历史日期页面...")
+import re as _re
+
+# 板块名称/链接/ETF映射
+_code_info = {}
+for _s in data.get("sectors", []):
+    _c = _s.get("code", _s.get("symbol", ""))
+    if _c: _code_info[_c] = {"name": _s.get("name", _c), "link": _s.get("link", "#"), "etfs": _s.get("etfs", [])}
+
+df_path = "dashboard/data/date_full_data.json"
+if os.path.exists(df_path):
+    df_full = json.load(open(df_path))
+    v2_probs = df_full.get("v2_probs", {})
+    all_dates_list = sorted(df_full.get("dates", {}).keys())
+
+    # 转换v2_probs为weights格式(make_card需要w_dict)
+    hist_weights = {}
+    for st, probs in v2_probs.items():
+        entries = sorted(probs.items(), key=lambda x: -x[1])
+        hist_weights[st] = {
+            "scenario_a": entries[0][1] if len(entries) > 0 else 0.6,
+            "scenario_b": entries[1][1] if len(entries) > 1 else 0.3,
+            "scenario_c": entries[2][1] if len(entries) > 2 else 0.1,
+        }
+
+    gen_count = 0
+    for d in all_dates_list[-30:]:
+        snap_path = f"dashboard/data/snapshot_{d}.json"
+        if not os.path.exists(snap_path): continue
+
+        snap = json.load(open(snap_path))
+        ss_data = df_full["dates"][d]["sectors"]
+
+        # 构建板块数据列表(兼容card函数)
+        sectors_list = []
+        for c, info in snap["sectors"].items():
+            st = str(info["state"])
+            if st not in ("4", "3", "5"): continue
+            ss = ss_data.get(c, {})
+            sec = {
+                "code": c, "name": info.get("name", _code_info.get(c, {}).get("name", c)),
+                "link": _code_info.get(c, {}).get("link", "#"),
+                "state": info["state"],
+                "state_label": info.get("state_label", sn(st)),
+                "position": info.get("position", 0),
+                "score": info.get("score", 0),
+                "ma_deviation": info.get("ma_deviation", 0),
+                "ret_20d": info.get("ret_20d", 0),
+                "yang": info.get("yang", 0), "yin": info.get("yin", 0),
+                "max_consecutive_yang": info.get("max_consecutive_yang", 0),
+                "conditions": info.get("conditions", {}),
+                "leaders": snap.get("leaders", {}).get(c, []),
+                "etfs": _code_info.get(c, {}).get("etfs", []),
+            }
+            sectors_list.append(sec)
+
+        sectors_list.sort(key=lambda x: (str(x["state"])!="4", str(x["state"])!="3", -x.get("score", 0)))
+
+        # 用make_card生成卡片(传入ss_dict和w_dict)
+        hist_ss = {}
+        for c in ss_data:
+            hist_ss[c] = {
+                "streak_days": ss_data[c].get("streak", 0),
+                "tomorrow_prob": ss_data[c].get("tomorrow_prob", 0),
+                "avg_uptrend_days": ss_data[c].get("avg_uptrend", 0),
+                "max_uptrend_days": ss_data[c].get("max_uptrend", 0),
+                "expected_return": ss_data[c].get("expected_return", 0),
+            }
+
+        cards_html = ""
+        for sec in sectors_list[:25]:
+            cards_html += make_card(sec, False, hist_ss, hist_weights)
+        if not cards_html:
+            cards_html = '<div style="color:#8b949e;padding:40px;text-align:center">该日期无上涨/翻转板块</div>'
+
+        up_c = sum(1 for s in sectors_list if str(s["state"]) == "4")
+        fl_c = sum(1 for s in sectors_list if str(s["state"]) == "3")
+        dn_c = snap["total"] - up_c - fl_c
+
+        # 用今天页面模板替换内容
+        hist_html = h
+        hist_html = hist_html.replace('var TODAY_DATE = "%s"' % data["date"], 'var TODAY_DATE = "%s"' % d)
+        hist_html = hist_html.replace('<title>趋势跟随交易系统</title>', '<title>趋势跟随交易系统 - %s</title>' % d)
+
+        # 替换概览
+        overview_new = '<div class="overview">'
+        overview_new += '<div class="ov-item"><div class="v" style="color:#8b949e">%d</div><div class="l">全部板块</div></div>' % snap["total"]
+        overview_new += '<div class="ov-item"><div class="v" style="color:#58a6ff">%d</div><div class="l">上涨趋势</div></div>' % up_c
+        overview_new += '<div class="ov-item"><div class="v" style="color:#42a5f5">%d</div><div class="l">翻转确认</div></div>' % fl_c
+        overview_new += '<div class="ov-item"><div class="v" style="color:#d29922">%d</div><div class="l">下跌/反弹</div></div>' % dn_c
+        overview_new += '<div class="ov-item"><div class="v" style="color:#8b949e">%s</div><div class="l">%s</div></div>' % (d[5:], snap["health"])
+        overview_new += '</div>'
+        hist_html = _re.sub(r'<div class="overview">.*?</div>\s*<div class="panel">', overview_new + '\n<div class="panel">', hist_html, count=1, flags=_re.DOTALL)
+
+        # 替换焦点板块
+        fp = hist_html.find('<h2 style="color:#42a5f5">🔍 焦点板块')
+        if fp > 0:
+            fe = hist_html.find('<div class="panel"><h2>📈', fp)
+            if fe < 0: fe = hist_html.find('<div class="panel"><h2>📊', fp)
+            if fe < 0: fe = hist_html.find('<div class="all-t">', fp)
+            if fe > 0:
+                new_fp = '<h2 style="color:#42a5f5">🔍 焦点板块（%d个） — %s</h2><div class="focus-grid">%s</div>\n' % (len(sectors_list), d, cards_html)
+                hist_html = hist_html[:fp] + new_fp + hist_html[fe:]
+
+        with open("dashboard/trend_dashboard_%s.html" % d, "w") as f: f.write(hist_html)
+        gen_count += 1
+
+    print("   ✅ 生成%d个历史页面(格式与今天完全一致)" % gen_count)
+else:
+    print("   ⚠️ date_full_data.json不存在, 跳过历史页面")
