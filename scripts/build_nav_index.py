@@ -296,8 +296,6 @@ const DEFAULT_DATE = "{default_date}";
         var dot = e.target.closest('.quick-dot');
         if (!dot) return;
         loadDate(dot.dataset.date);
-        var item = document.querySelector('.date-item[data-date="' + dot.dataset.date + '"]');
-        if (item) item.scrollIntoView({{ block: 'center', behavior: 'smooth' }});
     }});
 
     dateList.innerHTML = DAYS.map(function(d) {{
@@ -352,7 +350,6 @@ const DEFAULT_DATE = "{default_date}";
         var target = document.querySelector('.date-item[data-date="' + dateStr + '"]');
         if (target) {{
             target.classList.add('active');
-            target.scrollIntoView({{ block: 'nearest', behavior: 'smooth' }});
         }}
         reportFrame.src = 'trend_dashboard_' + dateStr + '.html';
     }};
