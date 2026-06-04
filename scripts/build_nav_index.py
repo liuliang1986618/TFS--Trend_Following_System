@@ -414,8 +414,10 @@ def main():
 
     print("\n📂 加载 date_nav.json...")
     dates_data = load_date_nav()
+    # 只保留有完整数据的日期 (2026-04-15起)
+    dates_data = [d for d in dates_data if d["date"] >= "2026-04-15"]
     all_dates = [d["date"] for d in dates_data]
-    print(f"   共 {len(dates_data)} 个交易日")
+    print(f"   共 {len(dates_data)} 个交易日 (>= 2026-04-15)")
 
     leader_codes = collect_all_leader_codes(dates_data)
     print(f"   需映射的股票代码: {len(leader_codes)}")
