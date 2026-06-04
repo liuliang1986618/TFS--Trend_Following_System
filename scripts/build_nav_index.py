@@ -246,7 +246,8 @@ def _render_date_item(entry: dict, is_active: bool) -> str:
     active_cls = " active" if is_active else ""
 
     item = (
-        f'<div class="date-item{active_cls}" data-date="{d["date"]}">'
+        f'<div class="date-item{active_cls}" data-date="{d["date"]}"'
+        f' onclick="loadDate(\'{d["date"]}\')">'
         f'<div class="date-label">{d["label"]}{tags}</div>'
         f'<div class="sh-line">上证<span style="color:{sh_color};font-weight:600">{_pct_str(d["sh_pct"])}</span>'
         f' 科创<span style="color:{kc_color};font-weight:600">{_pct_str(d["kc_pct"])}</span>'
@@ -268,7 +269,7 @@ def _render_quick_dot(entry: dict) -> str:
     return (
         f'<span class="quick-dot {cls}" '
         f'title="{d["date"]} {d["health"]}" '
-        f'data-date="{d["date"]}"></span>'
+        f'onclick="loadDate(\'{d["date"]}\')"></span>'
     )
 
 
@@ -356,60 +357,39 @@ body.nav-collapsed .toggle-btn{{right:auto;left:3px;top:10px}}
 </div>
 
 <script>
-(function() {{
-    var reportFrame = document.getElementById('reportFrame');
-    var toggleBtn = document.getElementById('toggleBtn');
+var reportFrame = document.getElementById('reportFrame');
+var toggleBtn = document.getElementById('toggleBtn');
 
-    // 收起/展开
-    toggleBtn.addEventListener('click', function() {{
+function loadDate(dateStr) {{
+    var items = document.querySelectorAll('.date-item');
+    for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
+    var target = document.querySelector('.date-item[data-date="' + dateStr + '"]');
+    if (target) target.classList.add('active');
+    reportFrame.src = 'trend_dashboard_' + dateStr + '.html';
+}}
+
+toggleBtn.addEventListener('click', function() {{
+    document.body.classList.toggle('nav-collapsed');
+    toggleBtn.textContent = document.body.classList.contains('nav-collapsed') ? '▶' : '◀';
+}});
+
+document.addEventListener('keydown', function(e) {{
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {{
+        e.preventDefault();
+        var cur = document.querySelector('.date-item.active');
+        if (!cur) return;
+        var all = Array.from(document.querySelectorAll('.date-item'));
+        var idx = all.indexOf(cur);
+        var next = e.key === 'ArrowDown' ? idx + 1 : idx - 1;
+        if (next >= 0 && next < all.length) {{
+            loadDate(all[next].dataset.date);
+        }}
+    }}
+    if (e.key === '[') {{
         document.body.classList.toggle('nav-collapsed');
         toggleBtn.textContent = document.body.classList.contains('nav-collapsed') ? '▶' : '◀';
-    }});
-
-    // 侧边栏日期点击
-    document.getElementById('dateList').addEventListener('click', function(e) {{
-        var item = e.target.closest('.date-item');
-        if (!item) return;
-        var dateStr = item.dataset.date;
-        var items = document.querySelectorAll('.date-item');
-        for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
-        item.classList.add('active');
-        reportFrame.src = 'trend_dashboard_' + dateStr + '.html';
-    }});
-
-    // 快速跳转点点击
-    document.getElementById('quickBar').addEventListener('click', function(e) {{
-        var dot = e.target.closest('.quick-dot');
-        if (!dot) return;
-        var dateStr = dot.dataset.date;
-        var items = document.querySelectorAll('.date-item');
-        for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
-        var target = document.querySelector('.date-item[data-date="' + dateStr + '"]');
-        if (target) target.classList.add('active');
-        reportFrame.src = 'trend_dashboard_' + dateStr + '.html';
-    }});
-
-    // 键盘: ↑↓切换日期, [ 收起侧边栏
-    document.addEventListener('keydown', function(e) {{
-        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {{
-            e.preventDefault();
-            var cur = document.querySelector('.date-item.active');
-            if (!cur) return;
-            var all = Array.from(document.querySelectorAll('.date-item'));
-            var idx = all.indexOf(cur);
-            var next = e.key === 'ArrowDown' ? idx + 1 : idx - 1;
-            if (next >= 0 && next < all.length) {{
-                all[next].classList.add('active');
-                cur.classList.remove('active');
-                reportFrame.src = 'trend_dashboard_' + all[next].dataset.date + '.html';
-            }}
-        }}
-        if (e.key === '[') {{
-            document.body.classList.toggle('nav-collapsed');
-            toggleBtn.textContent = document.body.classList.contains('nav-collapsed') ? '▶' : '◀';
-        }}
-    }});
-}})();
+    }}
+}});
 </script>
 </body>
 </html>'''
