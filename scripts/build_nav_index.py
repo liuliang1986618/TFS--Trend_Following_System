@@ -191,12 +191,98 @@ def _make_label(date_str: str, weekday: str) -> str:
         return f"{date_str} {weekday}"
 
 
+def _pct_str(v: float) -> str:
+    """涨跌幅字符串：+1.23% 或 -0.45%"""
+    return f"{'+' if v >= 0 else ''}{v:.2f}%"
+
+
+def _score_color(sc: float) -> str:
+    """得分颜色。"""
+    if sc >= 100:
+        return "#4ade80"
+    elif sc >= 50:
+        return "#86efac"
+    elif sc >= 20:
+        return "#facc15"
+    else:
+        return "#f87171"
+
+
+def _render_date_item(entry: dict, is_active: bool) -> str:
+    """服务端渲染一个日期项HTML。"""
+    d = entry
+    sh_color = "#4ade80" if d["sh_pct"] >= 0 else "#f87171"
+    kc_color = "#4ade80" if d["kc_pct"] >= 0 else "#f87171"
+    cy_color = "#4ade80" if d["cy_pct"] >= 0 else "#f87171"
+    ms_color = "#4ade80" if d["health"] == "强势" else ("#f87171" if d["health"] == "弱势" else "#d29922")
+
+    # 龙头
+    leaders = d.get("leaders") or []
+    if leaders:
+        parts = []
+        for l in leaders:
+            sc = l["score"]
+            sc_c = _score_color(sc)
+            parts.append(
+                f'<span style="color:{sc_c}">{l["name"]}<sup>{sc:.0f}%</sup></span>'
+            )
+        leaders_html = " · ".join(parts)
+    else:
+        leaders_html = '<span style="color:#555">—</span>'
+
+    # 标签
+    tags = ""
+    if d["is_today"]:
+        tags += '<span class="today-tag">今天</span>'
+    if d["is_monday"]:
+        tags += '<span class="mon-tag">周一</span>'
+
+    # 主线板块提示
+    tops = d.get("top_mainline") or []
+    sector_hint = ""
+    if tops:
+        sector_hint = f'<div class="sector-hint"><span style="color:#d29922">★</span> {" · ".join(tops)}</div>'
+
+    active_cls = " active" if is_active else ""
+
+    item = (
+        f'<div class="date-item{active_cls}" data-date="{d["date"]}">'
+        f'<div class="date-label">{d["label"]}{tags}</div>'
+        f'<div class="sh-line">上证<span style="color:{sh_color};font-weight:600">{_pct_str(d["sh_pct"])}</span>'
+        f' 科创<span style="color:{kc_color};font-weight:600">{_pct_str(d["kc_pct"])}</span>'
+        f' 创业<span style="color:{cy_color};font-weight:600">{_pct_str(d["cy_pct"])}</span>'
+        f' <span style="color:{ms_color};font-size:10px;font-weight:600">{d["health"]}</span>'
+        f' <span style="color:#666;font-size:10px">↑{d["uptrend_count"]}</span></div>'
+        f'<div class="leaders-line">{leaders_html}</div>'
+        f'{sector_hint}'
+        f'</div>'
+    )
+    return item
+
+
+def _render_quick_dot(entry: dict) -> str:
+    """渲染快速跳转圆点。"""
+    d = entry
+    cls_map = {"强势": "strong", "正常": "normal", "弱势": "weak"}
+    cls = cls_map.get(d["health"], "normal")
+    return (
+        f'<span class="quick-dot {cls}" '
+        f'title="{d["date"]} {d["health"]}" '
+        f'data-date="{d["date"]}"></span>'
+    )
+
+
 def generate_html(entries: list[dict], output_path: str):
-    """生成侧边栏+iframe的壳页面HTML。"""
+    """生成侧边栏+iframe的壳页面HTML。侧边栏服务端渲染，JS只处理点击。"""
     entries_sorted = sorted(entries, key=lambda x: x["date"], reverse=True)
     today_entry = next((e for e in entries_sorted if e["is_today"]), None)
     default_date = today_entry["date"] if today_entry else entries_sorted[0]["date"]
-    days_json = json.dumps(entries_sorted, ensure_ascii=False)
+
+    # 服务端渲染侧边栏
+    date_items_html = "\n".join(
+        _render_date_item(e, e["date"] == default_date) for e in entries_sorted
+    )
+    quick_dots_html = "\n".join(_render_quick_dot(e) for e in entries_sorted)
 
     html = f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -237,7 +323,6 @@ body.nav-collapsed .sidebar-inner{{display:none}}
 .toggle-btn:hover{{color:#fff;background:#2a2a4a}}
 body.nav-collapsed .toggle-btn{{right:auto;left:3px;top:10px}}
 
-/* 快速跳转条: 每个日期一个彩色圆点 */
 .quick-bar{{display:flex;gap:2px;padding:6px 8px;border-bottom:1px solid #1a1a3a;flex-wrap:wrap;flex-shrink:0}}
 .quick-dot{{width:6px;height:6px;border-radius:50%;cursor:pointer;transition:all .15s;flex-shrink:0}}
 .quick-dot:hover{{transform:scale(1.8)}}
@@ -256,103 +341,53 @@ body.nav-collapsed .toggle-btn{{right:auto;left:3px;top:10px}}
   <div class="sidebar-inner">
     <div class="sidebar-header">
       <h1>📊 趋势跟随</h1>
-      <div class="sub" id="dayCount"></div>
+      <div class="sub">{len(entries_sorted)} 天报告</div>
     </div>
-    <div class="quick-bar" id="quickBar"></div>
-    <div class="sidebar-list" id="dateList"></div>
+    <div class="quick-bar">
+{quick_dots_html}
+    </div>
+    <div class="sidebar-list">
+{date_items_html}
+    </div>
   </div>
 </div>
 <div class="main">
-  <iframe id="reportFrame" src=""></iframe>
+  <iframe id="reportFrame" src="trend_dashboard_{default_date}.html"></iframe>
 </div>
 
 <script>
-const DAYS = {days_json};
-const DEFAULT_DATE = "{default_date}";
-
 (function() {{
-    const dateList = document.getElementById('dateList');
-    const reportFrame = document.getElementById('reportFrame');
-    const dayCount = document.getElementById('dayCount');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const quickBar = document.getElementById('quickBar');
+    var reportFrame = document.getElementById('reportFrame');
+    var toggleBtn = document.getElementById('toggleBtn');
 
+    // 收起/展开
     toggleBtn.addEventListener('click', function() {{
         document.body.classList.toggle('nav-collapsed');
         toggleBtn.textContent = document.body.classList.contains('nav-collapsed') ? '▶' : '◀';
     }});
 
-    dayCount.textContent = DAYS.length + ' 天报告';
-
-    // 快速跳转点: 一日期一个色点，颜色=市场状态
-    quickBar.innerHTML = DAYS.map(function(d) {{
-        var cls = d.health === '强势' ? 'strong' : d.health === '弱势' ? 'weak' : 'normal';
-        return '<span class="quick-dot ' + cls + '" title="' + d.date + ' ' + d.health + '" data-date="' + d.date + '"></span>';
-    }}).join('');
-
-    quickBar.addEventListener('click', function(e) {{
-        var dot = e.target.closest('.quick-dot');
-        if (!dot) return;
-        loadDate(dot.dataset.date);
-    }});
-
-    dateList.innerHTML = DAYS.map(function(d) {{
-        var shColor = d.sh_pct >= 0 ? '#4ade80' : '#f87171';
-        var kcColor = d.kc_pct >= 0 ? '#4ade80' : '#f87171';
-        var cyColor = d.cy_pct >= 0 ? '#4ade80' : '#f87171';
-        var msColor = d.health === '强势' ? '#4ade80' : d.health === '弱势' ? '#f87171' : '#d29922';
-
-        var leadersHtml = '';
-        if (d.leaders && d.leaders.length > 0) {{
-            leadersHtml = d.leaders.map(function(l) {{
-                var sc = l.score;
-                var scColor = sc >= 100 ? '#4ade80' : sc >= 50 ? '#86efac' : sc >= 20 ? '#facc15' : '#f87171';
-                return '<span style="color:' + scColor + '">' + l.name + '<sup>' + sc.toFixed(0) + '%</sup></span>';
-            }}).join(' · ');
-        }} else {{
-            leadersHtml = '<span style="color:#555">—</span>';
-        }}
-
-        var tags = '';
-        if (d.is_today) tags += '<span class="today-tag">今天</span>';
-        if (d.is_monday) tags += '<span class="mon-tag">周一</span>';
-
-        var sectorHint = '';
-        if (d.top_mainline && d.top_mainline.length > 0) {{
-            sectorHint = '<span style="color:#d29922">★</span> ' + d.top_mainline.join(' · ');
-        }}
-
-        var isActive = d.date === DEFAULT_DATE;
-
-        return '<div class="date-item' + (isActive?' active':'') + '" data-date="' + d.date + '">'
-            + '<div class="date-label">' + d.label + tags + '</div>'
-            + '<div class="sh-line">上证<span style="color:' + shColor + ';font-weight:600">' + (d.sh_pct>=0?'+':'') + d.sh_pct.toFixed(2) + '%</span>'
-            + ' 科创<span style="color:' + kcColor + ';font-weight:600">' + (d.kc_pct>=0?'+':'') + d.kc_pct.toFixed(2) + '%</span>'
-            + ' 创业<span style="color:' + cyColor + ';font-weight:600">' + (d.cy_pct>=0?'+':'') + d.cy_pct.toFixed(2) + '%</span>'
-            + ' <span style="color:' + msColor + ';font-size:10px;font-weight:600">' + d.health + '</span>'
-            + ' <span style="color:#666;font-size:10px">↑' + d.uptrend_count + '</span></div>'
-            + '<div class="leaders-line">' + leadersHtml + '</div>'
-            + (sectorHint ? '<div class="sector-hint">' + sectorHint + '</div>' : '')
-            + '</div>';
-    }}).join('');
-
-    dateList.addEventListener('click', function(e) {{
+    // 侧边栏日期点击
+    document.getElementById('dateList').addEventListener('click', function(e) {{
         var item = e.target.closest('.date-item');
         if (!item) return;
-        loadDate(item.dataset.date);
+        var dateStr = item.dataset.date;
+        var items = document.querySelectorAll('.date-item');
+        for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
+        item.classList.add('active');
+        reportFrame.src = 'trend_dashboard_' + dateStr + '.html';
     }});
 
-    window.loadDate = function(dateStr) {{
+    // 快速跳转点点击
+    document.getElementById('quickBar').addEventListener('click', function(e) {{
+        var dot = e.target.closest('.quick-dot');
+        if (!dot) return;
+        var dateStr = dot.dataset.date;
         var items = document.querySelectorAll('.date-item');
         for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
         var target = document.querySelector('.date-item[data-date="' + dateStr + '"]');
-        if (target) {{
-            target.classList.add('active');
-        }}
+        if (target) target.classList.add('active');
         reportFrame.src = 'trend_dashboard_' + dateStr + '.html';
-    }};
-
-    loadDate(DEFAULT_DATE);
+    }});
 
     // 键盘: ↑↓切换日期, [ 收起侧边栏
     document.addEventListener('keydown', function(e) {{
@@ -364,7 +399,9 @@ const DEFAULT_DATE = "{default_date}";
             var idx = all.indexOf(cur);
             var next = e.key === 'ArrowDown' ? idx + 1 : idx - 1;
             if (next >= 0 && next < all.length) {{
-                loadDate(all[next].dataset.date);
+                all[next].classList.add('active');
+                cur.classList.remove('active');
+                reportFrame.src = 'trend_dashboard_' + all[next].dataset.date + '.html';
             }}
         }}
         if (e.key === '[') {{
