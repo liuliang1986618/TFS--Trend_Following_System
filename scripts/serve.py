@@ -43,8 +43,6 @@ def find_free_port(start: int) -> int:
 
 
 def main():
-    os.chdir(DASHBOARD_DIR)
-
     port = find_free_port(PORT)
     if port != PORT:
         print(f"⚠️  端口 {PORT} 被占用，改用 {port}")
@@ -59,6 +57,9 @@ def main():
     print(f"   按 Ctrl+C 停止")
     print("=" * 60)
 
+    # 确保服务就绪后再打开浏览器
+    import time
+    time.sleep(0.3)
     try:
         webbrowser.open(url)
     except Exception:
