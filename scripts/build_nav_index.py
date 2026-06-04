@@ -357,39 +357,45 @@ body.nav-collapsed .toggle-btn{{right:auto;left:3px;top:10px}}
 </div>
 
 <script>
-var reportFrame = document.getElementById('reportFrame');
-var toggleBtn = document.getElementById('toggleBtn');
-
 function loadDate(dateStr) {{
+    // 更新高亮
     var items = document.querySelectorAll('.date-item');
     for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
     var target = document.querySelector('.date-item[data-date="' + dateStr + '"]');
     if (target) target.classList.add('active');
-    reportFrame.src = 'trend_dashboard_' + dateStr + '.html';
+
+    // 销毁旧iframe + 创建新iframe，强制加载
+    var container = document.querySelector('.main');
+    var old = document.getElementById('reportFrame');
+    var f = document.createElement('iframe');
+    f.id = 'reportFrame';
+    f.src = 'trend_dashboard_' + dateStr + '.html';
+    f.setAttribute('style', 'flex:1;width:100%;border:none;display:block');
+    container.replaceChild(f, old);
 }}
 
-toggleBtn.addEventListener('click', function() {{
-    document.body.classList.toggle('nav-collapsed');
-    toggleBtn.textContent = document.body.classList.contains('nav-collapsed') ? '▶' : '◀';
-}});
-
-document.addEventListener('keydown', function(e) {{
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {{
-        e.preventDefault();
-        var cur = document.querySelector('.date-item.active');
-        if (!cur) return;
-        var all = Array.from(document.querySelectorAll('.date-item'));
-        var idx = all.indexOf(cur);
-        var next = e.key === 'ArrowDown' ? idx + 1 : idx - 1;
-        if (next >= 0 && next < all.length) {{
-            loadDate(all[next].dataset.date);
-        }}
-    }}
-    if (e.key === '[') {{
+(function() {{
+    var tb = document.getElementById('toggleBtn');
+    tb.addEventListener('click', function() {{
         document.body.classList.toggle('nav-collapsed');
-        toggleBtn.textContent = document.body.classList.contains('nav-collapsed') ? '▶' : '◀';
-    }}
-}});
+        tb.textContent = document.body.classList.contains('nav-collapsed') ? '▶' : '◀';
+    }});
+    document.addEventListener('keydown', function(e) {{
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {{
+            e.preventDefault();
+            var cur = document.querySelector('.date-item.active');
+            if (!cur) return;
+            var all = Array.from(document.querySelectorAll('.date-item'));
+            var idx = all.indexOf(cur);
+            var next = e.key === 'ArrowDown' ? idx + 1 : idx - 1;
+            if (next >= 0 && next < all.length) loadDate(all[next].dataset.date);
+        }}
+        if (e.key === '[') {{
+            document.body.classList.toggle('nav-collapsed');
+            tb.textContent = document.body.classList.contains('nav-collapsed') ? '▶' : '◀';
+        }}
+    }});
+}})();
 </script>
 </body>
 </html>'''
