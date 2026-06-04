@@ -230,10 +230,8 @@ body.nav-collapsed .sidebar-inner{{display:none}}
 .date-item .leaders-line{{font-size:10px;color:#888;line-height:1.7;word-break:break-all}}
 .date-item .sector-hint{{font-size:10px;color:#555;margin-top:1px;line-height:1.4}}
 
-.main{{flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden;position:relative}}
-.main iframe{{flex:1;width:100%;border:none;display:block;background:#0d1117}}
-.main .loading{{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#555;font-size:14px;z-index:5;pointer-events:none;transition:opacity .15s}}
-.main .loading.hidden{{opacity:0}}
+.main{{flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}}
+.main iframe{{flex:1;width:100%;border:none;display:block}}
 
 .toggle-btn{{position:absolute;top:12px;right:8px;z-index:10;width:26px;height:26px;border-radius:4px;background:#1a1a3a;border:1px solid #2a2a4a;color:#888;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .2s}}
 .toggle-btn:hover{{color:#fff;background:#2a2a4a}}
@@ -265,8 +263,7 @@ body.nav-collapsed .toggle-btn{{right:auto;left:3px;top:10px}}
   </div>
 </div>
 <div class="main">
-  <iframe id="reportFrame" src="" onload="document.getElementById('loading').classList.add('hidden')" onerror="document.getElementById('loading').textContent='加载失败,请重试'"></iframe>
-  <div class="loading" id="loading">加载中...</div>
+  <iframe id="reportFrame" src=""></iframe>
 </div>
 
 <script>
@@ -352,7 +349,6 @@ const DEFAULT_DATE = "{default_date}";
         if (target) {{
             target.classList.add('active');
         }}
-        document.getElementById('loading').classList.remove('hidden');
         reportFrame.src = 'trend_dashboard_' + dateStr + '.html';
     }};
 
