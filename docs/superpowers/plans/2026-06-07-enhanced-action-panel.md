@@ -135,7 +135,56 @@
 
 ---
 
-### 任务 7：Playwright 浏览器自动化验收测试（CRITICAL — 交付门槛）
+### 任务 7：全量历史日期批量生成增强数据 + 重新生成全部 Dashboard HTML
+
+**目的：** 侧边栏导航中所有日期对应的页面都必须展示增强操作建议卡片，
+不能只生成最新一天的。
+
+**执行步骤：**
+
+1. 扫描 `dashboard/data/` 下所有 `actions_*.json` 文件，提取全部日期列表
+2. 对每个日期运行 `EnhancedActionGenerator().generate(date_str)` 生成 `enhanced_actions_{date}.json`
+3. 对每个日期运行 `build_final.py {date_str}` 重新生成 `trend_dashboard_{date}.html`
+4. 验证：每个 HTML 文件中都包含「📋 明日操作建议」面板和 6 个 Widget
+5. 统计：总日期数、成功数、失败数
+
+**批量脚本示例：**
+```python
+import os, glob, subprocess, sys
+
+# 1. 获取所有已有 actions JSON 的日期
+action_files = sorted(glob.glob("dashboard/data/actions_*.json"))
+dates = [os.path.basename(f).replace("actions_", "").replace(".json", "")
+         for f in action_files]
+
+print(f"📅 共 {len(dates)} 个历史日期需要处理")
+
+# 2. 批量生成 enhanced_actions
+from src.enhanced_actions import EnhancedActionGenerator
+gen = EnhancedActionGenerator()
+success = 0
+for d in dates:
+    try:
+        result = gen.generate(d)
+        if result:
+            success += 1
+            print(f"  ✅ {d}")
+        else:
+            print(f"  ⚠️ {d} 跳过（数据不足）")
+    except Exception as e:
+        print(f"  ❌ {d}: {e}")
+print(f"enhanced_actions: {success}/{len(dates)} 成功")
+
+# 3. 批量重新生成 Dashboard HTML
+for d in dates:
+    subprocess.run([sys.executable, "scripts/build_final.py", d],
+                   capture_output=True, timeout=120)
+print(f"Dashboard HTML: 已重新生成 {len(dates)} 个日期")
+```
+
+---
+
+### 任务 8：Playwright 浏览器自动化验收测试（CRITICAL — 交付门槛）
 
 **目的：** 使用 Playwright 自动打开 Dashboard 页面，逐一验证操作建议卡片的
 内容完整性和样式正确性。**如果不符合 v4 设计，必须修改代码直到符合为止。**
