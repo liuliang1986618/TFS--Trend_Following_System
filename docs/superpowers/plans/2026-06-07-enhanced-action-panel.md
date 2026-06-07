@@ -135,14 +135,40 @@
 
 ---
 
-### 任务 7：端到端验证
+### 任务 7：Playwright 浏览器自动化验收测试（CRITICAL — 交付门槛）
 
-1. `pytest tests/test_enhanced_actions.py -v` — 全部PASS
-2. `python3 -c "from src.enhanced_actions import EnhancedActionGenerator; gen.generate('2026-06-05')"` — 成功产出JSON
-3. `python3 scripts/build_final.py 2026-06-05` — 成功生成HTML
-4. `grep -c "趋势大背景\|盯盘指南\|连续预案" dashboard/trend_dashboard_2026-06-05.html` — 每种≥5次
-5. `open dashboard/trend_dashboard_2026-06-05.html` — 浏览器目视检查
-6. 确认 pipeline.py, scanner.py, state_machine.py, orchestrator.py 零改动
+**目的：** 使用 Playwright 自动打开 Dashboard 页面，逐一验证操作建议卡片的
+内容完整性和样式正确性。**如果不符合 v4 设计，必须修改代码直到符合为止。**
+
+**验收流程（循环执行直到全部通过）：**
+
+```
+1. 用 Playwright 打开 dashboard/trend_dashboard_{date}.html
+2. 执行以下所有检查项
+3. 记录失败项 → 修改代码修复 → 重新生成 HTML → 回到步骤1
+4. 全部通过 → 交付完成
+```
+
+**检查项清单：**
+
+- [ ] **A. 面板存在性** — 页面上存在「明日操作建议」面板（h2 包含"操作建议"）
+- [ ] **B. 卡片数量** — ETF 卡片 ≥ 1 张，个股卡片 ≥ 1 张
+- [ ] **C. 每张卡片 6 个 Widget 全部渲染**（按 v4 固定顺序）：
+  - C1. 📈 趋势大背景判断 — 包含趋势方向(上升/下跌/震荡)、运行天数、今日定位、策略总纲
+  - C2. 📊 明日行情推演 — 包含概率分布文字（至少2种行情），所有术语为中文大白话
+  - C3. 🎯 明日最佳买卖区间 — 包含买入区间价格和卖出区间价格
+  - C4. ⚡ 明天盯盘指南 — 至少 4 个场景卡片（A/B/C/D/E），每个加仓/减仓场景包含逻辑解释
+  - C5. 📐 关键价位 — 包含支撑位、阻力位、止损位
+  - C6. 🔁 连续操作预案 — 包含至少 2 条连续操作建议
+- [ ] **D. 大白话检查** — 所有 Widget 文本中不出现状态码(状态1/2/3/4/5)、不出现未解释的英文缩写
+- [ ] **E. 样式检查** — 卡片有边框和圆角、概率条使用绿/黄/红配色、操作标签(加仓/不动/减仓/清仓)使用对应颜色
+- [ ] **F. 页面隔离** — 页面其他板块（特别关注、全市场扫描等）保持原有内容不变
+- [ ] **G. 数据一致性** — 卡片中的标的名称、代码与原始 actions JSON 中的数据一致
+
+**修复循环规则：**
+- 任何一个检查项失败 → 定位根因（数据层 or 渲染层）→ 修改代码 → 重新生成 HTML → 从头重新执行全部检查
+- 不允许跳过失败项或标记为"已知问题"
+- 全部 A~G 通过后才算交付完成
 
 ---
 
@@ -150,9 +176,9 @@
 
 - [ ] pytest 全部通过
 - [ ] enhanced_actions.py 独立运行产出 valid JSON
-- [ ] 现有策略文件零改动
+- [ ] 现有策略文件（pipeline.py, scanner.py, state_machine.py, orchestrator.py）零改动
 - [ ] 所有Widget大白话，无状态码/变量名
 - [ ] 条件矩阵每场景≥3信号
 - [ ] 页面其他板块不变
-- [ ] HTML卡片浏览器正常渲染
 - [ ] 配置文件驱动，关闭/新增Widget只需改JSON
+- [ ] **🔴 Playwright 浏览器验收 A~G 全部通过（交付门槛）**
