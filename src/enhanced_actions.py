@@ -1288,6 +1288,53 @@ class EnhancedActionGenerator:
         else:
             return f"https://quote.eastmoney.com/sz{code}.html"
 
+    # ── ETF成分股趋势龙头 ────────────────────────────────────
+
+    def _get_etf_trend_leaders(self, etf_code: str, date_str: str, top_n: int = 3) -> list[dict]:
+        """返回ETF成分股中趋势最强的 top_n 只个股。
+
+        从 data/etf_holdings.json 读取成分股列表，
+        对每只个股跑 _build_card 做趋势判定+评分，
+        返回趋势评分最高的 top_n 只。
+        """
+        holdings_path = os.path.join(self.data_dir, "etf_holdings.json")
+        if not os.path.exists(holdings_path):
+            return []
+
+        try:
+            all_holdings = json.load(open(holdings_path))
+        except Exception:
+            return []
+
+        stocks = all_holdings.get(etf_code, [])
+        if not stocks:
+            return []
+
+        scored = []
+        for s in stocks:
+            code = s["code"]
+            # 生成东方财富链接
+            if code.startswith(('6', '9')):
+                link = f"https://quote.eastmoney.com/sh{code}.html"
+            else:
+                link = f"https://quote.eastmoney.com/sz{code}.html"
+            card = self._build_card(
+                {"code": code, "name": s["name"], "link": link},
+                date_str, is_etf=False)
+            if card is None:
+                continue
+            score = card.get("score", 0)
+            if score < 60:  # 趋势太弱的不展示
+                continue
+            scored.append({
+                "code": code,
+                "name": s["name"],
+                "score": score,
+            })
+
+        scored.sort(key=lambda x: -x["score"])
+        return scored[:top_n]
+
     # ── ETF 动态扫描 ───────────────────────────────────────────
 
     def _scan_best_etfs(self, date_str: str, top_n: int = 5) -> list[dict]:
@@ -1387,6 +1434,11 @@ class EnhancedActionGenerator:
             hot_etf_cards.append(card)
             if len(hot_etf_cards) >= top_n:
                 break
+
+        # 为入选ETF计算成分股趋势龙头（只在最终入选的10只上计算）
+        for card in etf_cards + hot_etf_cards:
+            leaders = self._get_etf_trend_leaders(card["code"], date_str)
+            card["trend_leaders"] = leaders
 
         return etf_cards, hot_etf_cards
 

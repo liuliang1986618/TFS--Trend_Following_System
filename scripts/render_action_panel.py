@@ -143,6 +143,13 @@ def process_date(date_str):
     hot_etfs = ea.get('hot_etf_cards', [])[:5]
     hot_stocks = ea.get('hot_stock_cards', [])[:5]
 
+    # ETF卡片追加成分股趋势龙头（纯文本，不改模板）
+    for e in etfs + hot_etfs:
+        leaders = e.get('trend_leaders', [])
+        if leaders:
+            names = ' '.join(l['name'] for l in leaders[:3])
+            e['action_label'] = f"{e.get('action_label', '')} | 🏆龙头: {names}"
+
     # 加载标准模板，提取操作建议面板
     tmpl_html = open(TMPL).read()
     panel_tmpl = extract_action_panel(tmpl_html)
