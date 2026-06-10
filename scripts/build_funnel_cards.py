@@ -13,6 +13,10 @@ CATEGORY_ETF_MAP = {
     '医药': ['医药', '医疗'], '银行': ['银行'], '证券': ['证券'],
     '汽车': ['新能源车'], '电力': ['电力'], '煤炭': ['煤炭'],
     '传媒': ['传媒'], '食品饮料': ['食品饮料', '消费'],
+    '白色家电': ['家电', '消费电子', '智能家居'],
+    '白酒': ['白酒', '酒'], '电力': ['电力', '绿电'],
+    '零售': ['零售', '电商', '消费'],
+    '光学光电子': ['光学', '光电子', 'LED'],
 }
 
 
@@ -85,17 +89,29 @@ def build(date_str):
         else:
             card['etf'] = None
 
-        # 趋势最强题材
+        # 趋势最强题材：用全量theme_list做关键词匹配
+        theme_list_path = os.path.join(PROJECT, 'dashboard', 'data', 'theme_list.json')
+        all_theme_names = []
+        if os.path.exists(theme_list_path):
+            all_theme_names = json.load(open(theme_list_path))
+
+        theme_index = {t.get('name', ''): t for t in themes}
         keywords = CATEGORY_ETF_MAP.get(sname, [sname])
         related = []
-        for t in themes:
-            tname = t.get('name', '')
-            if t.get('state', 0) < 3:
+        for tn in all_theme_names:
+            tname = tn.get('name', '')
+            tcode = tn.get('code', '')
+            matched = any(kw in tname for kw in keywords)
+            if not matched:
                 continue
-            for kw in keywords:
-                if kw in tname:
+            if tname in theme_index:
+                t = theme_index[tname]
+                if t.get('state', 0) >= 3:
                     related.append(t)
-                    break
+            elif theme_holdings.get(tcode):
+                related.append({'name': tname, 'code': tcode, 'state': 0, 'score': 0,
+                                '_no_data': True})
+
         related.sort(key=lambda x: -x.get('score', 0))
 
         card['themes'] = []

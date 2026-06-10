@@ -32,7 +32,8 @@ def render_card(c):
         h += '<div style="font-size:10px;color:#8b949e;margin-bottom:4px">🔗 趋势最强题材:</div>'
         for t in themes:
             tc = {4: '#26a69a', 3: '#42a5f5'}.get(t.get('state', 0), '#8b949e')
-            h += f'<div style="margin:4px 0 4px 12px;font-size:11px">├ <span style="color:{tc}">{t["name"]}</span> <span style="color:#8b949e;font-size:10px">({t["score"]}分)</span>'
+            score_text = f'{t["score"]}分' if t.get('state', 0) > 0 else '无趋势数据'
+            h += f'<div style="margin:4px 0 4px 12px;font-size:11px">├ <span style="color:{tc}">{t["name"]}</span> <span style="color:#8b949e;font-size:10px">({score_text})</span>'
             t_etf = t.get('etf')
             if t_etf:
                 h += f' | 📊 <a href="{t_etf.get("link","#")}" target="_blank" style="color:#f59e0b;text-decoration:none;font-size:10px">{t_etf["name"]}</a>'
