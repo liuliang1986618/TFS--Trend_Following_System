@@ -1346,11 +1346,20 @@ class EnhancedActionGenerator:
         # 按评分降序
         candidates.sort(key=lambda x: -x[0])
 
-        # 稳健推荐: top N
-        etf_cards = [card for _, card in candidates[:top_n]]
+        # 稳健推荐: top N，行业分散
+        etf_cards = []
+        seen_cats_etf = set()
+        for _, card in candidates:
+            cat = self._etf_category_key(card.get("name", ""))
+            if cat in seen_cats_etf:
+                continue
+            seen_cats_etf.add(cat)
+            etf_cards.append(card)
+            if len(etf_cards) >= top_n:
+                break
         top_codes = {c["code"] for c in etf_cards}
 
-        # 强势追踪: 从剩余中选 state=4 且涨幅过大的
+        # 强势追踪: 从剩余中选 state=4 且涨幅过大的，按行业分散
         hot_candidates = []
         for _, card in candidates[top_n:]:
             if card.get("state") != 4:
@@ -1366,9 +1375,57 @@ class EnhancedActionGenerator:
             hot_candidates.append((pct_20d, card))
 
         hot_candidates.sort(key=lambda x: -x[0])
-        hot_etf_cards = [card for _, card in hot_candidates[:top_n]]
+
+        # 行业分散：同名关键词只取最强的一只
+        hot_etf_cards = []
+        seen_categories = set()
+        for _, card in hot_candidates:
+            cat = self._etf_category_key(card.get("name", ""))
+            if cat in seen_categories:
+                continue
+            seen_categories.add(cat)
+            hot_etf_cards.append(card)
+            if len(hot_etf_cards) >= top_n:
+                break
 
         return etf_cards, hot_etf_cards
+
+    # ETF产品关键词 → 规范品类
+    # 规则：只有完全同质化的才合并（如同一产品不同基金公司），不同产品保留区分
+    _ETF_CATEGORY_MAP = {
+        '科创半导体设备': '科创半导体设备',   # 区别于科创半导体（指数不同）
+        '科创半导体': '科创半导体',
+        '半导体设备': '半导体设备',           # 设备≠芯片≠材料
+        '半导体材料': '半导体材料',
+        '芯片': '芯片',
+        '通信': '通信',
+        '5G': '5G',
+        '消费电子': '消费电子',
+        '机器人': '机器人',
+        '人工智能': '人工智能',
+        '新能源车': '新能源车',
+        '光伏': '光伏', '锂电池': '锂电池',
+        '煤炭': '煤炭', '钢铁': '钢铁', '有色': '有色', '黄金': '黄金',
+        '军工': '军工',
+        '医药': '医药', '医疗': '医药',    # 医药/医疗高度重叠，合并
+        '银行': '银行', '证券': '证券', '保险': '保险',
+        '食品饮料': '食品饮料', '白酒': '白酒',
+        '电力': '电力', '基建': '基建',
+        '农业': '农业', '养殖': '农业',    # 农业/养殖高度重叠
+        '传媒': '传媒', '游戏': '传媒',    # 传媒/游戏高度重叠
+    }
+
+    @classmethod
+    def _etf_category_key(cls, name: str) -> str:
+        """从ETF名称提取规范品类，用于去重。
+
+        不同产品保留区分（科创半导体 ≠ 半导体设备），
+        同产品不同基金公司合并（科创半导体设备ETF华泰柏瑞 = 科创半导体设备ETF鹏华）。
+        """
+        for raw, canonical in cls._ETF_CATEGORY_MAP.items():
+            if raw in name:
+                return canonical
+        return name  # 未匹配则用原名（本身已唯一）
 
     # ── 个股动态扫描 ───────────────────────────────────────────
 
