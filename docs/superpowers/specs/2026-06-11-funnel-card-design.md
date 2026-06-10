@@ -1,5 +1,13 @@
 # 四级漏斗穿透卡片 — 设计文档
 
+## 核心约束
+
+**所有代码、数据、渲染均为新增，零修改已有文件。**
+- 不修改 `enhanced_actions.py`、`render_action_panel.py`、`build_final.py`、`build_nav_index.py`
+- 不修改 `standard_template.html`
+- 不修改任何已有数据文件格式
+- 新增模块通过独立Python文件实现，仅读取已有数据产出
+
 ## 目标
 
 新增独立面板，展示Top3趋势最强板块的四级漏斗穿透：
