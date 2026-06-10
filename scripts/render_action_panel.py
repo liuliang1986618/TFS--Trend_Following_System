@@ -113,7 +113,7 @@ def inject(dashboard_path, panel_html):
 
 
 def process_date(date_str):
-    """处理单个日期：加载build_final产出 → 注入操作建议面板"""
+    """处理单个日期：加载build_final产出 → 注入操作建议面板（稳健+强势）"""
     # 确保 dashboard 文件存在
     dash_path = os.path.join(PROJECT, 'dashboard', f'trend_dashboard_{date_str}.html')
     if not os.path.exists(dash_path):
@@ -130,31 +130,52 @@ def process_date(date_str):
         print(f'  ❌ {date_str}: no dashboard file')
         return False
 
-    # 加载增强数据
+    # 加载增强数据（含新增的强势追踪字段）
     ea_path = os.path.join(PROJECT, 'dashboard', 'data', f'enhanced_actions_{date_str}.json')
     if not os.path.exists(ea_path):
         print(f'  ❌ {date_str}: no enhanced_actions')
         return False
 
     ea = json.load(open(ea_path))
+    regime = ea.get('market_regime', 'bear')
     etfs = sorted(ea['etf_cards'], key=lambda x: x.get('score', 0), reverse=True)[:5]
     stocks = sorted(ea['stock_cards'], key=lambda x: x.get('score', 0), reverse=True)[:5]
+    hot_etfs = ea.get('hot_etf_cards', [])[:5]
+    hot_stocks = ea.get('hot_stock_cards', [])[:5]
 
     # 加载标准模板，提取操作建议面板
     tmpl_html = open(TMPL).read()
-    panel = extract_action_panel(tmpl_html)
-    if not panel:
+    panel_tmpl = extract_action_panel(tmpl_html)
+    if not panel_tmpl:
         print(f'  ❌ {date_str}: cannot extract panel from template')
         return False
 
-    # 替换面板数据
-    panel = replace_panel_data(panel, date_str, etfs, stocks, ea.get('market_regime', 'bear'))
+    # 面板1: 稳健推荐（绿色边框，沿用原模板配色）
+    panel1 = replace_panel_data(panel_tmpl, date_str, etfs, stocks, regime)
+    panel1 = panel1.replace('📋 明日操作建议', '📋 稳健推荐 — 趋势初期，适合建仓')
+    panel1 = panel1.replace('ETF操作', 'ETF稳健')
+    panel1 = panel1.replace('个股操作', '个股稳健')
 
-    # 注入
-    if inject(dash_path, panel):
+    # 面板2: 强势追踪（橙色边框，趋势强但过热）
+    hot_panel = ''
+    if hot_etfs or hot_stocks:
+        panel2 = replace_panel_data(panel_tmpl, date_str, hot_etfs, hot_stocks, regime)
+        panel2 = panel2.replace('📋 明日操作建议', '🔥 强势追踪 — 趋势极强但短期过热，等回调再进')
+        panel2 = panel2.replace('ETF操作', 'ETF强势')
+        panel2 = panel2.replace('个股操作', '个股强势')
+        # 绿框 → 橙框，区分视觉
+        panel2 = panel2.replace('border:2px solid #4ade80', 'border:2px solid #f59e0b')
+        panel2 = panel2.replace('rgba(74,222,128,', 'rgba(245,158,11,')
+        panel2 = panel2.replace('color:#4ade80', 'color:#f59e0b')
+        hot_panel = panel2
+
+    # 注入（稳健面板 + 强势面板拼在一起）
+    combined = panel1 + hot_panel
+    if inject(dash_path, combined):
         size = os.path.getsize(dash_path)
-        w = panel.count('widget-details')
-        print(f'  ✅ {date_str}: {size}b widgets={w}')
+        w = combined.count('widget-details')
+        hot_count = len(hot_etfs) + len(hot_stocks)
+        print(f'  ✅ {date_str}: {size}b widgets={w} hot_cards={hot_count}')
         return True
     print(f'  ❌ {date_str}: inject failed')
     return False
