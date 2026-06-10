@@ -49,6 +49,7 @@ class TrendState:
     above_ma20: bool = False
     broke_prev_high: bool = False  # 是否突破前高
     broke_prev_low: bool = False   # 是否跌破前低
+    already_dead: bool = False     # MA5已低于MA10（死叉已发生）
 
 
 class StateMachine:
@@ -94,6 +95,17 @@ class StateMachine:
         volume_shrink = bool(today_vol < ma20_vol * 0.8) if not pd.isna(ma20_vol) else False
 
         above_ma20 = MAFilter.check(daily_df)
+
+        # 死叉检测：MA5 下穿 MA10（刚发生）+ 已处于死叉状态
+        ma5 = closes.rolling(5).mean()
+        ma10 = closes.rolling(10).mean()
+        death_cross = False
+        already_dead = False
+        if len(daily_df) >= 11:
+            prev_ma5, prev_ma10 = ma5.iloc[-2], ma10.iloc[-2]
+            curr_ma5, curr_ma10 = ma5.iloc[-1], ma10.iloc[-1]
+            death_cross = (prev_ma5 >= prev_ma10) and (curr_ma5 < curr_ma10)
+            already_dead = (curr_ma5 < curr_ma10)  # 已处于死叉（不限刚发生）
 
         prev_high = PivotDetector.recent_high(daily_df)
         prev_low = PivotDetector.recent_low(daily_df)
@@ -156,6 +168,15 @@ class StateMachine:
         else:
             state = 1
 
+        # 死叉+跌破MA20: 趋势已坏，状态3/4/5降级
+        if death_cross and not above_ma20:
+            if state in (3, 4, 5):
+                state = 2
+        # 已处于死叉状态+跌破MA20+5日跌幅严重 → 直接状态1
+        if already_dead and not above_ma20:
+            pct_5d = float((closes.iloc[-1] - closes.iloc[-6]) / closes.iloc[-6] * 100) if len(closes) >= 6 else 0
+            if pct_5d < -5 and state in (2, 3, 4, 5):
+                state = 1
         # MA20硬门槛
         if state in (4, 5) and not above_ma20:
             state = 3
@@ -177,6 +198,7 @@ class StateMachine:
             above_ma20=above_ma20,
             broke_prev_high=broke_prev_high,
             broke_prev_low=broke_prev_low,
+            already_dead=already_dead,
         )
 
     @classmethod

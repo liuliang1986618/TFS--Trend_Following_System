@@ -9,8 +9,9 @@ from src.engine.state_machine import StateMachine
 from src.engine.conditions import TrendConditions
 from src.engine.pivots import PivotDetector
 
-date_str = "2026-05-31"
-data_dir = "dashboard/data"
+date_str = sys.argv[1] if len(sys.argv) > 1 else "2026-05-31"
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+data_dir = os.path.join(PROJECT_ROOT, "dashboard", "data")
 
 def make_item(code, name, item_type, ts, price, ma20, ma_deviation, ret20, vol_ratio, yang, yin, max_cons, ph, pl, reasons, market="sh"):
     conds = ts.conditions

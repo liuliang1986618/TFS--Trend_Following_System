@@ -79,6 +79,17 @@ class TrendConditions:
 
         pairs = min(higher_highs, higher_lows)
 
+        # 检查当前价格是否跌破了最近的前低（上涨结构已被破坏）
+        current_close = float(daily_df["close"].iloc[-1])
+        broke_recent_low = False
+        if len(lows) >= 1:
+            recent_low = lows[-1]["price"]
+            broke_recent_low = current_close < recent_low
+
+        if broke_recent_low and pairs >= 1:
+            return ConditionResult(False,
+                f"上涨结构已破坏: 当前价{current_close:.2f}跌破前低{recent_low:.2f} (原有{pairs}对更高高/更高低)")
+
         if pairs >= 2:
             return ConditionResult(True,
                 f"2更高高+2更高低 (前高: {highs[-1]['price']:.2f}, 前低: {lows[-1]['price']:.2f})")

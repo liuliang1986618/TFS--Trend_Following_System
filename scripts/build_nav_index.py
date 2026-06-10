@@ -291,50 +291,52 @@ def generate_html(entries: list[dict], output_path: str):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>趋势跟随交易系统 · 看板</title>
-<style>
-*{{margin:0;padding:0;box-sizing:border-box}}
-html,body{{height:100%;overflow:hidden}}
-body{{display:flex;background:#0b0b1a;color:#ccc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif}}
-
-.sidebar{{width:280px;min-width:280px;height:100vh;background:#0f0f22;border-right:1px solid #1a1a3a;display:flex;flex-direction:column;transition:width .2s,min-width .2s;position:relative;z-index:10}}
-body.nav-collapsed .sidebar{{width:32px;min-width:32px}}
-.sidebar-inner{{display:flex;flex-direction:column;height:100%;overflow:hidden}}
-body.nav-collapsed .sidebar-inner{{display:none}}
-.sidebar-header{{padding:16px 14px 12px;border-bottom:1px solid #1a1a3a;flex-shrink:0;position:relative}}
-.sidebar-header h1{{font-size:17px;color:#fff;margin-bottom:2px}}
-.sidebar-header .sub{{font-size:11px;color:#666}}
-.sidebar-list{{flex:1;overflow-y:auto;padding:6px 0}}
-.sidebar-list::-webkit-scrollbar{{width:4px}}
-.sidebar-list::-webkit-scrollbar-thumb{{background:#2a2a4a;border-radius:2px}}
-
-.date-item{{padding:10px 14px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;border-bottom:1px solid rgba(26,26,58,0.4)}}
-.date-item:hover{{background:#1a1a3a}}
-.date-item.active{{background:#1a1a3a;border-left-color:#4ade80}}
-.date-item .date-label{{font-size:13px;color:#e0e0e0;font-weight:600;margin-bottom:3px}}
-.date-item .date-label .today-tag{{font-size:10px;background:#4ade8022;color:#4ade80;padding:1px 5px;border-radius:3px;margin-left:4px}}
-.date-item .date-label .mon-tag{{font-size:10px;background:#58a6ff22;color:#58a6ff;padding:1px 5px;border-radius:3px;margin-left:4px}}
-.date-item .sh-line{{font-size:11px;margin-bottom:3px;line-height:1.5}}
-.date-item .leaders-line{{font-size:10px;color:#888;line-height:1.7;word-break:break-all}}
-.date-item .sector-hint{{font-size:10px;color:#555;margin-top:1px;line-height:1.4}}
-
-.main{{flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}}
-.main iframe{{flex:1;width:100%;border:none;display:block}}
-
-.toggle-btn{{position:absolute;top:12px;right:8px;z-index:10;width:26px;height:26px;border-radius:4px;background:#1a1a3a;border:1px solid #2a2a4a;color:#888;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .2s}}
-.toggle-btn:hover{{color:#fff;background:#2a2a4a}}
-body.nav-collapsed .toggle-btn{{right:auto;left:3px;top:10px}}
-
-.quick-bar{{display:flex;gap:2px;padding:6px 8px;border-bottom:1px solid #1a1a3a;flex-wrap:wrap;flex-shrink:0}}
-.quick-dot{{width:6px;height:6px;border-radius:50%;cursor:pointer;transition:all .15s;flex-shrink:0}}
-.quick-dot:hover{{transform:scale(1.8)}}
-.quick-dot.strong{{background:#4ade80}}
-.quick-dot.normal{{background:#d29922}}
-.quick-dot.weak{{background:#f87171}}
-
-@media (max-width:768px){{
-  .sidebar{{width:240px;min-width:240px}}
-}}
-</style>
+	h += '<style>
+	
+	*{{margin:0;padding:0;box-sizing:border-box}}
+	html,body{{height:100%;overflow:hidden}}
+	body{{display:flex;background:#0b0b1a;color:#ccc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif}}
+	
+	.sidebar{{width:280px;min-width:280px;height:100vh;background:#0f0f22;border-right:1px solid #1a1a3a;display:flex;flex-direction:column;transition:width .2s,min-width .2s;position:relative;z-index:10}}
+	body.nav-collapsed .sidebar{{width:32px;min-width:32px}}
+	.sidebar-inner{{display:flex;flex-direction:column;height:100%;overflow:hidden}}
+	body.nav-collapsed .sidebar-inner{{display:none}}
+	.sidebar-header{{padding:16px 14px 12px;border-bottom:1px solid #1a1a3a;flex-shrink:0;position:relative}}
+	.sidebar-header h1{{font-size:17px;color:#fff;margin-bottom:2px}}
+	.sidebar-header .sub{{font-size:11px;color:#666}}
+	.sidebar-list{{flex:1;overflow-y:auto;padding:6px 0}}
+	.sidebar-list::-webkit-scrollbar{{width:4px}}
+	.sidebar-list::-webkit-scrollbar-thumb{{background:#2a2a4a;border-radius:2px}}
+	
+	.date-item{{padding:10px 14px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;border-bottom:1px solid rgba(26,26,58,0.4)}}
+	.date-item:hover{{background:#1a1a3a}}
+	.date-item.active{{background:#1a1a3a;border-left-color:#4ade80}}
+	.date-item .date-label{{font-size:13px;color:#e0e0e0;font-weight:600;margin-bottom:3px}}
+	.date-item .date-label .today-tag{{font-size:10px;background:#4ade8022;color:#4ade80;padding:1px 5px;border-radius:3px;margin-left:4px}}
+	.date-item .date-label .mon-tag{{font-size:10px;background:#58a6ff22;color:#58a6ff;padding:1px 5px;border-radius:3px;margin-left:4px}}
+	.date-item .sh-line{{font-size:11px;margin-bottom:3px;line-height:1.5}}
+	.date-item .leaders-line{{font-size:10px;color:#888;line-height:1.7;word-break:break-all}}
+	.date-item .sector-hint{{font-size:10px;color:#555;margin-top:1px;line-height:1.4}}
+	
+	.main{{flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}}
+	.main iframe{{flex:1;width:100%;border:none;display:block}}
+	
+	.toggle-btn{{position:absolute;top:12px;right:8px;z-index:10;width:26px;height:26px;border-radius:4px;background:#1a1a3a;border:1px solid #2a2a4a;color:#888;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .2s}}
+	.toggle-btn:hover{{color:#fff;background:#2a2a4a}}
+	body.nav-collapsed .toggle-btn{{right:auto;left:3px;top:10px}}
+	
+	.quick-bar{{display:flex;gap:2px;padding:6px 8px;border-bottom:1px solid #1a1a3a;flex-wrap:wrap;flex-shrink:0}}
+	.quick-dot{{width:6px;height:6px;border-radius:50%;cursor:pointer;transition:all .15s;flex-shrink:0}}
+	.quick-dot:hover{{transform:scale(1.8)}}
+	.quick-dot.strong{{background:#4ade80}}
+	.quick-dot.normal{{background:#d29922}}
+	.quick-dot.weak{{background:#f87171}}
+	
+	@media (max-width:768px){{
+	  .sidebar{{width:240px;min-width:240px}}
+	}}
+	
+	</style>'
 </head>
 <body>
 <div class="sidebar" id="sidebar">
@@ -424,6 +426,15 @@ def main():
 
     print("\n📥 拉取股票名称映射...")
     name_map = build_stock_name_map(leader_codes)
+    etf_names_path = os.path.join(PROJECT_ROOT, "data", "etf_names.json")
+    if os.path.exists(etf_names_path):
+        try:
+            with open(etf_names_path) as f:
+                etf_names = json.load(f)
+            name_map.update(etf_names)
+            print(f"    ETF名称: {len(etf_names)} 只")
+        except Exception:
+            pass
 
     print("\n📈 拉取指数数据...")
     index_data = fetch_index_data(all_dates)

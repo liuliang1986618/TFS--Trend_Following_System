@@ -11,6 +11,7 @@
 """
 from datetime import datetime, timedelta
 from typing import List, Optional
+import os
 import pandas as pd
 
 from .providers.base import BaseProvider, ProviderConfig
@@ -231,6 +232,104 @@ class DataFetcher:
 
     def _save_etf_list(self, df: pd.DataFrame):
         """保存ETF列表到本地。"""
-        import json, os
+        import json
         path = os.path.join(self.local_db.data_dir, "etf_list.json")
         df.to_json(path, orient="records", force_ascii=False)
+
+    # === 以下为融合层所需的数据方法（Phase 0.5 新增）===
+
+    def load_index(self, symbol: str) -> "Optional[pd.DataFrame]":
+        """加载指数日K数据。融合层 MarketGate 依赖。
+
+        Args:
+            symbol: 指数代码，如 "sh000001"（上证）、"sz399001"（深证）
+
+        Returns:
+            DataFrame with columns: date, open, high, low, close, volume
+            至少60行数据（MA60计算所需）。数据不存在返回 None。
+
+        来源: TRS fetch.py 的 ak.stock_zh_index_daily()
+        降级: 网络失败时从本地缓存加载
+        """
+        from .cache import FileCache
+        cache = FileCache(os.path.join(self.local_db.data_dir, ".cache"))
+        cache_key = f"index_{symbol}"
+
+        # 缓存优先
+        cached = cache.get(cache_key, ttl=4 * 3600)  # 指数数据4小时缓存
+        if cached is not None:
+            return cached
+
+        # 网络拉取
+        try:
+            import akshare as ak
+            df = ak.stock_zh_index_daily(symbol=symbol)
+            if df is None or len(df) < 60:
+                return None
+            # 标准化列名
+            df = df.rename(columns={
+                "date": "date", "open": "open", "high": "high",
+                "low": "low", "close": "close", "volume": "volume",
+            })
+            df["close"] = df["close"].astype(float)
+            df["volume"] = df["volume"].astype(float)
+            df = df.sort_values("date").reset_index(drop=True)
+            cache.set(cache_key, df)
+            return df
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"load_index({symbol}) failed: {e}")
+            return None
+
+    def load_market_breadth(self, date_str: str = None) -> dict:
+        """加载市场宽度数据（涨跌家数、涨跌停数）。融合层 MarketGate 依赖。
+
+        Args:
+            date_str: 日期字符串，None 表示今天
+
+        Returns:
+            {"up_count": int, "down_count": int,
+             "limit_up_count": int, "limit_down_count": int}
+
+        来源: TRS fetch.py 的全市场 spot 数据统计
+        降级: 获取失败返回全0字典（MarketGate 会降级为 yellow）
+        """
+        from .cache import FileCache
+        cache = FileCache(os.path.join(self.local_db.data_dir, ".cache"))
+        cache_key = f"breadth_{date_str or 'today'}"
+
+        cached = cache.get(cache_key, ttl=30 * 60)  # 30分钟缓存
+        if cached is not None:
+            return cached
+
+        default = {"up_count": 0, "down_count": 0,
+                   "limit_up_count": 0, "limit_down_count": 0}
+        try:
+            import akshare as ak
+            # 获取全市场实时行情
+            spot_df = ak.stock_zh_a_spot_em()
+            if spot_df is None or len(spot_df) == 0:
+                return default
+
+            # 涨跌幅列可能是 "涨跌幅" 或 "pct_chg"
+            pct_col = None
+            for col in ["涨跌幅", "pct_chg", "changepercent"]:
+                if col in spot_df.columns:
+                    pct_col = col
+                    break
+            if pct_col is None:
+                return default
+
+            pct = pd.to_numeric(spot_df[pct_col], errors="coerce")
+            result = {
+                "up_count": int((pct > 0).sum()),
+                "down_count": int((pct < 0).sum()),
+                "limit_up_count": int((pct >= 9.9).sum()),
+                "limit_down_count": int((pct <= -9.9).sum()),
+            }
+            cache.set(cache_key, result)
+            return result
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"load_market_breadth failed: {e}")
+            return default

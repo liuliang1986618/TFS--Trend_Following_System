@@ -57,6 +57,7 @@ class SnapshotGenerator:
                  beta_results: Dict[str, float] = None,
                  funnel_etfs: set = None,
                  direct_etfs: set = None,
+                 fusion_results: dict = None,
                  ) -> dict:
         """生成完整每日快照。
 
@@ -110,7 +111,79 @@ class SnapshotGenerator:
             "positions": positions or {},
         }
 
+        # === 每日操作建议 ===
+        snapshot["daily_actions"] = self._build_daily_actions(
+            fusion_results, etf_results, stock_results,
+            sector_results, etf_names, stock_names
+        )
+
+        # === 融合层输出 ===
+        if fusion_results:
+            snapshot["fusion"] = {
+                "enabled": True,
+                "regime": {
+                    "level": next(iter(fusion_results.values())).market_regime.level,
+                    "reason": next(iter(fusion_results.values())).market_regime.reason,
+                    "sentiment": next(iter(fusion_results.values())).market_regime.sentiment_score,
+                } if fusion_results else None,
+                "symbols": {},
+            }
+            for symbol, fused in fusion_results.items():
+                snapshot["fusion"]["symbols"][symbol] = {
+                    "v3_score": fused.enhanced_signal.v3_score if fused.enhanced_signal else None,
+                    "v3_confirmed": fused.enhanced_signal.confirmed if fused.enhanced_signal else None,
+                    "signal_combo": fused.enhanced_signal.signal_combo if fused.enhanced_signal else None,
+                    "kelly_ratio": fused.optimal_position.kelly_ratio,
+                    "final_ratio": fused.optimal_position.final_ratio,
+                    "position_reason": fused.optimal_position.reason,
+                    "risk_flags": list(fused.optimal_position.risk_flags),
+                    "action_summary": fused.action_summary,
+                    "key_point_active": fused.key_point is not None,
+                }
+        else:
+            snapshot["fusion"] = {"enabled": False}
+
         self._save(snapshot, date_str)
+        return snapshot
+
+    def generate_red_light(self, date_str: str, regime) -> dict:
+        """红灯时生成全空快照。
+
+        Args:
+            date_str: 交易日日期
+            regime: MarketRegime 对象
+        """
+        snapshot = {
+            "date": date_str,
+            "generated_at": datetime.now().isoformat(),
+            "market_overview": {
+                "uptrend_sectors": 0,
+                "active_themes": 0,
+                "trend_stocks": 0,
+                "trend_etfs": 0,
+            },
+            "key_actions": [],
+            "fusion": {
+                "enabled": True,
+                "regime": {
+                    "level": "red",
+                    "reason": regime.reason,
+                    "sentiment": regime.sentiment_score,
+                },
+                "red_light_active": True,
+                "symbols": {},
+            },
+            "sectors": {},
+            "themes": {},
+            "stocks": {},
+            "etfs": {},
+        }
+
+        # 保存到文件
+        path = os.path.join(self.output_dir, f"trend_snapshot_{date_str}.json")
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(snapshot, f, ensure_ascii=False, indent=2)
+
         return snapshot
 
     # ── 概览 ──────────────────────────────────────────
@@ -552,6 +625,105 @@ class SnapshotGenerator:
             "state_changed": state_changed,
             "note": "",
         }
+
+    # ── 每日操作建议 ──────────────────────────────
+
+    def _build_daily_actions(self, fusion_results, etf_results, stock_results,
+                             sector_results, etf_names, stock_names):
+        """生成每日操作建议——今天该买什么、卖什么、仓位多少。
+
+        返回给Dashboard一个清晰的行动清单。
+        """
+        actions = {
+            "market_state": self._get_market_state(sector_results),
+            "buy_signals": [],
+            "sell_signals": [],
+            "hold_signals": [],
+            "summary": "",
+        }
+
+        # ETF操作建议
+        if etf_results:
+            for code, ts in etf_results.items():
+                name = etf_names.get(code, code) if etf_names else code
+                fused = fusion_results.get(code) if fusion_results else None
+                if fused and fused.key_point is not None:
+                    ratio = fused.optimal_position.final_ratio
+                    v3 = fused.enhanced_signal.v3_score if fused.enhanced_signal else 0
+                    item = {
+                        "symbol": code, "name": name, "type": "ETF",
+                        "action": getattr(fused.key_point, 'action', '操作'),
+                        "position": f"{ratio:.0%}",
+                        "v3_score": v3,
+                        "reason": fused.action_summary,
+                    }
+                    if "买入" in item["action"] or ratio > 0.05:
+                        item["priority"] = "🟢"
+                        actions["buy_signals"].append(item)
+                    elif "止损" in item["action"] or "卖出" in item["action"]:
+                        item["priority"] = "🔴"
+                        actions["sell_signals"].append(item)
+                    else:
+                        actions["hold_signals"].append(item)
+
+        # 个股操作建议
+        if stock_results:
+            for code, ts in stock_results.items():
+                name = stock_names.get(code, code) if stock_names else code
+                if ts.state in {1, 2}:
+                    continue  # 非趋势状态跳过
+                fused = fusion_results.get(code) if fusion_results else None
+                if fused and fused.key_point is not None:
+                    ratio = fused.optimal_position.final_ratio
+                    v3 = fused.enhanced_signal.v3_score if fused.enhanced_signal else 0
+                    item = {
+                        "symbol": code, "name": name, "type": "STOCK",
+                        "action": getattr(fused.key_point, 'action', '操作'),
+                        "position": f"{ratio:.0%}",
+                        "v3_score": v3,
+                        "reason": fused.action_summary,
+                    }
+                    if "买入" in item["action"]:
+                        item["priority"] = "🟢"
+                        actions["buy_signals"].append(item)
+                    elif "止损" in item["action"] or "卖出" in item["action"]:
+                        item["priority"] = "🔴"
+                        actions["sell_signals"].append(item)
+                    else:
+                        actions["hold_signals"].append(item)
+
+        # 按V3分数排序
+        actions["buy_signals"].sort(key=lambda x: -x.get("v3_score", 0))
+        actions["sell_signals"].sort(key=lambda x: x.get("v3_score", 0))
+
+        # 一句话总结
+        n_buy = len(actions["buy_signals"])
+        n_sell = len(actions["sell_signals"])
+        if n_buy > n_sell:
+            actions["summary"] = f"今日偏多: {n_buy}个买入信号, {n_sell}个卖出信号"
+        elif n_sell > n_buy:
+            actions["summary"] = f"今日偏空: {n_sell}个卖出信号, {n_buy}个买入信号"
+        else:
+            actions["summary"] = f"今日平衡: 持仓不动为主"
+
+        return actions
+
+    def _get_market_state(self, sector_results):
+        """判断市场状态：强牛/弱牛/震荡/弱熊/强熊"""
+        uptrend = sum(1 for t in sector_results.values() if t.state in {3, 4, 5})
+        total = len(sector_results) if sector_results else 1
+        ratio = uptrend / total
+
+        if ratio > 0.6:
+            return {"level": "strong_bull", "label": "强牛", "desc": "大量板块上涨, 积极做多"}
+        elif ratio > 0.4:
+            return {"level": "weak_bull", "label": "弱牛", "desc": "近半板块上涨, 精选操作"}
+        elif ratio > 0.2:
+            return {"level": "neutral", "label": "震荡", "desc": "方向不明, 控制仓位"}
+        elif ratio > 0.1:
+            return {"level": "weak_bear", "label": "弱熊", "desc": "多数板块下跌, 谨慎操作"}
+        else:
+            return {"level": "strong_bear", "label": "强熊", "desc": "普跌行情, 多看少动"}
 
     # ── 存储 ─────────────────────────────────────────
 
