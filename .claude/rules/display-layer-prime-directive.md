@@ -94,6 +94,7 @@ assert 'f0883e' in h
 | 12 | 策略总纲颜色反复错 | Python代码里的CSS和模板不一致 | CSS只在模板文件里 |
 
 | 13 | 页面无明日操作建议 | **漏跑 render_action_panel.py**，构建序列不完整 | 构建序列三步不可缺一，自动化脚本强制顺序执行 |
-| 14 | render默认日期硬编码 | `sys.argv[1] else '2026-06-09'` 死日期 | 默认日期从 dashboard_data.json 读取，禁止硬编码 |
+| 14 | render默认日期硬编码 | `sys.argv[1] else '2026-06-09'` 死日期 | 默认日期从 dashboard_data.json 读取 |
+| 15 | ETF名称显示为代码 | ETF_NAME_MAP只157条，新ETF名缺失 | 用akshare全量拉取→data/etf_names.json缓存(1503只) |
 
-**十四条错误。最新两条的根因：构建序列不完整 + 硬编码默认日期。**
+**十五条错误。最新三条根因：构建序列不完整 + 硬编码默认日期 + ETF名称映射不全。**
