@@ -1297,15 +1297,23 @@ class EnhancedActionGenerator:
         (state=4, pct_20d>20%, score>=70)，取 top_n 只过热票。
         返回 (etf_cards, hot_etf_cards) 元组。
         """
-        # 加载 ETF 名称映射（确保项目根目录在 sys.path 中）
-        import sys
-        _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        if _project_root not in sys.path:
-            sys.path.insert(0, _project_root)
-        try:
-            from src.fusion.scanner import ETF_NAME_MAP as _etf_names
-        except ImportError:
-            _etf_names = {}
+        # 加载 ETF 名称：缓存文件 > ETF_NAME_MAP > "ETF{code}"
+        _etf_names = {}
+        cache_path = os.path.join(self.data_dir, "etf_names.json")
+        if os.path.exists(cache_path):
+            try:
+                _etf_names = json.load(open(cache_path))
+            except Exception:
+                pass
+        if not _etf_names:
+            import sys
+            _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            if _project_root not in sys.path:
+                sys.path.insert(0, _project_root)
+            try:
+                from src.fusion.scanner import ETF_NAME_MAP as _etf_names
+            except ImportError:
+                _etf_names = {}
 
         etf_dir = os.path.join(self.data_dir, "etf_stocks")
         if not os.path.isdir(etf_dir):
