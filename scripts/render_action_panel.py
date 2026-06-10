@@ -143,12 +143,37 @@ def process_date(date_str):
     hot_etfs = ea.get('hot_etf_cards', [])[:5]
     hot_stocks = ea.get('hot_stock_cards', [])[:5]
 
-    # ETF卡片追加成分股趋势龙头（纯文本，不改模板）
+    # ETF→板块匹配：从 dashboard_data.json 加载板块名
+    sector_names = []
+    try:
+        dd = json.load(open(os.path.join(PROJECT, 'dashboard', 'data', 'dashboard_data.json')))
+        sector_names = [s.get('name', '') for s in dd.get('sectors', [])]
+    except Exception:
+        pass
+
+    # ETF卡片追加成分股龙头 + 关联板块（纯文本，不改模板）
     for e in etfs + hot_etfs:
+        name = e.get('name', '')
+        # 成分股趋势龙头
         leaders = e.get('trend_leaders', [])
+        suffix = ''
         if leaders:
             names = ' '.join(l['name'] for l in leaders[:3])
-            e['action_label'] = f"{e.get('action_label', '')} | 🏆龙头: {names}"
+            suffix += f' | 🏆龙头: {names}'
+        # 关联板块：在板块名列表中找包含ETF品类关键词的板块
+        matched = ''
+        for sn in sector_names:
+            # ETF品类关键词 → 板块名模糊匹配
+            for kw in ['半导体', '通信', '消费电子', '机器人', '5G', '芯片', '军工', '医药', '银行', '证券']:
+                if kw in name and kw in sn:
+                    matched = sn
+                    break
+            if matched:
+                break
+        if matched:
+            suffix += f' | 📂{matched}'
+        if suffix:
+            e['action_label'] = f"{e.get('action_label', '')}{suffix}"
 
     # 加载标准模板，提取操作建议面板
     tmpl_html = open(TMPL).read()
