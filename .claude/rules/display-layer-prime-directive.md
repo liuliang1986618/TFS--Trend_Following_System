@@ -59,10 +59,18 @@ dashboard/data/standard_template.html   ← 671KB，永不修改
 ## 六、构建顺序（不可变）
 
 ```
-1. build_final.py          → 产出基础仪表板
-2. render_action_panel.py  → 加载模板 → str.replace数据 → 保存
-3. build_nav_index.py      → 侧边栏壳（必须最后！）
-4. 验证                     → 6项检查
+1. build_final.py             → 产出基础仪表板
+2. render_action_panel.py     → 加载模板 → str.replace数据 → 保存
+3. build_funnel_cards.py      → 构建四级漏斗数据JSON
+4. render_funnel_panel.py     → 渲染漏斗面板HTML → 注入页面
+5. build_nav_index.py         → 侧边栏壳（必须最后！）
+6. 验证                        → 8项检查
+```
+
+**注意：** `build_funnel_cards.py` 依赖 `data/etf_holdings.json` 和 `data/theme_holdings.json` 缓存，首次运行前需执行：
+```bash
+python3 scripts/build_etf_holdings_cache.py   # ETF持仓缓存(季度更新)
+python3 scripts/build_theme_holdings_cache.py  # 题材成分股缓存(季度更新)
 ```
 
 ## 七、验证清单
@@ -74,6 +82,8 @@ assert '4ade80' in h
 assert 'widget-details' in h
 assert 'ETF操作' in h and '个股操作' in h
 assert 'f0883e' in h
+assert '四级漏斗' in h
+assert '趋势最强题材' in h
 ```
 
 ## 八、历史错误全景
