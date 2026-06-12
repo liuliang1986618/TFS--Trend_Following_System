@@ -67,6 +67,14 @@ def inject(dash_path, date_str):
     panel += '</div>'
 
     h = open(dash_path).read()
+
+    # 先删除已有的漏斗面板（避免重复注入）
+    old_start = h.find('🔽 四级漏斗穿透')
+    if old_start > 0:
+        old_end = h.find('<div class="panel"', old_start + 1)
+        if old_end > 0:
+            h = h[:old_start] + h[old_end:]
+
     marker = '<div class="panel"><h2 style="color:#42a5f5">🔍 焦点板块'
     idx = h.find(marker)
     if idx < 0:
