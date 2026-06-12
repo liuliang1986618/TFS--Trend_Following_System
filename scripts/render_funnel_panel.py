@@ -95,8 +95,8 @@ def inject(dash_path, date_str):
     if not cards:
         return False
 
-    panel = '<div class="panel" style="margin:10px 20px 12px;border:2px solid #a371f7;border-radius:10px;padding:16px;background:linear-gradient(135deg,rgba(163,113,247,0.08),rgba(163,113,247,0.02))">'
-    panel += '<h2 style="color:#a371f7;margin-bottom:8px;font-size:16px">🔥 强势板块深度穿透 — 板块→ETF→龙头→题材 全链路</h2>'
+    panel = '<div class="panel" style="margin:10px 20px 12px;border:2px solid #d29922;border-radius:10px;padding:16px;background:linear-gradient(135deg,rgba(210,153,34,0.08),rgba(210,153,34,0.02))">'
+    panel += '<h2 style="color:#d29922;margin-bottom:8px;font-size:16px">🔥 强势板块深度穿透</h2>'
     for c in cards:
         panel += render_card(c)
     panel += '</div>'
@@ -104,7 +104,7 @@ def inject(dash_path, date_str):
     h = open(dash_path).read()
 
     # 先删除已有的漏斗面板（避免重复注入）
-    old_start = h.find('🔽 四级漏斗穿透')
+    old_start = h.find('强势板块深度穿透')
     if old_start > 0:
         old_end = h.find('<div class="panel"', old_start + 1)
         if old_end > 0:
