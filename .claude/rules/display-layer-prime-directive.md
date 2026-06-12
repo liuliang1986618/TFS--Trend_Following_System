@@ -112,4 +112,11 @@ assert '趋势最强题材' in h
 | 19 | 浏览器缓存旧页面 | `http.server` 无Cache-Control头 | **必须用no-cache服务，禁用系统默认http.server** |
 
 **十九条错误。最新四条根因：注入去重+关键词匹配+交付验证缺位+浏览器缓存。**
+
+## 九、布局规则（不可变）
+
+- **焦点板块**：固定双列（`grid-template-columns:1fr 1fr`），禁止 auto-fill
+- **强势板块深度穿透**：焦点板块同款双列
+- **观察区**：焦点板块同款双列
+- CSS 在 `build_final.py` 第285行硬编码，修改时两者同步
 **核心教训：`python3 -m http.server` 不设缓存头，浏览器无限缓存旧页面，用户永远看到旧版本。Playwright正确但用户看到错误。根源在于HTTP服务层，不是代码层。**
