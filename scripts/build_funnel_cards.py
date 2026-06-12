@@ -20,8 +20,24 @@ CATEGORY_ETF_MAP = {
 }
 
 
+# ETF产品关键词 → 同义词扩展（题材→ETF匹配时，芯片≈半导体）
+KW_SYNONYMS = {'芯片': ['芯片', '半导体'], '半导体': ['半导体', '芯片'],
+               '5G': ['5G', '通信'], '通信': ['通信', '5G'],
+               '光伏': ['光伏', '新能源'], '锂电池': ['锂电池', '新能源']}
+
+ETF_PRODUCT_KW = ['半导体', '芯片', '通信', '5G', '消费电子', '机器人',
+                  '新能源', '光伏', '锂电池', '军工', '医药', '银行', '证券',
+                  '煤炭', '电力', '传媒', '食品饮料', '白酒', '家电', '汽车']
+
 def match_best_etf(name, etf_pool):
-    keywords = CATEGORY_ETF_MAP.get(name, [name])
+    keywords = CATEGORY_ETF_MAP.get(name, [])
+    if not keywords:
+        for kw in ETF_PRODUCT_KW:
+            if kw in name:
+                # 扩展同义词（芯片→[芯片,半导体]）
+                keywords.extend(KW_SYNONYMS.get(kw, [kw]))
+        if not keywords:
+            keywords = [name]
     best = None
     for e in etf_pool:
         ename = e.get('name', '')
