@@ -10,14 +10,14 @@ TMPL = os.path.join(PROJECT, 'dashboard', 'data', 'standard_template.html')
 
 
 def extract_action_panel(html):
-    """从HTML中提取操作建议面板（从panel div到焦点板块之前）"""
+    """提取操作建议面板（不含特别关注/WATCHLIST）"""
     start = html.find('<div class="panel" style="margin:10px 20px 12px;border:2px solid #4ade80')
     if start < 0:
         return None
-    end = html.find('🔍 焦点板块', start)
+    # 终止于WATCHLIST，不含特别关注面板
+    end = html.find('<!--WATCHLIST-->', start)
     if end < 0:
-        return None
-    end = html.rfind('<div class="panel"', start, end)
+        end = html.find('🔍 焦点板块', start)
     if end < 0:
         return None
     return html[start:end]
@@ -90,14 +90,14 @@ def inject(dashboard_path, panel_html):
     if not panel_html:
         return
     html = open(dashboard_path).read()
-    # 删除旧的操作建议面板
+    # 删除旧面板，但保留WATCHLIST/特别关注
     old_start = html.find('<div class="panel" style="margin:10px 20px 12px;border:2px solid #4ade80')
     if old_start > 0:
-        old_end = html.find('🔍 焦点板块', old_start)
+        old_end = html.find('<!--WATCHLIST-->', old_start)
+        if old_end < 0:
+            old_end = html.find('🔍 焦点板块', old_start)
         if old_end > 0:
-            old_end = html.rfind('<div class="panel"', old_start, old_end)
-            if old_end > 0:
-                html = html[:old_start] + html[old_end:]
+            html = html[:old_start] + html[old_end:]
     # 注入新面板
     marker = '<div class="panel"><h2 style="color:#42a5f5">🔍 焦点板块'
     idx = html.find(marker)
@@ -201,8 +201,13 @@ def process_date(date_str):
         panel2 = panel2.replace('color:#4ade80', 'color:#f59e0b')
         hot_panel = panel2
 
-    # 注入（稳健面板 + 强势面板拼在一起）
-    combined = panel1 + hot_panel
+    # 注入（稳健面板 + 强势面板 + WATCHLIST拼在一起）
+    # WATCHLIST 从模板提取（不在操作建议面板内，需单独追加）
+    tmpl = open(TMPL).read()
+    wl_start = tmpl.find('<!--WATCHLIST-->')
+    wl_end = tmpl.find('🔍 焦点板块', wl_start)
+    wl_html = tmpl[wl_start:wl_end] if wl_start > 0 and wl_end > 0 else ''
+    combined = panel1 + hot_panel + wl_html
     if inject(dash_path, combined):
         size = os.path.getsize(dash_path)
         w = combined.count('widget-details')
