@@ -61,7 +61,7 @@ def inject(dash_path, date_str):
         return False
 
     panel = '<div class="panel" style="margin:10px 20px 12px;border:2px solid #a371f7;border-radius:10px;padding:16px;background:linear-gradient(135deg,rgba(163,113,247,0.08),rgba(163,113,247,0.02))">'
-    panel += '<h2 style="color:#a371f7;margin-bottom:8px;font-size:16px">🔽 四级漏斗穿透 — Top3强势板块</h2>'
+    panel += '<h2 style="color:#a371f7;margin-bottom:8px;font-size:16px">🔥 强势板块深度穿透 — 板块→ETF→龙头→题材 全链路</h2>'
     for c in cards:
         panel += render_card(c)
     panel += '</div>'
