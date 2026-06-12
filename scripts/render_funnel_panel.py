@@ -97,9 +97,10 @@ def inject(dash_path, date_str):
 
     panel = '<div class="panel" style="margin:10px 20px 12px;border:2px solid #d29922;border-radius:10px;padding:16px;background:linear-gradient(135deg,rgba(210,153,34,0.08),rgba(210,153,34,0.02))">'
     panel += '<h2 style="color:#d29922;margin-bottom:8px;font-size:16px">🔥 强势板块深度穿透</h2>'
+    panel += '<div class="focus-grid">'  # 使用双列布局
     for c in cards:
         panel += render_card(c)
-    panel += '</div>'
+    panel += '</div></div>'
 
     h = open(dash_path).read()
 
