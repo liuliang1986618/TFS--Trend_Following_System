@@ -17,7 +17,16 @@ for t in ['稳健推荐','强势追踪','强势板块深度穿透','焦点板块
 assert h.count('WATCHLIST') == 1, f'WATCHLIST={h.count(\"WATCHLIST\")}'
 print('✅ 全部验证通过')
 "
-echo "7/7 serve"; lsof -ti :8765 | xargs kill -9 2>/dev/null; cd dashboard && python3 -m http.server 8765 &
+echo "7/7 serve"; lsof -ti :8765 | xargs kill -9 2>/dev/null
+python3 -c "
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+class H(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header('Cache-Control','no-store,no-cache,must-revalidate,max-age=0')
+        self.send_header('Pragma','no-cache');self.send_header('Expires','0')
+        super().end_headers()
+import os;os.chdir('dashboard');print('no-cache :8765');HTTPServer(('',8765),H).serve_forever()
+" &
 sleep 1
 open "http://localhost:8765/index.html?v=$(date +%s)"
 echo "=== $(date) 完成 ==="
