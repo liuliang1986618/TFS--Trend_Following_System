@@ -6,12 +6,43 @@ PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def render_card(c):
-    h = ''
     sc = {4: '#26a69a', 3: '#42a5f5'}.get(c.get('state', 0), '#8b949e')
-    h += f'<div style="background:#161b22;border:2px solid {sc};border-radius:8px;padding:12px;margin-bottom:12px">'
-    h += f'<div style="font-size:14px;font-weight:700;color:#e6edf3;margin-bottom:6px">'
-    h += f'🔥 {c["name"]} <span style="font-size:11px;color:{sc}">{c.get("state_label","")} {c["score"]}分</span></div>'
+    h = f'<div style="background:#161b22;border:2px solid {sc};border-radius:8px;padding:12px;margin-bottom:12px">'
 
+    # 标题：板块名 + 代码 + 状态标签 + 评分
+    code = c.get('code', '')
+    h += f'<div style="font-size:14px;font-weight:700;color:#e6edf3;margin-bottom:2px">'
+    h += f'🔵 <a href="{c.get("link","#")}" target="_blank" style="color:#e6edf3;text-decoration:none">{c["name"]}</a>'
+    h += f' <span style="font-size:10px;color:#8b949e">{code}</span></div>'
+    h += f'<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;background:{sc};color:#fff">{c.get("state_label","")}</span>'
+    h += f' <span style="font-size:11px;color:#8b949e">📊{c["score"]}分</span>'
+
+    # 板块指标
+    ret = c.get('ret_20d', 0)
+    ma_dev = c.get('ma_deviation', 0)
+    yang = c.get('yang', 0)
+    yin = c.get('yin', 0)
+    vol_r = c.get('vol_ratio', 0)
+    pos = c.get('position', 0)
+    h += f'<div style="font-size:10px;color:#8b949e;margin:4px 0">'
+    h += f'MA20:{ma_dev:+.1f}% | 20日:{ret:+.1f}% | 阳{yang}/阴{yin} | 量比{vol_r:.1f} | 仓位:{pos*100:.0f}%'
+    h += '</div>'
+
+    # ABC条件
+    cond = c.get('conditions', {})
+    if cond:
+        h += '<div style="font-size:11px;margin:4px 0">'
+        for key, label in [('structure','A 结构'), ('volume','B 量能'), ('persistence','C 持续性')]:
+            v = cond.get(key, {})
+            ok = v.get('pass', False)
+            color = '#26a69a' if ok else '#ef5350'
+            icon = '✅' if ok else '❌'
+            h += f'<div style="margin:1px 0"><span style="color:{color}">{icon}</span> {label}: {v.get("detail","")}</div>'
+        h += '</div>'
+
+    h += '<div style="border-top:1px solid #21262d;margin:8px 0"></div>'
+
+    # 最佳ETF + 成分股龙头
     etf = c.get('etf')
     if etf:
         h += f'<div style="font-size:11px;margin:4px 0">📊 最佳ETF: <a href="{etf.get("link","#")}" target="_blank" style="color:#f59e0b;text-decoration:none">{etf["name"]}</a> <span style="color:#8b949e">({etf["score"]:.0f}分)</span>'
@@ -20,20 +51,24 @@ def render_card(c):
             h += f' <span style="color:#8b949e;font-size:10px">└ {names}</span>'
         h += '</div>'
 
+    # 板块龙头
     leaders = c.get('leaders', [])
     if leaders:
-        names = ' '.join(l.get('name', l.get('code', '')) for l in leaders[:3])
-        h += f'<div style="font-size:11px;margin:4px 0;color:#4ade80">🏆 板块龙头: {names}</div>'
+        h += '<div style="font-size:10px;color:#d29922;font-weight:700;margin:6px 0 2px">🏆 板块龙头（近20日涨幅）</div>'
+        for l in leaders[:3]:
+            ret20 = l.get('ret20', 0)
+            h += f'<span style="color:#4ade80;font-size:10px">{l.get("name",l.get("code"))}({ret20:+.1f}%)</span> '
 
     h += '<div style="border-top:1px solid #21262d;margin:8px 0"></div>'
 
+    # 趋势最强题材
     themes = c.get('themes', [])
     if themes:
-        h += '<div style="font-size:10px;color:#8b949e;margin-bottom:4px">🔗 趋势最强题材:</div>'
+        h += '<div style="font-size:10px;color:#8b949e;margin-bottom:2px">🔗 趋势最强题材:</div>'
         for t in themes:
             tc = {4: '#26a69a', 3: '#42a5f5'}.get(t.get('state', 0), '#8b949e')
-            score_text = f'{t["score"]}分' if t.get('state', 0) > 0 else '无趋势数据'
-            h += f'<div style="margin:4px 0 4px 12px;font-size:11px">├ <span style="color:{tc}">{t["name"]}</span> <span style="color:#8b949e;font-size:10px">({score_text})</span>'
+            score_text = f'{t["score"]}分' if t.get('state', 0) > 0 else ''
+            h += f'<div style="margin:2px 0 2px 12px;font-size:11px">├ <span style="color:{tc}">{t["name"]}</span> <span style="color:#8b949e;font-size:10px">{score_text}</span>'
             t_etf = t.get('etf')
             if t_etf:
                 h += f' | 📊 <a href="{t_etf.get("link","#")}" target="_blank" style="color:#f59e0b;text-decoration:none;font-size:10px">{t_etf["name"]}</a>'

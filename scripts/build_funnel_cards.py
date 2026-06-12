@@ -88,10 +88,22 @@ def build(date_str):
     funnel_cards = []
     for sec in sectors[:3]:
         sname = sec.get('name', '')
+        # 完整板块信息（从dashboard_data搬过来）
         card = {
-            'name': sname, 'state': sec.get('state'),
-            'state_label': sec.get('state_label', ''),
-            'score': sec.get('score', 0),
+            'name': sname, 'code': sec.get('code', ''),
+            'state': sec.get('state'), 'state_label': sec.get('state_label', ''),
+            'score': sec.get('score', 0), 'position': sec.get('position', 0),
+            'ma_deviation': sec.get('ma_deviation', 0), 'ret_20d': sec.get('ret_20d', 0),
+            'yang': sec.get('yang', 0), 'yin': sec.get('yin', 0),
+            'max_consecutive_yang': sec.get('max_consecutive_yang', 0),
+            'vol_ratio': sec.get('vol_ratio', 0),
+            'conditions': sec.get('conditions', {}),
+            'signals': sec.get('signals', {}),
+            'prev_high': sec.get('prev_high', {}),
+            'prev_low': sec.get('prev_low', {}),
+            'stop_loss': sec.get('stop_loss', 0),
+            'is_mainline': sec.get('is_mainline', False),
+            'link': sec.get('link', '#'),
             'leaders': sec.get('leaders', [])[:3],
         }
         # 板块最佳ETF
