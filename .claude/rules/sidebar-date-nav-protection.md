@@ -211,16 +211,21 @@ python3 scripts/build_final.py
 **只有在全部代码改动彻底结束、所有生成脚本跑完、验证全部通过之后，才打开一次页面。中间过程不允许打开页面打扰用户。**
 
 ```bash
-# 0. 确保 HTTP 服务运行中
-curl -s -o /dev/null http://localhost:8765/ 2>/dev/null || (cd dashboard && python3 -m http.server 8765 &)
+# 0. 启动 HTTP 服务（必须no-cache！禁止用 python3 -m http.server）
+curl -s -o /dev/null http://localhost:8765/ 2>/dev/null || \
+python3 -c "
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+class H(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header('Cache-Control','no-store,no-cache,must-revalidate')
+        self.send_header('Pragma','no-cache');self.send_header('Expires','0')
+        super().end_headers()
+import os;os.chdir('dashboard');HTTPServer(('',8765),H).serve_forever()
+" &
 
 # 1. ⚠️ 先用 Playwright 确认页面正确（不可跳过！）
-#   - browser_navigate → browser_evaluate 检查关键标记
-#   - 确认 iframe src 指向正确文件
-#   - 截图确认无重复面板、无旧标题残留
-
-# 2. Playwright 确认后，带时间戳破缓存打开
-open "http://localhost:8765/index.html?v=$(date +%s)"
+# 2. Playwright 确认后打开
+open "http://localhost:8765/index.html"
 ```
 
 ⚠️ **严格禁止**：
