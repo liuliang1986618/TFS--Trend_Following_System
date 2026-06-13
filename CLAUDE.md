@@ -1,10 +1,10 @@
 # 趋势跟随交易系统
 
-> 📖 **总览手册：** [SYSTEM.md](SYSTEM.md) — 规则、脚本、技能、触发词、构建序列、红线，一个文档全部看懂。
+> 📖 **总览手册：** [系统手册.md](系统手册.md) — 规则、脚本、技能、触发词、构建序列、红线，一个文档全部看懂。
 
 ## 项目规则
 
-本项目规则存储在 `.claude/rules/` 目录，每个会话自动加载。详细触发条件和红线见 [SYSTEM.md](SYSTEM.md)。
+本项目规则存储在 `.claude/rules/` 目录，每个会话自动加载。详细触发条件和红线见 [系统手册.md](系统手册.md)。
 
 - [侧边栏日期导航保护规则](.claude/rules/sidebar-date-nav-protection.md) — **CRITICAL**，任何改动后必须验证
 - [标的筛选质量门禁](.claude/rules/stock-screening-quality-gate.md) — **CRITICAL**，任何进入面板的标的必须通过多维趋势审查
