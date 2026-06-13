@@ -1,1 +1,92 @@
 .superpowers/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE / Editor
+.vscode/
+.idea/
+.playwright-mcp/
+.python-version
+
+# Screenshots (verification artifacts)
+*.png
+*.jpg
+*.jpeg
+
+# Logs
+logs/
+
+# Models
+models/
+
+# Backup files
+*.bak
+
+# Config (local)
+config.yaml
+
+# Data — raw market data (large, generated)
+data/etf_stocks/
+data/massive_stocks/
+data/dates/
+data/all_etfs/
+data/backtest_stocks/
+data/quality_stocks.pkl
+data/stock_names.json
+data/stock_sectors.json
+data/baostock_etfs.json
+data/theme_holdings.json
+data/etf_holdings.json
+
+# Data — daily generated JSONs
+dashboard/data/actions_*.json
+dashboard/data/enhanced_actions_*.json
+dashboard/data/funnel_cards_*.json
+dashboard/data/trend_snapshot_*.json
+dashboard/data/latest_actions.json
+
+# Data — templates and working files
+dashboard/data/standard_template.html
+dashboard/data/standard_template.html.bak
+dashboard/data/*.tmpl
+
+# Data — etf parquet cache
+dashboard/data/etf/
+dashboard/data/theme/
+dashboard/data/sector/
+
+# Data — watchlist history
+dashboard/data/watchlist_history/
+
+# Test artifacts
+dashboard/test_screenshots/
+dashboard/test_wl.html
+dashboard/index_ref.html
+
+# Backtest
+backtest/
+
+# Docs — generated
+docs/superpowers/prompts/
+docs/superpowers/rules/
+docs/fusion/
+
+# Scripts cache
+scripts/__pycache__/
+scripts/build_daily_snapshot.py
+
+# Temp / analysis scripts
+analyze.py
+watchlist.json
+
+# Fusion module
+src/fusion/
+src/data/cache.py
+src/data/calendar.py
+src/data/concurrent_fetch.py
+src/data/fallback.py
+src/data/validator.py
+tests/test_fusion.py
