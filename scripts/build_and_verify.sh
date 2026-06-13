@@ -5,6 +5,27 @@ cd /Users/liuliang19/Desktop/project/trend_following_system
 DATE=$(python3 -c "import json;print(json.load(open('dashboard/data/dashboard_data.json'))['date'])")
 echo "=== $(date) 构建 $DATE ==="
 
+echo "0/7 date_check"; python3 -c "
+import json, os, sys
+from datetime import datetime, timedelta
+nav = json.load(open('dashboard/data/date_nav.json'))
+nav_dates = {e['date'] for e in nav['dates']}
+existing = {f.replace('trend_dashboard_','').replace('.html','')
+            for f in os.listdir('dashboard') if f.startswith('trend_dashboard_') and f.endswith('.html')}
+today = datetime.now()
+missing = []
+for i in range(30):
+    d = (today - timedelta(days=i)).strftime('%Y-%m-%d')
+    dt = datetime.strptime(d, '%Y-%m-%d')
+    if dt.weekday() >= 5: continue
+    if d not in existing or d not in nav_dates:
+        missing.append(d)
+if missing:
+    print(f'❌ 缺失{len(missing)}个交易日: {missing}，请先补齐再构建')
+    sys.exit(1)
+print(f'✅ 近30天日期完整')
+"
+
 echo "1/7 build_final"; python3 scripts/build_final.py
 echo "2/7 render_action_panel"; python3 scripts/render_action_panel.py $DATE
 echo "3/7 build_funnel_cards"; python3 scripts/build_funnel_cards.py $DATE

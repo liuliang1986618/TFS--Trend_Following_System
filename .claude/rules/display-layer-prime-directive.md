@@ -75,16 +75,28 @@ python3 scripts/build_theme_holdings_cache.py  # 题材成分股缓存(季度更
 
 ## 七、验证清单
 
+⚠️ **验证标记必须与注入后实际标题一致。下面的标记是 render_action_panel.py 和 render_funnel_panel.py 注入后的最终标题，改了面板标题必须同步更新这里。**
+
 ```python
 h = open(f'dashboard/trend_dashboard_{date}.html').read()
-assert h.count('明日操作建议') == 1
-assert '4ade80' in h
-assert 'widget-details' in h
-assert 'ETF操作' in h and '个股操作' in h
-assert 'f0883e' in h
-assert '四级漏斗' in h
-assert '趋势最强题材' in h
+# 操作建议面板：render_action_panel 注入后的标题
+assert '稳健推荐' in h, '缺少稳健推荐面板'
+assert '强势追踪' in h, '缺少强势追踪面板'
+assert 'ETF稳健' in h and 'ETF强势' in h, '缺少ETF子面板'
+assert '个股稳健' in h and '个股强势' in h, '缺少个股子面板'
+# 漏斗面板：render_funnel_panel 注入后的标题
+assert '强势板块深度穿透' in h, '缺少漏斗面板'
+assert '趋势最强题材' in h, '缺少漏斗题材数据'
+# 通用元素
+assert 'widget-details' in h, '缺少widget'
+assert '4ade80' in h, '缺少绿色边框(稳健)'
+assert 'f59e0b' in h or 'f0883e' in h, '缺少橙色/金色边框(强势/漏斗)'
+assert '特别关注' in h, '缺少WATCHLIST'
+assert '焦点板块' in h, '缺少焦点板块'
+assert '观察区' in h, '缺少观察区'
 ```
+
+> **维护规则：** 如果改了 render_action_panel.py 或 render_funnel_panel.py 中的面板标题，必须同步更新此验证清单和 `scripts/build_and_verify.sh` 第14-17行。
 
 ## 八、历史错误全景
 
@@ -110,8 +122,9 @@ assert '趋势最强题材' in h
 | 17 | 题材ETF关键词不匹配 | "芯片概念"→无ETF | 同义词扩展(芯片≈半导体)+产品词提取 |
 | 18 | 交付不验证 | 说"已打开"但未Playwright确认 | 改后必须Playwright验证 |
 | 19 | 浏览器缓存旧页面 | `http.server` 无Cache-Control头 | **必须用no-cache服务，禁用系统默认http.server** |
+| 20 | 规则文档验证标记过时 | display-layer-prime-directive 验证用"明日操作建议"但注入后标题是"稳健推荐" | **改了面板标题必须同步更新规则文档和build_and_verify.sh** |
 
-**十九条错误。最新四条根因：注入去重+关键词匹配+交付验证缺位+浏览器缓存。**
+**二十条错误。最新根因：规则文档与实际代码不同步 → 验证脚本用过期标记 → 产生假失败，浪费时间排查。**
 
 ## 九、布局规则（不可变）
 
@@ -120,3 +133,37 @@ assert '趋势最强题材' in h
 - **观察区**：焦点板块同款双列
 - CSS 在 `build_final.py` 第285行硬编码，修改时两者同步
 **核心教训：`python3 -m http.server` 不设缓存头，浏览器无限缓存旧页面，用户永远看到旧版本。Playwright正确但用户看到错误。根源在于HTTP服务层，不是代码层。**
+
+## 十、日期完整性自动检测（构建前必跑）
+
+**每次构建前，必须先检查最近30天是否有交易日缺失。缺失先补齐，再构建。**
+
+```bash
+python3 -c "
+import json, os
+from datetime import datetime, timedelta
+
+nav = json.load(open('dashboard/data/date_nav.json'))
+nav_dates = {e['date'] for e in nav['dates']}
+existing = {f.replace('trend_dashboard_','').replace('.html','')
+            for f in os.listdir('dashboard') if f.startswith('trend_dashboard_') and f.endswith('.html')}
+
+today = datetime.now()
+missing = []
+for i in range(30):
+    d = (today - timedelta(days=i)).strftime('%Y-%m-%d')
+    dt = datetime.strptime(d, '%Y-%m-%d')
+    if dt.weekday() >= 5:  # 周末跳过
+        continue
+    if d not in existing or d not in nav_dates:
+        missing.append(d)
+
+if missing:
+    print(f'❌ 缺失{len(missing)}个交易日: {missing}')
+    print('   请先补齐: for d in missing: pipeline.py → enhanced_actions.py → build序列')
+    exit(1)
+print(f'✅ 近30天日期完整 ({len([d for d in nav_dates if d >= (today-timedelta(days=30)).strftime(\"%Y-%m-%d\")])}个交易日)')
+"
+```
+
+**此检查已集成到 `scripts/build_and_verify.sh` Step 0。缺失日期自动触发补齐流程。**

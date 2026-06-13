@@ -234,6 +234,31 @@ open "http://localhost:8765/index.html"
 - ❌ 说"已打开"但从未用 Playwright 确认
 - ❌ 改动过程中多次打开页面
 
+## 补充：日期完整性自动检测
+
+**每次新增日期或构建前，先检测近30天是否缺失交易日。** 已集成到 `build_and_verify.sh` Step 0。
+
+```bash
+python3 -c "
+import json, os
+from datetime import datetime, timedelta
+nav = json.load(open('dashboard/data/date_nav.json'))
+nav_dates = {e['date'] for e in nav['dates']}
+existing = {f.replace('trend_dashboard_','').replace('.html','')
+            for f in os.listdir('dashboard') if f.startswith('trend_dashboard_') and f.endswith('.html')}
+today = datetime.now()
+missing_dash = []; missing_nav = []
+for i in range(30):
+    d = (today - timedelta(days=i)).strftime('%Y-%m-%d')
+    if datetime.strptime(d, '%Y-%m-%d').weekday() >= 5: continue
+    if d not in existing: missing_dash.append(d)
+    if d not in nav_dates: missing_nav.append(d)
+if missing_dash: print(f'缺失dashboard: {missing_dash}')
+if missing_nav: print(f'缺失date_nav: {missing_nav}')
+if not missing_dash and not missing_nav: print('✅ 近30天完整')
+"
+```
+
 ## 补充：不要做的事（红线）
 
 1. **❌ 不要复制 HTML 文件改名** — 日期/导航/数据都会错，必须走 build_final.py
