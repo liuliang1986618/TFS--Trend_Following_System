@@ -1120,6 +1120,46 @@ class EnhancedActionGenerator:
         return max(0, min(100, round(score, 1)))
 
     @staticmethod
+    def _detect_top_divergence(close: np.ndarray) -> bool:
+        """检测RSI顶背离: 价格近60日有两个峰值, 后峰价格更高但RSI更低。
+
+        纯辅助信号，不参与筛选/评分，仅影响 action_label 文案。
+        返回 True 表示检测到顶背离。
+        """
+        n = len(close)
+        if n < 60:
+            return False
+
+        lookback = min(60, n)
+        recent = close[-lookback:]
+
+        # 计算最近60日的RSI(14)序列
+        rsi_series = np.full(lookback, np.nan)
+        for i in range(14, lookback):
+            chunk = recent[max(0, i - 13):i + 1]
+            delta = np.diff(chunk)
+            gain = float(np.mean(delta[delta > 0])) if np.any(delta > 0) else 0.0
+            loss = float(-np.mean(delta[delta < 0])) if np.any(delta < 0) else 0.0
+            rsi_series[i] = 100.0 - 100.0 / (1.0 + gain / loss) if loss > 0 else 100.0
+
+        # 找价格峰值（5日窗口内的局部最高点）
+        peak_indices = []
+        for i in range(5, lookback - 5):
+            if recent[i] == np.max(recent[i - 5:i + 6]):
+                peak_indices.append(i)
+
+        if len(peak_indices) < 2:
+            return False
+
+        # 检查最近两个峰值: 价格更高但RSI更低 → 顶背离
+        i1, i2 = peak_indices[-2], peak_indices[-1]
+        price_up = recent[i2] > recent[i1]
+        rsi_down = (not np.isnan(rsi_series[i1]) and not np.isnan(rsi_series[i2])
+                    and rsi_series[i2] < rsi_series[i1])
+
+        return bool(price_up and rsi_down)
+
+    @staticmethod
     def _action_label(state: int, ind: dict, days_running: int = 0) -> str:
         """生成大白话操作建议标签。
 
@@ -1254,12 +1294,22 @@ class EnhancedActionGenerator:
         # ── 大白话操作标签 ──
         action_label = self._action_label(state, ind, days_running)
 
+        # 顶背离检测: 仅对上升趋势且持续≥15日的标的追加提醒
+        has_top_divergence = False
+        if state == 4 and days_running >= 15 and self._detect_top_divergence(close):
+            has_top_divergence = True
+            if days_running >= 30:
+                action_label += "；⚠️ RSI顶背离，价格新高但动能跟不上，谨慎追高"
+            else:
+                action_label += "；⚠️ 有顶背离迹象，注意观察动能是否持续"
+
         return {
             "code": code,
             "name": name,
             "link": r.get("link", self._etf_link(code) if is_etf else self._stock_link(code)),
             "action": action_label,
             "action_label": action_label,
+            "has_top_divergence": has_top_divergence,
             "position_pct": r.get("position_pct", 0),
             "score": trend_score,  # 使用趋势强度评分替代pipeline原始评分
             "state": state,
