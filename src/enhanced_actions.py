@@ -200,6 +200,30 @@ class EnhancedActionGenerator:
         self.data_dir = data_dir
         self.output_dir = output_dir
         self._cache: dict = {}
+        self._prev_states: dict = {}  # 跨日趋势追踪: {code: {state, date, days_in_state}}
+        self._today: str = ""
+
+    def _load_prev_states(self, date_str: str):
+        """加载前一交易日的状态缓存(用于transition追踪)."""
+        from datetime import datetime, timedelta
+        dt = datetime.strptime(date_str, "%Y-%m-%d")
+        for i in range(1, 10):
+            prev_dt = dt - timedelta(days=i)
+            if prev_dt.weekday() >= 5: continue
+            prev = prev_dt.strftime("%Y-%m-%d")
+            path = os.path.join(self.output_dir, f"prev_states_{prev}.json")
+            if os.path.exists(path):
+                with open(path) as f:
+                    self._prev_states = json.load(f)
+                return
+        self._prev_states = {}
+
+    def _save_prev_states(self):
+        """持久化当前状态缓存."""
+        if not self._today: return
+        path = os.path.join(self.output_dir, f"prev_states_{self._today}.json")
+        with open(path, "w") as f:
+            json.dump(self._prev_states, f, ensure_ascii=False, indent=2)
 
     # ── 数据加载 ───────────────────────────────────────────────
 
@@ -1454,6 +1478,27 @@ class EnhancedActionGenerator:
         ind = self._calc_indicators(close, volume, high, low, open_arr)
         state = self._determine_state(daily_df)
 
+        # ── 跨日趋势追踪 (transition) ──
+        prev_entry = self._prev_states.get(code)
+        if prev_entry and isinstance(state, int) and _STATE_MACHINE_AVAILABLE:
+            try:
+                result = StateMachine.classify(daily_df)
+                event = {
+                    "consecutive_drop": result.consecutive_drop,
+                    "consecutive_rise": result.consecutive_rise,
+                    "volume_surge": result.volume_surge,
+                    "volume_shrink": result.volume_shrink,
+                    "broke_prev_high": result.broke_prev_high,
+                    "broke_prev_low": result.broke_prev_low,
+                }
+                prev_state = prev_entry.get("state", state)
+                if isinstance(prev_state, str) or isinstance(prev_state, int):
+                    state = StateMachine.transition(prev_state, event)
+            except Exception:
+                pass
+        # 存储当前状态供下一天使用
+        self._prev_states[code] = {"state": state, "date": date_str}
+
         # ── 趋势质量过滤 ──
         if state == 1 or state == 2 or state == "3'":
             return None  # 下跌/弱反弹/转跌确认 = 不推荐
@@ -1830,13 +1875,10 @@ class EnhancedActionGenerator:
     # ── 主方法 ─────────────────────────────────────────────────
 
     def generate(self, date_str: str) -> Optional[dict]:
-        """为指定日期生成增强操作建议。
+        """为指定日期生成增强操作建议。"""
+        self._today = date_str
+        self._load_prev_states(date_str)  # 加载前一日状态缓存
 
-        返回:
-          {"date": "2026-06-05", "market_regime": "strong_bear",
-           "etf_cards": [...], "stock_cards": [...]}
-        或 None（数据不足时）。
-        """
         actions_path = os.path.join(self.output_dir,
                                      f"actions_{date_str}.json")
         if not os.path.exists(actions_path):
@@ -1877,6 +1919,7 @@ class EnhancedActionGenerator:
             output_path = os.path.join(self.output_dir, f"enhanced_actions_{date_str}.json")
             with open(output_path, "w") as f:
                 json.dump(result, f, ensure_ascii=False, indent=2)
+            self._save_prev_states()
             return result
 
         stock_list = actions.get("stock_top5", [])
@@ -1917,6 +1960,7 @@ class EnhancedActionGenerator:
         with open(output_path, "w") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
 
+        self._save_prev_states()
         return result
 
 
