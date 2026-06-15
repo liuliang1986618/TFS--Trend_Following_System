@@ -1664,9 +1664,9 @@ class EnhancedActionGenerator:
                 break
         top_codes = {c["code"] for c in etf_cards}
 
-        # 强势追踪: 从剩余中选 state=4 且涨幅过大的，按行业分散
+        # 强势追踪: 从全部候选选 state=4 且涨幅过大的，按行业分散
         hot_candidates = []
-        for _, _, card in candidates[top_n:]:
+        for _, _, card in candidates:
             if card.get("state") != 4:
                 continue
             ctx = card.get("trend_context", {})

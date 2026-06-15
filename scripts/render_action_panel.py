@@ -138,10 +138,10 @@ def process_date(date_str):
 
     ea = json.load(open(ea_path))
     regime = ea.get('market_regime', 'bear')
-    etfs = sorted(ea['etf_cards'], key=lambda x: x.get('score', 0), reverse=True)[:5]
-    stocks = sorted(ea['stock_cards'], key=lambda x: x.get('score', 0), reverse=True)[:5]
-    hot_etfs = ea.get('hot_etf_cards', [])[:5]
-    hot_stocks = ea.get('hot_stock_cards', [])[:5]
+    etfs = sorted(ea['etf_cards'], key=lambda x: x.get('score', 0), reverse=True)[:10]
+    stocks = sorted(ea['stock_cards'], key=lambda x: x.get('score', 0), reverse=True)[:10]
+    hot_etfs = ea.get('hot_etf_cards', [])[:10]
+    hot_stocks = ea.get('hot_stock_cards', [])[:10]
 
     # ETF→板块匹配：从 dashboard_data.json 加载板块名
     sector_names = []
