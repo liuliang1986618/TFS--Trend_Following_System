@@ -18,6 +18,19 @@ from typing import Optional
 
 import numpy as np
 
+# ── 仓位计算 (PositionOptimizer, 从 fusion 层接入) ─────────────────
+# 确保项目根目录在 sys.path 中 (运行 __main__ 时需要)
+_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+try:
+    from src.fusion.position_optimizer import PositionOptimizer
+    from src.fusion.models import MarketRegime
+    _POSITION_OPTIMIZER_AVAILABLE = True
+except ImportError:
+    _POSITION_OPTIMIZER_AVAILABLE = False
+
 # ── 技术指标计算工具函数 ──────────────────────────────────────────
 
 
@@ -159,6 +172,14 @@ class EnhancedActionGenerator:
     HOT_MIN_PCT_20D_ETF = 20   # ETF：20日涨幅阈值（%），ETF弹性小故阈值略低
     HOT_MIN_SCORE_ETF = 70     # ETF：最低趋势评分
     HOT_TOP_N = 5              # 强势追踪每类取前N只
+
+    # ── 仓位基准映射 (对齐6状态机 POSITIONS dict) ─────────────────
+    _STATE_BASE_RATIO = {
+        1: 0.0,       # 下跌趋势 → 空仓
+        2: 0.0,       # 弱反弹   → 空仓
+        3: 0.166,     # 偏强震荡 → 1/6 试探仓
+        4: 1.0,       # 上升趋势 → 满仓基准 (Kelly 会约束上限)
+    }
 
     def __init__(self, data_dir: str = "data",
                  output_dir: str = "dashboard/data"):
@@ -351,20 +372,34 @@ class EnhancedActionGenerator:
 
     @staticmethod
     def _determine_state(close: np.ndarray) -> int:
-        """判定 TFS 状态 (1-4)。"""
+        """判定 TFS 状态 (1-4)，含趋势记忆。
+
+        趋势记忆规则: MA20 > MA60 是中期多头排列的金叉信号。
+        当金叉存在时，价格短暂跌破 MA20 属于上升趋势中的正常回调，
+        不应立即判为 state=2（弱反弹），应保留 state=3（偏强震荡）。
+        这防止了"涨40天跌1%就判弱"的过度敏感问题。
+        """
         if len(close) < 60:
             return 1
         c = close.astype(float)
         ma20 = np.mean(c[-20:])
         ma60 = np.mean(c[-60:])
         p = float(c[-1])
+        golden_cross = ma20 > ma60  # 中期趋势保持多头
+
         if p > ma20 > ma60:
             return 4
         elif p > ma20:
             return 3
         elif p > ma60:
+            # 价格在 MA20 与 MA60 之间
+            if golden_cross:
+                return 3  # 趋势记忆: 金叉仍在，只是短期回调
             return 2
         else:
+            # 价格跌破 MA60
+            if golden_cross and p > ma60 * 0.95:
+                return 2  # 深回调但未崩盘(-5%内)，守MA60仍有希望
             return 1
 
     # ── Widget 0: 趋势大背景判断 ─────────────────────────────────
@@ -1238,6 +1273,41 @@ class EnhancedActionGenerator:
 
         return label
 
+    # ── 仓位计算 ───────────────────────────────────────────────
+
+    def _calc_position(self, state: int, ind: dict) -> dict:
+        """调用 PositionOptimizer 计算建议仓位。
+
+        返回 {"pct": float, "reason": str}。
+        若 PositionOptimizer 不可用或计算失败则降级返回 0%。
+        """
+        if not _POSITION_OPTIMIZER_AVAILABLE:
+            return {"pct": 0.0, "reason": "PositionOptimizer 不可用"}
+        base_ratio = self._STATE_BASE_RATIO.get(state, 0.0)
+        if base_ratio <= 0:
+            return {"pct": 0.0, "reason": "状态不满足建仓条件"}
+        try:
+            regime = MarketRegime(
+                level="green",
+                position_cap=1.0,
+                reason="默认绿灯 (无实时市场数据时假设全仓可行)",
+                sentiment_score=60.0,
+            )
+            opt = PositionOptimizer()
+            result = opt.optimize(
+                state_value=state,
+                base_ratio=base_ratio,
+                enhanced=None,       # 无 V3 增强信号, 使用默认胜率55%
+                market_regime=regime,
+                current_total_position=0.0,
+            )
+            return {
+                "pct": round(result.final_ratio * 100, 1),
+                "reason": result.reason,
+            }
+        except Exception:
+            return {"pct": 0.0, "reason": "仓位计算异常,降级为0"}
+
     # ── 卡片组装 ───────────────────────────────────────────────
 
     def _build_card(self, r: dict, date_str: str, is_etf: bool) -> Optional[dict]:
@@ -1303,6 +1373,9 @@ class EnhancedActionGenerator:
             else:
                 action_label += "；⚠️ 有顶背离迹象，注意观察动能是否持续"
 
+        # 仓位计算 (Kelly公式, 从 PositionOptimizer 获取)
+        pos = self._calc_position(state, ind)
+
         return {
             "code": code,
             "name": name,
@@ -1310,7 +1383,8 @@ class EnhancedActionGenerator:
             "action": action_label,
             "action_label": action_label,
             "has_top_divergence": has_top_divergence,
-            "position_pct": r.get("position_pct", 0),
+            "position_pct": pos.get("pct", 0),
+            "position_reason": pos.get("reason", ""),
             "score": trend_score,  # 使用趋势强度评分替代pipeline原始评分
             "state": state,
             "trend_context": trend_ctx,

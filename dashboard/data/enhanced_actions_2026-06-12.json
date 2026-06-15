@@ -9,7 +9,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 71,
       "state": 4,
       "trend_context": {
@@ -266,7 +267,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 68,
       "state": 4,
       "trend_context": {
@@ -507,7 +509,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎；⚠️ RSI顶背离，价格新高但动能跟不上，谨慎追高",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎；⚠️ RSI顶背离，价格新高但动能跟不上，谨慎追高",
       "has_top_divergence": true,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 68,
       "state": 4,
       "trend_context": {
@@ -748,7 +751,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎；⚠️ RSI顶背离，价格新高但动能跟不上，谨慎追高",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎；⚠️ RSI顶背离，价格新高但动能跟不上，谨慎追高",
       "has_top_divergence": true,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 68,
       "state": 4,
       "trend_context": {
@@ -989,7 +993,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎；⚠️ RSI顶背离，价格新高但动能跟不上，谨慎追高",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎；⚠️ RSI顶背离，价格新高但动能跟不上，谨慎追高",
       "has_top_divergence": true,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 68,
       "state": 4,
       "trend_context": {
@@ -1232,7 +1237,8 @@
       "action": "趋势刚刚开始，还没涨太多，现在是上车的好时机，最近几天涨势很猛，买盘在加速进场",
       "action_label": "趋势刚刚开始，还没涨太多，现在是上车的好时机，最近几天涨势很猛，买盘在加速进场",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 93,
       "state": 4,
       "trend_context": {
@@ -1473,7 +1479,8 @@
       "action": "趋势刚刚开始，还没涨太多，现在是上车的好时机，最近几天涨势很猛，买盘在加速进场",
       "action_label": "趋势刚刚开始，还没涨太多，现在是上车的好时机，最近几天涨势很猛，买盘在加速进场",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 93,
       "state": 4,
       "trend_context": {
@@ -1714,7 +1721,8 @@
       "action": "趋势刚刚开始，还没涨太多，现在是上车的好时机",
       "action_label": "趋势刚刚开始，还没涨太多，现在是上车的好时机",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 93,
       "state": 4,
       "trend_context": {
@@ -1955,7 +1963,8 @@
       "action": "趋势刚刚开始，还没涨太多，现在是上车的好时机，最近几天涨势很猛，买盘在加速进场",
       "action_label": "趋势刚刚开始，还没涨太多，现在是上车的好时机，最近几天涨势很猛，买盘在加速进场",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 93,
       "state": 4,
       "trend_context": {
@@ -2196,7 +2205,8 @@
       "action": "趋势刚刚开始，还没涨太多，现在是上车的好时机，最近几天涨势很猛，买盘在加速进场",
       "action_label": "趋势刚刚开始，还没涨太多，现在是上车的好时机，最近几天涨势很猛，买盘在加速进场",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 93,
       "state": 4,
       "trend_context": {
@@ -2439,7 +2449,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 74,
       "state": 4,
       "trend_context": {
@@ -2696,7 +2707,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 74,
       "state": 4,
       "trend_context": {
@@ -2937,7 +2949,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 74,
       "state": 4,
       "trend_context": {
@@ -3178,7 +3191,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，目前价格在布林带上轨附近，短期可能冲高回落，注意不要追高；⚠️ RSI顶背离，价格新高但动能跟不上，谨慎追高",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，目前价格在布林带上轨附近，短期可能冲高回落，注意不要追高；⚠️ RSI顶背离，价格新高但动能跟不上，谨慎追高",
       "has_top_divergence": true,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 71,
       "state": 4,
       "trend_context": {
@@ -3421,7 +3435,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，目前价格在布林带上轨附近，短期可能冲高回落，注意不要追高",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，目前价格在布林带上轨附近，短期可能冲高回落，注意不要追高",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 83,
       "state": 4,
       "trend_context": {
@@ -3662,7 +3677,8 @@
       "action": "这个趋势已经走了很久了，累计涨幅很大，虽然还在涨，但越往后风险越大，注意保护已经赚到的利润",
       "action_label": "这个趋势已经走了很久了，累计涨幅很大，虽然还在涨，但越往后风险越大，注意保护已经赚到的利润",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 75,
       "state": 4,
       "trend_context": {
@@ -3903,7 +3919,8 @@
       "action": "这个趋势已经走了很久了，累计涨幅很大，已经严重超买，随时可能回调，不建议追高",
       "action_label": "这个趋势已经走了很久了，累计涨幅很大，已经严重超买，随时可能回调，不建议追高",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 75,
       "state": 4,
       "trend_context": {
@@ -4144,7 +4161,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，目前价格在布林带上轨附近，短期可能冲高回落，注意不要追高",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，目前价格在布林带上轨附近，短期可能冲高回落，注意不要追高",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 83,
       "state": 4,
       "trend_context": {
@@ -4385,7 +4403,8 @@
       "action": "趋势运行了一段时间了，涨幅已经积累了不少，目前价格在布林带上轨附近，短期可能冲高回落，注意不要追高",
       "action_label": "趋势运行了一段时间了，涨幅已经积累了不少，目前价格在布林带上轨附近，短期可能冲高回落，注意不要追高",
       "has_top_divergence": false,
-      "position_pct": 0,
+      "position_pct": 20.0,
+      "position_reason": "Kelly=27.5% | base=100.0% | cap=100% | p=70% | b=2.0",
       "score": 83,
       "state": 4,
       "trend_context": {

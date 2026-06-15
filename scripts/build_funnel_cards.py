@@ -169,7 +169,8 @@ def build(date_str):
               ensure_ascii=False, indent=2)
     print(f'✅ {date_str}: {len(funnel_cards)}板块')
     for c in funnel_cards:
-        print(f'  {c["name"]}: ETF={c.get("etf",{}).get("name","无")} 题材={len(c["themes"])}个')
+        etf_info = c.get("etf") or {}
+        print(f'  {c["name"]}: ETF={etf_info.get("name","无")} 题材={len(c["themes"])}个')
 
 
 if __name__ == '__main__':

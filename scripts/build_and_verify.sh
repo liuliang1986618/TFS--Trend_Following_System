@@ -5,7 +5,39 @@ cd /Users/liuliang19/Desktop/project/trend_following_system
 DATE=$(python3 -c "import json;print(json.load(open('dashboard/data/dashboard_data.json'))['date'])")
 echo "=== $(date) 构建 $DATE ==="
 
-echo "0/7 date_check"; python3 -c "
+echo "0/8 pipeline_integrity"; python3 -c "
+import os, json
+from datetime import datetime, timedelta
+
+empty_actions, zero_position_all = [], []
+for i in range(10):
+    d = (datetime.now() - timedelta(days=i)).strftime('%Y-%m-%d')
+    af = f'dashboard/data/actions_{d}.json'
+    if os.path.exists(af):
+        ad = json.load(open(af))
+        if len(ad.get('etf_top5',[])) == 0 and len(ad.get('stock_top5',[])) == 0:
+            empty_actions.append(d)
+    ef = f'dashboard/data/enhanced_actions_{d}.json'
+    if os.path.exists(ef):
+        ed = json.load(open(ef))
+        cards = ed.get('etf_cards',[])+ed.get('stock_cards',[])+ed.get('hot_etf_cards',[])+ed.get('hot_stock_cards',[])
+        if cards and all(c.get('position_pct',0)==0 for c in cards):
+            zero_position_all.append(d)
+
+had_issue = False
+if empty_actions:
+    print(f'  WARNING: Empty actions JSON ({len(empty_actions)}d): {empty_actions}')
+    print('    Fix: python3 pipeline.py <date>')
+    had_issue = True
+if zero_position_all:
+    print(f'  WARNING: All positions=0% ({len(zero_position_all)}d): {zero_position_all}')
+    print('    Fix: python3 src/enhanced_actions.py <date>')
+    had_issue = True
+if not had_issue:
+    print('  Pipeline integrity OK')
+"
+
+echo "1/8 date_check"; python3 -c "
 import json, os, sys
 from datetime import datetime, timedelta
 nav = json.load(open('dashboard/data/date_nav.json'))
@@ -26,19 +58,19 @@ if missing:
 print(f'✅ 近30天日期完整')
 "
 
-echo "1/7 build_final"; python3 scripts/build_final.py
-echo "2/7 render_action_panel"; python3 scripts/render_action_panel.py $DATE
-echo "3/7 build_funnel_cards"; python3 scripts/build_funnel_cards.py $DATE
-echo "4/7 render_funnel_panel"; python3 scripts/render_funnel_panel.py $DATE
-echo "5/7 build_nav_index (MUST be last)"; python3 scripts/build_nav_index.py
-echo "6/7 verify"; python3 -c "
+echo "2/8 build_final"; python3 scripts/build_final.py
+echo "3/8 render_action_panel"; python3 scripts/render_action_panel.py $DATE
+echo "4/8 build_funnel_cards"; python3 scripts/build_funnel_cards.py $DATE
+echo "5/8 render_funnel_panel"; python3 scripts/render_funnel_panel.py $DATE
+echo "6/8 build_nav_index (MUST be last)"; python3 scripts/build_nav_index.py
+echo "7/8 verify"; python3 -c "
 h=open('dashboard/trend_dashboard_${DATE}.html').read()
 for t in ['稳健推荐','强势追踪','强势板块深度穿透','焦点板块','widget-details']:
     assert t in h, f'MISSING: {t}'
 assert h.count('WATCHLIST') == 1, f'WATCHLIST={h.count(\"WATCHLIST\")}'
 print('✅ 全部验证通过')
 "
-echo "7/7 serve"; lsof -ti :8765 | xargs kill -9 2>/dev/null
+echo "8/8 serve"; lsof -ti :8765 | xargs kill -9 2>/dev/null
 python3 -c "
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 class H(SimpleHTTPRequestHandler):

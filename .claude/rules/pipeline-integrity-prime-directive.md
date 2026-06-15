@@ -1,0 +1,212 @@
+---
+name: pipeline-integrity-prime-directive
+description: 管道完整性最高准则 — 禁止空壳数据/禁止孤儿子系统/仓位必须计算/回退必须补齐
+metadata:
+  type: project
+---
+
+# 管道完整性最高准则
+
+> **本规则在 `stock-screening-quality-gate` 第4条基础上，进一步细化：禁止空actions JSON、仓位必须计算、孤儿子统必须接入。**
+
+## 一、核心原则
+
+1. **管道中每个环节的输出必须完整。空壳数据不允许存在超过 24 小时。**
+2. **系统中不允许存在"写完但没接入主管道"的孤儿子系统。写代码 = 接线。**
+3. **仓位是推荐的核心输出，不允许永远为 0。**
+4. **任何 fallback 回退机制必须有补齐计划，不允许临时方案永久化。**
+
+## 二、空壳数据禁令
+
+### 定义
+
+**空壳数据** = 文件存在、格式正确、但核心数据字段为空数组/空对象/默认值的数据文件。
+
+```
+❌ actions JSON: {"etf_top5": [], "stock_top5": [], "watchlist": []}
+❌ enhanced_actions JSON: {"etf_cards": [], "stock_cards": []}
+❌ date_nav entry: {"leaders": {}, "top_sectors": []}
+```
+
+### 铁律
+
+1. **禁止手动创建空 actions JSON。** 如果 pipeline 超时，必须：
+   - 修复超时原因（网络/API/数据量），然后重跑
+   - 永不接受"先建空壳，以后补"的做法
+2. **空壳数据存活不超过 24 小时。** 临时空壳必须打标记 + 记录补齐计划。
+3. **每次构建前自动检测空壳。**
+
+### 自动检测脚本
+
+```bash
+python3 -c "
+import os, json
+from datetime import datetime, timedelta
+empty_actions = []
+for i in range(10):
+    d = (datetime.now() - timedelta(days=i)).strftime('%Y-%m-%d')
+    f = f'dashboard/data/actions_{d}.json'
+    if os.path.exists(f):
+        data = json.load(open(f))
+        etf = data.get('etf_top5', [])
+        stock = data.get('stock_top5', [])
+        if len(etf) == 0 and len(stock) == 0:
+            empty_actions.append(d)
+if empty_actions:
+    print(f'❌ 空壳 actions JSON ({len(empty_actions)}个): {empty_actions}')
+    print('   这些文件 etf_top5=[] 且 stock_top5=[]')
+    print('   请运行: python3 pipeline.py <date> 补齐')
+    exit(1)
+else:
+    print('✅ 近10天 actions JSON 全部非空壳')
+"
+```
+
+## 三、仓位必须计算
+
+### 当前状态
+
+- `src/fusion/position_optimizer.py` (199行)：Kelly公式仓位优化器 ✅ 已写完
+- `src/fusion/orchestrator.py` (223行)：融合编排器 ✅ 已写完
+- `src/fusion/market_gate.py` (129行)：红黄绿灯市场门控 ✅ 已写完
+- **`enhanced_actions.py` → 仓位计算：❌ 未接入**
+- **结果：所有推荐 `position_pct = 0`（全历史，从系统第一天运行至今）**
+
+### 仓位数据流（修复后）
+
+```
+enhanced_actions.generate()
+  │
+  ├─ _build_card() → 计算趋势指标 → state, score, indicators
+  │
+  ├─ PositionOptimizer.optimize()
+  │     ├─ 输入: state, win_rate, volatility, market_regime
+  │     ├─ Kelly公式: f = (p*b - q) / b
+  │     ├─ 约束: 单标的上限20%, 最小5%, 总仓位上限80%
+  │     └─ 输出: position_pct (5%-20%)
+  │
+  ├─ MarketGate.assess()
+  │     ├─ green: 仓位上限100%
+  │     ├─ yellow: 仓位上限50%
+  │     └─ red: 仓位上限0% (空仓)
+  │
+  └─ 最终 position_pct = min(Kelly, Gate上限)
+```
+
+### 仓位字段规范
+
+| 字段 | 含义 | 取值范围 | 说明 |
+|------|------|---------|------|
+| `position_pct` | 建议仓位百分比 | 5-20 (正常) / 0 (禁止) | 0 只有红灯时才合法 |
+| `position_reason` | 仓位推导说明 | 字符串 | 如 "Kelly公式 f=12% × 黄灯0.5 = 6%" |
+
+### 仓位验证
+
+```bash
+python3 -c "
+import json, os
+from datetime import datetime
+d = datetime.now().strftime('%Y-%m-%d')
+f = f'dashboard/data/enhanced_actions_{d}.json'
+if os.path.exists(f):
+    data = json.load(open(f))
+    all_cards = data.get('etf_cards',[]) + data.get('stock_cards',[]) + data.get('hot_etf_cards',[]) + data.get('hot_stock_cards',[])
+    zero_pos = [c['name'] for c in all_cards if c.get('position_pct',0) == 0]
+    if zero_pos and len(zero_pos) == len(all_cards):
+        print(f'❌ 所有{len(all_cards)}个标的仓位=0%！仓位优化器未接入！')
+        exit(1)
+    elif zero_pos:
+        print(f'⚠️ {len(zero_pos)}/{len(all_cards)} 仓位=0%: {zero_pos}')
+    else:
+        print(f'✅ 全部{len(all_cards)}个标的仓位>0%')
+else:
+    print(f'⚠️ 今日 enhanced_actions 不存在，跳过仓位验证')
+"
+```
+
+## 四、孤儿子系统禁令
+
+### 定义
+
+**孤儿子系统** = 代码存在、测试存在、但没有任何生产管道调用它的模块。
+
+### 检测标准
+
+任何 `src/` 下的 Python 模块，必须满足以下至少一项：
+1. 被 `pipeline.py` 直接或间接调用
+2. 被 `enhanced_actions.py` 直接或间接调用
+3. 被 `build_final.py` / `build_nav_index.py` 直接或间接调用
+4. 有独立 CLI 入口且被文档记录的独立工具
+
+### 当前已知孤儿子系统
+
+| 模块 | 行数 | 被谁调用 | 状态 |
+|------|------|---------|------|
+| `src/fusion/position_optimizer.py` | 199 | 仅 orchestrator.py | ⚠️ 间接孤立 |
+| `src/fusion/orchestrator.py` | 223 | 仅 cli.py (独立CLI) | ⚠️ 孤立 |
+| `src/fusion/market_gate.py` | 129 | 仅 orchestrator.py | ⚠️ 间接孤立 |
+
+### 孤儿子系统检测
+
+```bash
+python3 -c "
+import os, ast
+MAIN = ['src/enhanced_actions.py', 'scripts/build_final.py', 'scripts/build_nav_index.py', 'pipeline.py']
+def imports_of(filepath):
+    if not os.path.exists(filepath): return set()
+    with open(filepath) as f:
+        try: tree = ast.parse(f.read())
+        except: return set()
+    imps = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imps.add(alias.name.split('.')[0])
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                imps.add(node.module.split('.')[0])
+    return imps
+
+all_imports = set()
+for f in MAIN:
+    all_imports |= imports_of(f)
+
+src_modules = set()
+for root, dirs, files in os.walk('src'):
+    for f in files:
+        if f.endswith('.py') and not f.startswith('__'):
+            rel = os.path.relpath(os.path.join(root, f), 'src').replace('/', '.').replace('.py', '')
+            src_modules.add(rel)
+
+# 排除标准库和第三方
+third_party = {'numpy','pandas','akshare','json','os','sys','pickle','datetime',
+               're','math','collections','typing','dataclasses','pathlib','logging'}
+orphan = {m for m in src_modules if m not in all_imports and m.split('.')[0] not in third_party}
+if orphan:
+    print(f'⚠️ 疑似孤儿子系统 ({len(orphan)}个):')
+    for m in sorted(orphan):
+        print(f'  - src/{m.replace(\".\", \"/\")}.py')
+else:
+    print('✅ 无孤儿子系统')
+"
+```
+
+## 五、修复优先级
+
+1. **P0（立即）**：补齐近 5 天空壳 actions JSON — 跑 pipeline 或让动态扫描正式化
+2. **P1（本周）**：仓位优化器接入 `enhanced_actions.py` — position_pct 不再永远为 0
+3. **P2（本月）**：孤儿子系统全部接入或删除
+
+## 六、历史错误清单
+
+| # | 错误 | 日期 | 根因 | 教训 |
+|---|------|------|------|------|
+| 1 | 5天空壳actions JSON | 06-14 | pipeline超时→手动建空壳→永久残留 | 空壳24h内必须补齐 |
+| 2 | 全历史仓位=0% | 始终 | 仓位优化器从未接入主管道 | 写完代码≠系统在工作 |
+| 3 | 551行fusion代码闲置 | 始终 | orchestrator只被cli.py调用 | 孤儿子系统必须接入或删除 |
+
+## 七、与现有规则的关系
+
+- [[stock-screening-quality-gate]] — 第4条已禁止空actions JSON，本规则加强为自动化检测+补齐时限
+- [[display-layer-prime-directive]] — 构建序列不可缺步骤
+- [[full-market-data-integrity]] — 数据完整性 → 管道完整性
