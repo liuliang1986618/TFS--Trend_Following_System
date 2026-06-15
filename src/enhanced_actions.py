@@ -1739,7 +1739,7 @@ class EnhancedActionGenerator:
 
     # ── 个股动态扫描 ───────────────────────────────────────────
 
-    def _scan_best_stocks(self, date_str: str, top_n: int = 5) -> list[dict]:
+    def _scan_best_stocks(self, date_str: str, top_n: int = 10) -> list[dict]:
         """从全部个股中扫描，筛选趋势最好的 top_n 只（稳健推荐）。
 
         同时从剩余通过筛选的标的中，按「强势追踪」条件筛选
