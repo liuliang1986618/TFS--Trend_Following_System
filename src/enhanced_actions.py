@@ -181,9 +181,9 @@ class EnhancedActionGenerator:
     # ── 强势追踪选择标准（类常量，可调优） ─────────────────────
     HOT_MIN_PCT_20D = 30       # 个股：20日涨幅阈值（%），超此视为过热
     HOT_MIN_SCORE = 75         # 个股：最低趋势评分，保证不是垃圾票
-    HOT_MIN_PCT_20D_ETF = 20   # ETF：20日涨幅阈值（%），ETF弹性小故阈值略低
-    HOT_MIN_SCORE_ETF = 70     # ETF：最低趋势评分
-    HOT_TOP_N = 5              # 强势追踪每类取前N只
+    HOT_MIN_PCT_20D_ETF = 10   # ETF：20日涨幅阈值（%）
+    HOT_MIN_SCORE_ETF = 60     # ETF：最低趋势评分（放宽以纳入更多候选）
+    HOT_TOP_N = 10             # 强势追踪每类取前N只
 
     # ── 仓位基准映射 (对齐6状态机 POSITIONS dict) ─────────────────
     _STATE_BASE_RATIO = {
@@ -1664,7 +1664,7 @@ class EnhancedActionGenerator:
                 break
         top_codes = {c["code"] for c in etf_cards}
 
-        # 强势追踪: 从全部候选选 state=4 且涨幅过大的，按行业分散
+        # 强势追踪: 按动量(pct20d)排序取Top10, 与稳健可重叠(不同策略视角)
         hot_candidates = []
         for _, _, card in candidates:
             if card.get("state") != 4:
@@ -1674,8 +1674,6 @@ class EnhancedActionGenerator:
             if pct_20d < self.HOT_MIN_PCT_20D_ETF:
                 continue
             if card.get("score", 0) < self.HOT_MIN_SCORE_ETF:
-                continue
-            if card["code"] in top_codes:
                 continue
             hot_candidates.append((pct_20d, 0, card))
 
