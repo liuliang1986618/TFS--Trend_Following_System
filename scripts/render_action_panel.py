@@ -93,9 +93,7 @@ def inject(dashboard_path, panel_html):
     # 删除旧面板，但保留WATCHLIST/特别关注
     old_start = html.find('<div class="panel" style="margin:10px 20px 12px;border:2px solid #4ade80')
     if old_start > 0:
-        old_end = html.find('<!--WATCHLIST-->', old_start)
-        if old_end < 0:
-            old_end = html.find('🔍 焦点板块', old_start)
+        old_end = html.find('🔍 焦点板块', old_start)
         if old_end > 0:
             html = html[:old_start] + html[old_end:]
     # 注入新面板
