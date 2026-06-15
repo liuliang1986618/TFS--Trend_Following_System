@@ -1677,7 +1677,7 @@ class EnhancedActionGenerator:
                 continue
             if card["code"] in top_codes:
                 continue
-            hot_candidates.append((pct_20d, card))
+            hot_candidates.append((pct_20d, 0, card))
 
         hot_candidates.sort(key=lambda x: -x[0])
 
@@ -1785,9 +1785,10 @@ class EnhancedActionGenerator:
                 continue
             card["sector"] = sector  # 注入板块信息
             score = card.get("score", 0)
-            candidates.append((score, card))
+            # 3元组: (base_score, detail_score, card) — 与_scan_best_etfs一致
+            candidates.append((score, score, card))
 
-        candidates.sort(key=lambda x: -x[0])
+        candidates.sort(key=lambda x: (-x[0], -x[1]))
 
         # 稳健推荐: top N
         stock_cards = [card for _, _, card in candidates[:top_n]]
@@ -1806,7 +1807,7 @@ class EnhancedActionGenerator:
                 continue
             if card["code"] in top_codes:
                 continue
-            hot_candidates.append((pct_20d, card))
+            hot_candidates.append((pct_20d, 0, card))
 
         hot_candidates.sort(key=lambda x: -x[0])  # 按涨幅降序，最热的排前面
         hot_stock_cards = [card for _, _, card in hot_candidates[:top_n]]
