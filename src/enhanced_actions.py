@@ -1612,24 +1612,31 @@ class EnhancedActionGenerator:
             if card is None:
                 continue  # 质量筛选未通过
 
-            # 评分：趋势越好分越高
+            # 排序分: state 权重 + 动量加分
             state = card.get("state", 1)
             ctx = card.get("trend_context", {})
             pct_20d = ctx.get("total_return_pct", 0)
-            score = state * 2  # state 4=8分, 3=6分, 2=4分, 1=2分
+
+            # state 基础分 (6态适配: state=5(回调)≈state=4, state="3'"≈state=2)
+            state_score_map = {4: 8, 5: 7, 3: 6, "3'": 4, 2: 4, 1: 2}
+            base = state_score_map.get(state, state * 2 if isinstance(state, int) else 4)
+
+            score = base
             if pct_20d > 0:
                 score += 2
             if pct_20d > 10:
                 score += 2
-            candidates.append((score, card))
+            # 使用详细评分作为 tiebreaker
+            detail_score = card.get("score", 0)
+            candidates.append((score, detail_score, card))
 
-        # 按评分降序
-        candidates.sort(key=lambda x: -x[0])
+        # 按评分降序 (先比state基分, 再比详细评分)
+        candidates.sort(key=lambda x: (-x[0], -x[1]))
 
         # 稳健推荐: top N，行业分散
         etf_cards = []
         seen_cats_etf = set()
-        for _, card in candidates:
+        for _, _, card in candidates:
             cat = self._etf_category_key(card.get("name", ""))
             if cat in seen_cats_etf:
                 continue
@@ -1641,7 +1648,7 @@ class EnhancedActionGenerator:
 
         # 强势追踪: 从剩余中选 state=4 且涨幅过大的，按行业分散
         hot_candidates = []
-        for _, card in candidates[top_n:]:
+        for _, _, card in candidates[top_n:]:
             if card.get("state") != 4:
                 continue
             ctx = card.get("trend_context", {})
@@ -1659,7 +1666,7 @@ class EnhancedActionGenerator:
         # 行业分散：同名关键词只取最强的一只
         hot_etf_cards = []
         seen_categories = set()
-        for _, card in hot_candidates:
+        for _, _, card in hot_candidates:
             cat = self._etf_category_key(card.get("name", ""))
             if cat in seen_categories:
                 continue
@@ -1765,12 +1772,12 @@ class EnhancedActionGenerator:
         candidates.sort(key=lambda x: -x[0])
 
         # 稳健推荐: top N
-        stock_cards = [card for _, card in candidates[:top_n]]
+        stock_cards = [card for _, _, card in candidates[:top_n]]
         top_codes = {c["code"] for c in stock_cards}
 
         # 强势追踪: 从剩余中选 state=4 且涨幅过大的标的
         hot_candidates = []
-        for _, card in candidates[top_n:]:
+        for _, _, card in candidates[top_n:]:
             if card.get("state") != 4:
                 continue
             ctx = card.get("trend_context", {})
@@ -1784,7 +1791,7 @@ class EnhancedActionGenerator:
             hot_candidates.append((pct_20d, card))
 
         hot_candidates.sort(key=lambda x: -x[0])  # 按涨幅降序，最热的排前面
-        hot_stock_cards = [card for _, card in hot_candidates[:top_n]]
+        hot_stock_cards = [card for _, _, card in hot_candidates[:top_n]]
 
         return stock_cards, hot_stock_cards
 
