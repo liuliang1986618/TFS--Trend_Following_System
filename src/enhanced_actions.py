@@ -1522,6 +1522,29 @@ class EnhancedActionGenerator:
                 else:
                     return None  # state=5死叉 = 不推荐
 
+        # ── 回调特征分析 ──
+        pullback = None
+        if state in (4, 5) and ind.get("pct_5d", 0) < -1:
+            try:
+                from src.engine.pullback import PullbackAnalyzer
+                pullback = PullbackAnalyzer.analyze(daily_df)
+                if pullback:
+                    pullback = pullback.to_dict()
+            except Exception:
+                pass
+
+        # ── 二波检测 ──
+        second_wave = None
+        if state in (3, 4, 5) and (pullback or ind.get("pct_5d", 0) < -2):
+            try:
+                from src.engine.second_wave import SecondWaveDetector
+                pb_obj = None  # pass pullback profile if available
+                sw_result = SecondWaveDetector.detect(daily_df, state, pb_obj)
+                if sw_result and sw_result.detected:
+                    second_wave = sw_result.to_dict()
+            except Exception:
+                pass
+
         trend_ctx = self._calc_trend_context(close, ind, state)
         probability = self._calc_probability(close, trend_ctx, state, ind)
         buy_sell = self._calc_buy_sell_zone(close, ind, state)
@@ -1565,6 +1588,8 @@ class EnhancedActionGenerator:
             "scenarios": scenarios,
             "key_levels": key_levels,
             "consecutive_plan": consecutive,
+            "pullback": pullback,
+            "second_wave": second_wave,
         }
 
     @staticmethod
