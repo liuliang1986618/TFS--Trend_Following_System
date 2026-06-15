@@ -242,6 +242,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": []
     },
     {
@@ -484,6 +486,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": [
         {
           "code": "688146",
@@ -742,6 +746,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": []
     },
     {
@@ -984,6 +990,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": [
         {
           "code": "300346",
@@ -1237,14 +1245,16 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": []
     },
     {
       "code": "159866",
       "name": "日经ETF工银",
       "link": "https://quote.eastmoney.com/sz159866.html",
-      "action": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号",
-      "action_label": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号",
+      "action": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号；⚠️ 放量回调: 回撤5.1%, 警惕出货；⬆升级 4→5",
+      "action_label": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号；⚠️ 放量回调: 回撤5.1%, 警惕出货；⬆升级 4→5",
       "has_top_divergence": false,
       "position_pct": 20.0,
       "position_reason": "Kelly=26.0% | base=100.0% | cap=100% | p=68% | b=2.0",
@@ -1475,14 +1485,25 @@
           "logic": "连续3天突破+放量=震荡结束，趋势选择方向。向上突破就加仓追涨，向下突破就清仓止损。震荡行情最重要的是顺势——不要和市场对着干。"
         }
       ],
+      "pullback": {
+        "depth_pct": -5.1,
+        "days_from_peak": 7,
+        "volume_pattern": "expanding",
+        "touched_ma20": false,
+        "touched_ma60": false,
+        "broke_prev_low": false,
+        "is_healthy": false,
+        "description": "放量回调: 回撤5.1%, 警惕出货"
+      },
+      "second_wave": null,
       "trend_leaders": []
     },
     {
       "code": "513000",
       "name": "日经225ETF易方达",
       "link": "https://quote.eastmoney.com/sh513000.html",
-      "action": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号",
-      "action_label": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号",
+      "action": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号；⬆升级 4→5",
+      "action_label": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号；⬆升级 4→5",
       "has_top_divergence": false,
       "position_pct": 20.0,
       "position_reason": "Kelly=26.0% | base=100.0% | cap=100% | p=68% | b=2.0",
@@ -1713,14 +1734,25 @@
           "logic": "连续3天突破+放量=震荡结束，趋势选择方向。向上突破就加仓追涨，向下突破就清仓止损。震荡行情最重要的是顺势——不要和市场对着干。"
         }
       ],
+      "pullback": {
+        "depth_pct": -7.0,
+        "days_from_peak": 7,
+        "volume_pattern": "neutral",
+        "touched_ma20": false,
+        "touched_ma60": false,
+        "broke_prev_low": false,
+        "is_healthy": false,
+        "description": "回调中: 回撤7.0%"
+      },
+      "second_wave": null,
       "trend_leaders": []
     },
     {
       "code": "513520",
       "name": "日经ETF华夏",
       "link": "https://quote.eastmoney.com/sh513520.html",
-      "action": "回调出现企稳信号！放量反弹说明回调可能结束了。如果明天继续放量上涨=确认回调结束，可以加仓。",
-      "action_label": "回调出现企稳信号！放量反弹说明回调可能结束了。如果明天继续放量上涨=确认回调结束，可以加仓。",
+      "action": "回调出现企稳信号！放量反弹说明回调可能结束了。如果明天继续放量上涨=确认回调结束，可以加仓。；⬆升级 4→5",
+      "action_label": "回调出现企稳信号！放量反弹说明回调可能结束了。如果明天继续放量上涨=确认回调结束，可以加仓。；⬆升级 4→5",
       "has_top_divergence": false,
       "position_pct": 20.0,
       "position_reason": "Kelly=26.0% | base=100.0% | cap=100% | p=68% | b=2.0",
@@ -1951,14 +1983,16 @@
           "logic": "连续3天突破+放量=震荡结束，趋势选择方向。向上突破就加仓追涨，向下突破就清仓止损。震荡行情最重要的是顺势——不要和市场对着干。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": []
     },
     {
       "code": "513880",
       "name": "日经225ETF华安",
       "link": "https://quote.eastmoney.com/sh513880.html",
-      "action": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号",
-      "action_label": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号",
+      "action": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号；⬆升级 4→5",
+      "action_label": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号；⬆升级 4→5",
       "has_top_divergence": false,
       "position_pct": 20.0,
       "position_reason": "Kelly=26.0% | base=100.0% | cap=100% | p=68% | b=2.0",
@@ -2189,14 +2223,25 @@
           "logic": "连续3天突破+放量=震荡结束，趋势选择方向。向上突破就加仓追涨，向下突破就清仓止损。震荡行情最重要的是顺势——不要和市场对着干。"
         }
       ],
+      "pullback": {
+        "depth_pct": -7.7,
+        "days_from_peak": 7,
+        "volume_pattern": "neutral",
+        "touched_ma20": false,
+        "touched_ma60": false,
+        "broke_prev_low": false,
+        "is_healthy": false,
+        "description": "回调中: 回撤7.7%"
+      },
+      "second_wave": null,
       "trend_leaders": []
     },
     {
       "code": "515880",
       "name": "通信ETF国泰",
       "link": "https://quote.eastmoney.com/sh515880.html",
-      "action": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号",
-      "action_label": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号",
+      "action": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号；⬆升级 4→5",
+      "action_label": "上涨中的回调，短期在消化获利盘，耐心等待企稳信号；⬆升级 4→5",
       "has_top_divergence": false,
       "position_pct": 20.0,
       "position_reason": "Kelly=26.0% | base=100.0% | cap=100% | p=68% | b=2.0",
@@ -2427,6 +2472,17 @@
           "logic": "连续3天突破+放量=震荡结束，趋势选择方向。向上突破就加仓追涨，向下突破就清仓止损。震荡行情最重要的是顺势——不要和市场对着干。"
         }
       ],
+      "pullback": {
+        "depth_pct": -10.8,
+        "days_from_peak": 7,
+        "volume_pattern": "neutral",
+        "touched_ma20": true,
+        "touched_ma60": false,
+        "broke_prev_low": false,
+        "is_healthy": false,
+        "description": "回调中: 回撤10.8%"
+      },
+      "second_wave": null,
       "trend_leaders": []
     }
   ],
@@ -2667,6 +2723,8 @@
           "logic": "连续3天突破+放量=震荡结束，趋势选择方向。向上突破就加仓追涨，向下突破就清仓止损。震荡行情最重要的是顺势——不要和市场对着干。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -2909,6 +2967,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -3151,6 +3211,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -3389,6 +3451,8 @@
           "logic": "连续3天突破+放量=震荡结束，趋势选择方向。向上突破就加仓追涨，向下突破就清仓止损。震荡行情最重要的是顺势——不要和市场对着干。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -3631,6 +3695,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -3873,6 +3939,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -4115,6 +4183,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -4353,6 +4423,8 @@
           "logic": "连续3天突破+放量=震荡结束，趋势选择方向。向上突破就加仓追涨，向下突破就清仓止损。震荡行情最重要的是顺势——不要和市场对着干。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": "_scanner_top5"
     },
     {
@@ -4591,6 +4663,8 @@
           "logic": "连续3天突破+放量=震荡结束，趋势选择方向。向上突破就加仓追涨，向下突破就清仓止损。震荡行情最重要的是顺势——不要和市场对着干。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -4829,6 +4903,8 @@
           "logic": "连续3天突破+放量=震荡结束，趋势选择方向。向上突破就加仓追涨，向下突破就清仓止损。震荡行情最重要的是顺势——不要和市场对着干。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     }
   ],
@@ -5073,6 +5149,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": [
         {
           "code": "688146",
@@ -5331,6 +5409,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": []
     },
     {
@@ -5573,6 +5653,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": [
         {
           "code": "300346",
@@ -5826,6 +5908,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": []
     },
     {
@@ -6068,6 +6152,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "trend_leaders": []
     }
   ],
@@ -6312,6 +6398,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -6554,6 +6642,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -6796,6 +6886,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -7038,6 +7130,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -7280,6 +7374,17 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": {
+        "depth_pct": -9.3,
+        "days_from_peak": 6,
+        "volume_pattern": "neutral",
+        "touched_ma20": false,
+        "touched_ma60": false,
+        "broke_prev_low": false,
+        "is_healthy": false,
+        "description": "回调中: 回撤9.3%"
+      },
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -7522,6 +7627,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -7764,6 +7871,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -8006,6 +8115,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -8248,6 +8359,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     },
     {
@@ -8490,6 +8603,8 @@
           "logic": "60日均线是长期趋势的生命线。连续3天在下方运行+成交量放大=趋势大概率结束了。这时不要留恋，清仓走人，等下一波趋势再进场。"
         }
       ],
+      "pullback": null,
+      "second_wave": null,
       "sector": ""
     }
   ]

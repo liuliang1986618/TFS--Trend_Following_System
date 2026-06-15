@@ -13,7 +13,14 @@ class SecondWaveResult:
     detected: bool; confidence: str
     prior_uptrend_days: int; correction_depth_pct: float
     correction_days: int; reentry_signals: list; description: str
-    def to_dict(self) -> dict: return asdict(self)
+    def to_dict(self) -> dict:
+        d = asdict(self)
+        for k in ['prior_uptrend_days','correction_days']:
+            if k in d and hasattr(d[k], 'item'):
+                d[k] = d[k].item()
+        if 'correction_depth_pct' in d and hasattr(d['correction_depth_pct'], 'item'):
+            d['correction_depth_pct'] = float(d['correction_depth_pct'])
+        return d
 
 class SecondWaveDetector:
 

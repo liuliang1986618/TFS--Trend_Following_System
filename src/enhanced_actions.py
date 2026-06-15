@@ -1568,6 +1568,27 @@ class EnhancedActionGenerator:
             else:
                 action_label += "；⚠️ 有顶背离迹象，注意观察动能是否持续"
 
+        # ── 回调特征追加到操作建议 ──
+        if pullback:
+            if pullback.get("is_healthy"):
+                action_label += f"；📉 {pullback.get('description','')}"
+            elif pullback.get("volume_pattern") == "expanding":
+                action_label += f"；⚠️ {pullback.get('description','')}"
+
+        # ── 二波信号追加 ──
+        if second_wave:
+            conf = second_wave.get("confidence", "")
+            emoji = {"high": "🔔", "medium": "🔔", "low": "💡"}.get(conf, "")
+            action_label += f"；{emoji}二波信号({conf}): {second_wave.get('description','')}"
+
+        # ── 趋势变化追加 ──
+        prev_entry = self._prev_states.get(code)
+        if prev_entry:
+            prev_state = prev_entry.get("state")
+            if prev_state is not None and prev_state != state:
+                direction = "⬆升级" if (isinstance(state,int) and isinstance(prev_state,int) and state > prev_state) else "⬇变化"
+                action_label += f"；{direction} {prev_state}→{state}"
+
         # 仓位计算 (Kelly公式, 从 PositionOptimizer 获取)
         pos = self._calc_position(state, ind)
 

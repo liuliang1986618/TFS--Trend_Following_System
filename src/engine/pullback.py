@@ -22,7 +22,11 @@ class PullbackProfile:
     description: str
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        d = asdict(self)
+        for k in ['depth_pct','days_from_peak']:
+            if k in d and hasattr(d[k], 'item'):
+                d[k] = d[k].item()
+        return d
 
 
 class PullbackAnalyzer:
