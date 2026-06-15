@@ -412,15 +412,33 @@ class EnhancedActionGenerator:
         pct_20d = (c[-1] / c[-21] - 1) * 100 if len(c) >= 21 else 0
 
         if state is not None:
-            # StateMachine 判定 + 趋势记忆覆盖
+            # 获取 StateMachine 的三条件判定结果
+            sm_struct = sm_volume = sm_persist = False
+            try:
+                conds = result.conditions
+                sm_struct = conds.get("structure") and conds["structure"].pass_
+                sm_volume = conds.get("volume") and conds["volume"].pass_
+                sm_persist = conds.get("persistence") and conds["persistence"].pass_
+            except Exception:
+                pass
+
+            # 规则1: 结构✅+持续✅ 但量能❌ → 量能不构成趋势否决
+            #   ETF量能反映板块资金流向,与个股不同。价格行为(结构)
+            #   和多空分布(持续性)已证明趋势真实性。量能弱→评分惩罚。
+            if (state == 3 and sm_struct and sm_persist
+                    and golden_cross and pct_20d > 0):
+                state = 4
+
+            # 规则2: state=2 但金叉完好+价格贴近MA20 → 正常回调
             if state == 2 and golden_cross and p > ma20 * 0.97:
-                # 金叉完好 + 价格只比MA20低不到3% → 正常回调, 不该判弱
                 state = 3
-            elif state == 3 and golden_cross and pct_20d > 3:
-                # 偏强震荡 + 有正向中期动量 → 可能回调即将结束
+
+            # 规则3: state=3 + 金叉 + 正向动量 + 连续下跌 → 回调机会
+            if state == 3 and golden_cross and pct_20d > 3:
                 recent = c[-4:]
                 if len(recent) >= 3 and recent[-1] < recent[-2] < recent[-3]:
-                    state = 5  # 连续跌 = 上涨中的回调
+                    state = 5
+
             return state
 
         # ── 降级回退: 简化MA判定 ──
@@ -1570,7 +1588,7 @@ class EnhancedActionGenerator:
 
     # ── ETF 动态扫描 ───────────────────────────────────────────
 
-    def _scan_best_etfs(self, date_str: str, top_n: int = 5) -> list[dict]:
+    def _scan_best_etfs(self, date_str: str, top_n: int = 10) -> list[dict]:
         """从全部 ETF 中扫描，筛选趋势最好的 top_n 只（稳健推荐）。
 
         同时从剩余通过筛选的标的中，按「强势追踪」条件筛选
