@@ -50,7 +50,7 @@ def replace_panel_data(panel_html, date_str, etfs, stocks, regime):
                 'score': score_m.group(1) if score_m else '?',
             })
 
-    all_new = list(etfs[:5]) + list(stocks[:5])
+    all_new = list(etfs[:10]) + list(stocks[:10])
     for i in range(min(10, len(old_cards), len(all_new))):
         old, new = old_cards[i], all_new[i]
         pos = old['start']
@@ -138,10 +138,10 @@ def process_date(date_str):
 
     ea = json.load(open(ea_path))
     regime = ea.get('market_regime', 'bear')
-    etfs = sorted(ea['etf_cards'], key=lambda x: x.get('score', 0), reverse=True)[:5]
-    stocks = sorted(ea['stock_cards'], key=lambda x: x.get('score', 0), reverse=True)[:5]
-    hot_etfs = ea.get('hot_etf_cards', [])[:5]
-    hot_stocks = ea.get('hot_stock_cards', [])[:5]
+    etfs = sorted(ea['etf_cards'], key=lambda x: x.get('score', 0), reverse=True)[:10]
+    stocks = sorted(ea['stock_cards'], key=lambda x: x.get('score', 0), reverse=True)[:10]
+    hot_etfs = ea.get('hot_etf_cards', [])[:10]
+    hot_stocks = ea.get('hot_stock_cards', [])[:10]
 
     # ETF→板块匹配：从 dashboard_data.json 加载板块名
     sector_names = []
