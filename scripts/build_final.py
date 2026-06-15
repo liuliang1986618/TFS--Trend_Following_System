@@ -8,7 +8,6 @@ Phase D: 反思闭环健康度仪表
 """
 import json
 import os
-from datetime import datetime
 
 with open("dashboard/data/dashboard_data.json") as f:
     data = json.load(f)
@@ -282,35 +281,18 @@ def card(s, is_ml): return make_card(s, is_ml)
 
 # ====== HTML生成 ======
 h = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>趋势跟随交易系统</title>'
-h += '<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px}.header{background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}.header h1{font-size:17px;background:linear-gradient(90deg,#58a6ff,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.overview{display:flex;gap:0;margin:10px 20px;border:1px solid #30363d;border-radius:8px;overflow:hidden;flex-wrap:wrap}.ov-item{flex:1;min-width:80px;padding:10px 12px;text-align:center;background:#161b22;border-right:1px solid #30363d}.ov-item:last-child{border-right:none}.ov-item .v{font-size:20px;font-weight:800}.ov-item .l{font-size:9px;color:#8b949e;margin-top:1px}.panel{margin:0 20px 12px}.panel h2{font-size:14px;margin-bottom:8px}.focus-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.all-t{overflow-x:auto;border:1px solid #30363d;border-radius:6px;margin:10px 20px 16px}.all-t table{width:100%;border-collapse:collapse;font-size:11px;min-width:1100px}.all-t thead th{background:#21262d;padding:5px 7px;text-align:left;font-size:10px;color:#8b949e;border-bottom:2px solid #30363d;font-weight:600;white-space:nowrap}.all-t tbody td{padding:4px 7px;border-bottom:1px solid #21262d;white-space:nowrap}.all-t tbody tr:hover{background:rgba(88,166,255,0.03)}a{color:#58a6ff;text-decoration:none;font-weight:600}a:hover{text-decoration:underline}.search{margin:8px 20px}.search input{width:100%;padding:6px 12px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:12px;outline:none}.footer{padding:10px 20px;border-top:1px solid #30363d;text-align:center;color:#8b949e;font-size:10px}.date-bar{display:flex;gap:6px;padding:8px 20px;overflow-x:auto;border-bottom:1px solid #30363d;background:#0d1117;flex-wrap:wrap}.date-chip{background:#161b22;border:1px solid #30363d;color:#8b949e;padding:6px 14px;border-radius:16px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:all 0.15s}.date-chip:hover{background:#1c2128;border-color:#58a6ff;color:#e6edf3}.date-chip.active{background:rgba(88,166,255,0.15);border-color:#58a6ff;color:#58a6ff}.date-chip.month-label{background:transparent;border-color:transparent;color:#d29922;font-weight:800;font-size:11px;pointer-events:none}.show-more-btn{background:#161b22;border:1px dashed #30363d;color:#58a6ff;padding:6px 14px;border-radius:16px;font-size:11px;cursor:pointer;white-space:nowrap}.show-more-btn:hover{border-color:#58a6ff}.trajectory-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;justify-content:center;align-items:center}.trajectory-overlay.show{display:flex}.trajectory-panel{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}.trajectory-panel h3{font-size:16px;margin-bottom:12px;color:#58a6ff}.trajectory-panel .close-btn{float:right;background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer;line-height:1}.trajectory-panel .close-btn:hover{color:#e6edf3}.trajectory-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #21262d;font-size:12px}.trajectory-row .t-date{width:80px;color:#8b949e;font-size:11px}.trajectory-row .t-state{width:12px;height:12px;border-radius:50%;flex-shrink:0}.trajectory-row .t-conds{display:flex;gap:4px;font-size:10px}.t-cond{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}.t-cond.pass{background:rgba(38,166,154,0.2);color:#26a69a}.t-cond.fail{background:rgba(239,83,80,0.2);color:#ef5350}.card-clickable{cursor:pointer;transition:all 0.15s}.card-clickable:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(88,166,255,0.1)}.app-layout{display:flex;flex:1;overflow:hidden}.date-sidebar{width:260px;min-width:260px;background:#0d1117;border-right:1px solid #30363d;overflow-y:auto;flex-shrink:0}.date-sidebar h3{position:sticky;top:0;background:#161b22;padding:10px 12px;font-size:12px;color:#58a6ff;border-bottom:1px solid #30363d;z-index:10}.date-row{display:flex;align-items:center;gap:5px;padding:5px 10px;border-bottom:1px solid rgba(48,54,61,0.3);cursor:pointer;font-size:11px;min-height:40px}.date-row:hover{background:#161b22}.date-row.active{background:rgba(88,166,255,0.1);border-left:3px solid #58a6ff}.date-row .d{font-size:10px;color:#8b949e;min-width:40px}.date-row .w{font-size:9px;color:#6e7681;min-width:26px}.date-row .n{font-size:10px;font-weight:700;padding:1px 4px;border-radius:6px;min-width:32px;text-align:center}.date-row .s{font-size:9px;color:#8b949e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}.date-row .h{width:6px;height:6px;border-radius:50%;flex-shrink:0}.main-content{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px 16px;height:100vh}.mnth-divider{padding:6px 12px;font-size:10px;color:#d29922;font-weight:700;background:#161b22;border-bottom:1px solid #30363d}details>summary{list-style:none}details>summary::-webkit-details-marker{display:none}</style></head><body>'
+h += '<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px}.header{background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}.header h1{font-size:17px;background:linear-gradient(90deg,#58a6ff,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.overview{display:flex;gap:0;margin:10px 20px;border:1px solid #30363d;border-radius:8px;overflow:hidden;flex-wrap:wrap}.ov-item{flex:1;min-width:80px;padding:10px 12px;text-align:center;background:#161b22;border-right:1px solid #30363d}.ov-item:last-child{border-right:none}.ov-item .v{font-size:20px;font-weight:800}.ov-item .l{font-size:9px;color:#8b949e;margin-top:1px}.panel{margin:0 20px 12px}.panel h2{font-size:14px;margin-bottom:8px}.focus-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.all-t{overflow-x:auto;border:1px solid #30363d;border-radius:6px;margin:10px 20px 16px}.all-t table{width:100%;border-collapse:collapse;font-size:11px;min-width:1100px}.all-t thead th{background:#21262d;padding:5px 7px;text-align:left;font-size:10px;color:#8b949e;border-bottom:2px solid #30363d;font-weight:600;white-space:nowrap}.all-t tbody td{padding:4px 7px;border-bottom:1px solid #21262d;white-space:nowrap}.all-t tbody tr:hover{background:rgba(88,166,255,0.03)}a{color:#58a6ff;text-decoration:none;font-weight:600}a:hover{text-decoration:underline}.search{margin:8px 20px}.search input{width:100%;padding:6px 12px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:12px;outline:none}.footer{padding:10px 20px;border-top:1px solid #30363d;text-align:center;color:#8b949e;font-size:10px}.trajectory-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;justify-content:center;align-items:center}.trajectory-overlay.show{display:flex}.trajectory-panel{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}.trajectory-panel h3{font-size:16px;margin-bottom:12px;color:#58a6ff}.trajectory-panel .close-btn{float:right;background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer;line-height:1}.trajectory-panel .close-btn:hover{color:#e6edf3}.trajectory-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #21262d;font-size:12px}.trajectory-row .t-date{width:80px;color:#8b949e;font-size:11px}.trajectory-row .t-state{width:12px;height:12px;border-radius:50%;flex-shrink:0}.trajectory-row .t-conds{display:flex;gap:4px;font-size:10px}.t-cond{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}.t-cond.pass{background:rgba(38,166,154,0.2);color:#26a69a}.t-cond.fail{background:rgba(239,83,80,0.2);color:#ef5350}.card-clickable{cursor:pointer;transition:all 0.15s}.card-clickable:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(88,166,255,0.1)}.app-layout{display:flex;flex:1;overflow:hidden}.date-sidebar{width:260px;min-width:260px;background:#0d1117;border-right:1px solid #30363d;overflow-y:auto;flex-shrink:0}.date-sidebar h3{position:sticky;top:0;background:#161b22;padding:10px 12px;font-size:12px;color:#58a6ff;border-bottom:1px solid #30363d;z-index:10}.date-row{display:flex;align-items:center;gap:5px;padding:5px 10px;border-bottom:1px solid rgba(48,54,61,0.3);cursor:pointer;font-size:11px;min-height:40px}.date-row:hover{background:#161b22}.date-row.active{background:rgba(88,166,255,0.1);border-left:3px solid #58a6ff}.date-row .d{font-size:10px;color:#8b949e;min-width:40px}.date-row .w{font-size:9px;color:#6e7681;min-width:26px}.date-row .n{font-size:10px;font-weight:700;padding:1px 4px;border-radius:6px;min-width:32px;text-align:center}.date-row .s{font-size:9px;color:#8b949e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}.date-row .h{width:6px;height:6px;border-radius:50%;flex-shrink:0}.main-content{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px 16px;height:100vh}.mnth-divider{padding:6px 12px;font-size:10px;color:#d29922;font-weight:700;background:#161b22;border-bottom:1px solid #30363d}details>summary{list-style:none}details>summary::-webkit-details-marker{display:none}</style></head><body>'
 
 # Header
 hc_map = {"强势":"#39d353","正常":"#d29922","弱势":"#da3633"}
 hc = hc_map.get(ov["market_health"],"#da3633")
 
-# Build date bar: beautiful horizontal chips
 daily_dates = data.get("daily_snapshots", [data["date"]])
-weekdays_cn = ["周一","周二","周三","周四","周五","周六","周日"]
-months_cn = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"]
-date_chips = ""
-last_month = ""
-for d in sorted(daily_dates):
-    dt = datetime.strptime(d, "%Y-%m-%d")
-    wd = weekdays_cn[dt.weekday()]
-    label = "%s %s" % (wd, d[5:])
-    active = " active" if d == data["date"] else ""
-    # 每月首日或周一显示月份标签
-    month_label = months_cn[dt.month - 1]
-    if wd == "周一" and month_label != last_month:
-        date_chips += '<span class="date-chip month-label">%s</span>' % month_label
-        last_month = month_label
-    date_chips += '<a href="trend_dashboard_%s.html" class="date-chip%s">%s</a>' % (d, active, label)
 
 h += '<div class="header"><div><h1>趋势跟随交易系统</h1></div><span style="background:rgba(%s,0.15);color:%s;border:1px solid %s;padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700">%s</span></div>' % (
     "35,134,54" if ov["market_health"]=="强势" else "210,153,34" if ov["market_health"]=="正常" else "218,54,51", hc, hc, ov["market_health"])
 
-# 日期导航栏（紧凑横条，保留全功能）
-h += '<div class="date-bar" id="dateNav" style="display:flex;gap:4px;padding:6px 12px;overflow-x:auto;border-bottom:1px solid #30363d;background:#161b22;flex-wrap:nowrap;align-items:center"></div>'
+
 
 # Overview row
 ov_items = [
@@ -547,7 +529,6 @@ if health_data:
     h += 'var HEALTH_DATA = %s;' % json.dumps(health_data, ensure_ascii=False)
 else:
     h += 'var HEALTH_DATA = null;'
-h += 'var DATE_NAV = %s;' % json.dumps(date_nav, ensure_ascii=False)
 h += 'var TODAY_DATE = "%s";' % data["date"]
 # 历史日期数据不再嵌入主页(已生成独立HTML文件)
 h += 'var DATE_FULL = null;'
@@ -591,28 +572,12 @@ function hideTrajectory(e) {
 document.addEventListener("keydown", function(e) { if (e.key === "Escape") document.getElementById("trajectoryOverlay").classList.remove("show"); });
 </script>'''
 
-# 日期导航渲染JS(支持动态切换,不跳转页面)
-h += '''<script>
-function renderDateNav(){
-  var nav=document.getElementById("dateNav");if(!nav||!DATE_NAV||!DATE_NAV.length)return;
-  var h='<span style="font-size:10px;color:#d29922;font-weight:700;padding:4px 8px;white-space:nowrap;flex-shrink:0">📅</span>';
-  for(var i=0;i<Math.min(DATE_NAV.length,60);i++){
-    var d=DATE_NAV[i],isA=d.date==TODAY_DATE;
-    var bg=isA?"rgba(88,166,255,0.2)":"#161b22";
-    var bd=isA?"1px solid #58a6ff":"1px solid #30363d";
-    var clr=isA?"#58a6ff":"#8b949e";
-    h+='<a href="trend_dashboard_'+d.date+'.html" style="background:'+bg+';border:'+bd+';color:'+clr+';padding:4px 10px;border-radius:12px;font-size:10px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0">'+d.date.substring(5)+' '+d.weekday+' '+d.uptrend_count+'涨</a>';
-  }
-  nav.innerHTML=h;
-}
-document.addEventListener("DOMContentLoaded",renderDateNav);
-</script>'''
+
 
 h += '<div class="footer">趋势跟随交易系统 | 焦点%d板块 | 趋势%d个股 | %dETF | %s | %d天回测 | ★主线 🔵翻转 | 5d状态条+sparkline | 推演+准确率+反思闭环 | 免责声明:仅供辅助参考</div></body></html>' % (len(focus), len(stocks), len(etfs), data["date"], len(daily_dates))
 
-with open("dashboard/index.html", "w") as f: f.write(h)
 with open("dashboard/trend_dashboard_%s.html" % data["date"], "w") as f: f.write(h)
-print("✅ dashboard/index.html (%dKB)" % (len(h)/1024))
+print("✅ dashboard/trend_dashboard_%s.html (%dKB)" % (data["date"], len(h)/1024))
 print("焦点=%d板块 个股=%d只" % (len(focus), len(stocks)))
 
 # ====== 生成历史日期页面(使用同一个make_card函数保证格式100%一致) ======

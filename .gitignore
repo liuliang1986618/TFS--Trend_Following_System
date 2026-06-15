@@ -61,6 +61,10 @@ dashboard/data/sector/
 # Data — watchlist history
 dashboard/data/watchlist_history/
 
+# Generated dashboard HTML (regenerated on each run)
+dashboard/index.html
+dashboard/trend_dashboard_*.html
+
 # Test artifacts
 dashboard/test_screenshots/
 dashboard/test_wl.html

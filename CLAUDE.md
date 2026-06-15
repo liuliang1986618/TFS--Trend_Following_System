@@ -13,7 +13,6 @@
 - [数据目录结构标准](.claude/rules/data-directory-standard.md) — 按日期组织6层数据，/dates/{date}/ 自包含快照
 - [全量市场数据下载最高准则](.claude/rules/full-market-download-prime-directive.md) — **最高优先级**，禁止硬编码ETF列表/设置任何下载上限/臆想数量
 - [展示层最高准则](.claude/rules/display-layer-prime-directive.md) — **最高优先级**，参考模板+数据替换，禁止重新生成HTML，禁止动build_final
-- [管道完整性最高准则](.claude/rules/pipeline-integrity-prime-directive.md) — **CRITICAL**，禁止空壳数据/孤儿子系统/仓位必须计算/回退必须补齐
 
 ## 关键架构
 
