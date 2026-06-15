@@ -17,6 +17,7 @@ import sys
 from typing import Optional
 
 import numpy as np
+import pandas as pd
 
 # ── 仓位计算 (PositionOptimizer, 从 fusion 层接入) ─────────────────
 # 确保项目根目录在 sys.path 中 (运行 __main__ 时需要)
@@ -30,6 +31,13 @@ try:
     _POSITION_OPTIMIZER_AVAILABLE = True
 except ImportError:
     _POSITION_OPTIMIZER_AVAILABLE = False
+
+# ── 6态趋势状态机 (从 engine 层接入) ─────────────────────────────
+try:
+    from src.engine.state_machine import StateMachine
+    _STATE_MACHINE_AVAILABLE = True
+except ImportError:
+    _STATE_MACHINE_AVAILABLE = False
 
 # ── 技术指标计算工具函数 ──────────────────────────────────────────
 
@@ -145,11 +153,15 @@ _STATE_TEXT = {
     2: "弱反弹（价格站上中期均线但仍在长期均线下方，方向还不明确）",
     3: "偏强震荡（价格在中期和长期均线之上，但短期均线还没形成多头排列）",
     4: "上升趋势（短期均线在上、中期在中、长期在下，典型的上涨结构）",
+    5: "上涨回调（价格在上涨趋势中短期回踩，属于正常调整，珍惜筹码）",
+    "3'": "转跌确认中（上涨结构被破坏，需要防守观察，保住利润）",
 }
 
 _DIRECTION_MAP = {
     4: ("上升趋势", "📈"),
+    5: ("上涨回调", "📉"),
     3: ("偏强震荡", "📊"),
+    "3'": ("转跌确认", "⚠️"),
     2: ("偏弱震荡", "📊"),
     1: ("下跌趋势", "📉"),
 }
@@ -179,6 +191,8 @@ class EnhancedActionGenerator:
         2: 0.0,       # 弱反弹   → 空仓
         3: 0.166,     # 偏强震荡 → 1/6 试探仓
         4: 1.0,       # 上升趋势 → 满仓基准 (Kelly 会约束上限)
+        5: 1.0,       # 上涨回调 → 保持满仓，等加仓
+        "3'": 0.333,  # 转跌确认 → 1/3 防守仓
     }
 
     def __init__(self, data_dir: str = "data",
@@ -371,36 +385,56 @@ class EnhancedActionGenerator:
     # ── TFS 状态判定 ─────────────────────────────────────────────
 
     @staticmethod
-    def _determine_state(close: np.ndarray) -> int:
-        """判定 TFS 状态 (1-4)，含趋势记忆。
+    def _determine_state(daily_df) -> int:
+        """判定 TFS 状态 (1-5 或 "3'")，委托给6态StateMachine + 趋势记忆。
 
-        趋势记忆规则: MA20 > MA60 是中期多头排列的金叉信号。
-        当金叉存在时，价格短暂跌破 MA20 属于上升趋势中的正常回调，
-        不应立即判为 state=2（弱反弹），应保留 state=3（偏强震荡）。
-        这防止了"涨40天跌1%就判弱"的过度敏感问题。
+        输入: pd.DataFrame, 需含 open/high/low/close/volume 列。
+        返回: int 1-5 或 str "3'"。
+
+        StateMachine 的 3 条件判定可能对 borderline 情况过于严格
+        (如 volume 条件略不满足但金叉完好)。此时用 MA 趋势记忆覆盖。
         """
-        if len(close) < 60:
-            return 1
-        c = close.astype(float)
+        state = None
+
+        if _STATE_MACHINE_AVAILABLE and len(daily_df) >= 60:
+            try:
+                result = StateMachine.classify(daily_df)
+                state = result.state
+            except Exception:
+                pass
+
+        # ── 趋势记忆 Post-Processing ──
+        c = daily_df["close"].astype(float).values
         ma20 = np.mean(c[-20:])
         ma60 = np.mean(c[-60:])
         p = float(c[-1])
-        golden_cross = ma20 > ma60  # 中期趋势保持多头
+        golden_cross = ma20 > ma60
+        pct_20d = (c[-1] / c[-21] - 1) * 100 if len(c) >= 21 else 0
+
+        if state is not None:
+            # StateMachine 判定 + 趋势记忆覆盖
+            if state == 2 and golden_cross and p > ma20 * 0.97:
+                # 金叉完好 + 价格只比MA20低不到3% → 正常回调, 不该判弱
+                state = 3
+            elif state == 3 and golden_cross and pct_20d > 3:
+                # 偏强震荡 + 有正向中期动量 → 可能回调即将结束
+                recent = c[-4:]
+                if len(recent) >= 3 and recent[-1] < recent[-2] < recent[-3]:
+                    state = 5  # 连续跌 = 上涨中的回调
+            return state
+
+        # ── 降级回退: 简化MA判定 ──
+        if len(daily_df) < 60:
+            return 1
 
         if p > ma20 > ma60:
             return 4
         elif p > ma20:
             return 3
         elif p > ma60:
-            # 价格在 MA20 与 MA60 之间
-            if golden_cross:
-                return 3  # 趋势记忆: 金叉仍在，只是短期回调
-            return 2
+            return 3 if golden_cross else 2
         else:
-            # 价格跌破 MA60
-            if golden_cross and p > ma60 * 0.95:
-                return 2  # 深回调但未崩盘(-5%内)，守MA60仍有希望
-            return 1
+            return 2 if (golden_cross and p > ma60 * 0.95) else 1
 
     # ── Widget 0: 趋势大背景判断 ─────────────────────────────────
 
@@ -489,6 +523,15 @@ class EnhancedActionGenerator:
                 return "横盘休整"
             else:
                 return "小幅波动"
+        elif state == 5:
+            if pct_today > 0.5 and vol_ratio > 1:
+                return "回调结束企稳"
+            elif pct_today < -0.5 and vol_ratio < 1:
+                return "继续缩量回调"
+            elif pct_today < -0.5:
+                return "放量下跌（警惕破位）"
+            else:
+                return "回调休整中"
         elif state == 1:
             if pct_today > 0.5 and vol_ratio < 1:
                 return "缩量反弹"
@@ -591,6 +634,19 @@ class EnhancedActionGenerator:
                 return ("上升趋势完好，顺势持有。"
                         "回调到20日均线附近（缩量更好）= 加仓机会。"
                         "没有跌破20日均线前不用太担心。")
+        elif state == 5:
+            if ind.get("pct_today", 0) > 0.3 and vol_ratio > 1:
+                return ("上涨趋势中的回调企稳信号出现！放量反弹说明回调可能结束了。"
+                        "这是最佳加仓时机。确认：明天继续放量上涨 → 果断加仓。"
+                        "如果明天又跌回去了 → 再等等，回调可能还没结束。")
+            elif vol_ratio < 1:
+                return ("上涨趋势的正常回调中，而且成交量在萎缩 = 抛压越来越小。"
+                        "缩量回调是最健康的整理方式。等放量阳线出现时加仓。"
+                        "持股的不要被洗出去，想买的准备好子弹等信号。")
+            else:
+                return ("上涨趋势中的回调，短期在消化获利盘。"
+                        "关注回调深度和成交量变化。缩量+不破MA60 → 正常回调，持股为主。"
+                        "放量+跌破前低 → 趋势可能转弱，要做防守准备。")
         elif state == 1:
             if ind.get("pct_today", 0) > 0.3 and vol_ratio < 0.8:
                 return ("下跌趋势中的缩量反弹 = 减仓或清仓的机会，不是加仓的信号。"
@@ -1085,17 +1141,42 @@ class EnhancedActionGenerator:
             ]
 
     @staticmethod
-    def _calc_trend_score(state: int, ind: dict, days_running: int = 0) -> float:
-        """计算趋势强度评分（0-100）。
+    def _calc_trend_score(state: int, ind: dict, days_running: int = 0,
+                          stage: str = "") -> float:
+        """计算趋势强度评分（0-100），连续评分，无二进制跳跃。
 
-        核心理念：趋势刚启动 > 趋势已成熟。早期介入利润空间更大。
-
-        只在通过质量筛选后调用，用于排序和展示。
+        核心理念：不只看 state，还要看趋势质量（均线排列、量能、持续性）。
+        State=3 但条件全过的标的，可以比 State=4 但条件不完整的更强。
         """
-        # ── 基础分：趋势方向 ──
-        # state=4（上升趋势）基础分高，但 state=3（偏强震荡）
-        # 如果是刚从震荡转上升的临界状态，也可能很优秀
-        base = 55 if state == 4 else 42
+        # ── 基础分：从均线质量推导 (30-60范围, 连续而非55/42跳跃) ──
+        ma_bullish = ind.get("ma_bullish", False)       # MA5>10>20
+        ma_mid_bullish = ind.get("ma_mid_bullish", False)  # MA20>60
+        vol_ratio = ind.get("vol_ratio", 1.0)
+        pct_20d = ind.get("pct_20d", 0)
+
+        # 三个独立条件，每个贡献10分 → 连续刻度
+        base = 30.0
+        if ma_mid_bullish:
+            base += 10   # 中长期均线多头
+        if ma_bullish:
+            base += 10   # 短期均线多头
+        if pct_20d > 0:
+            base += 10   # 中期动量为正
+        # Range: 30 (0条件) → 60 (3条件)
+
+        # State 方向微调 (±5, 不是 ±13)
+        if state == 4:
+            base += 5
+        elif state == 5:
+            base += 3   # 回调 = 小幅折扣，不是断崖
+        elif state == 3:
+            base += 0
+        else:
+            base -= 5
+
+        # 阶段调整
+        if stage == "late":
+            base -= 5   # 晚期趋势风险加大
 
         # ── 趋势阶段：越早期分越高 ──
         # 刚启动的趋势利润空间最大，已经跑了很久的趋势可能接近尾声
@@ -1108,14 +1189,16 @@ class EnhancedActionGenerator:
         else:
             freshness = 0    # 成熟期，可能随时进入震荡或反转
 
-        # ── state=3 转 state=4 的临界爆发 ──
-        # 如果 state=3 但均线已经多头排列 + 放量，说明即将进入上升趋势
-        # 这是仅次于刚启动 state=4 的好机会
+        # ── 临界爆发 ──
+        # state=3 均线多头+放量 → 即将进入上升趋势
+        # state=5 回调企稳+放量 → 回调结束重返上升
         transition = 0
         if state == 3 and ind.get("ma_bullish"):
-            transition = 8   # 均线已形成多头，就差价格确认
+            transition = 8
             if ind.get("vol_ratio", 1) > 1.2:
-                transition += 4  # 放量突破，确认信号更强
+                transition += 4
+        if state == 5 and ind.get("ma_bullish") and ind.get("pct_today", 0) > 0:
+            transition = 6   # 回调企稳反弹
 
         # ── 20日动量：涨得好的加分 ──
         pct_20d = ind.get("pct_20d", 0)
@@ -1268,6 +1351,22 @@ class EnhancedActionGenerator:
                 elif bb_pos > 0.7:
                     label += "，价格在布林上轨附近，如果突破可能转强"
 
+        elif state == 5:
+            # 上涨中的回调
+            vol_shrink = vol_ratio < 1
+            if vol_shrink and pct_5d > -5:
+                label = ("上升趋势的正常回调，成交量在萎缩说明抛压不大。"
+                         "缩量回调是最健康的整理方式，等放量阳线出现就是加仓信号。"
+                         "持股的不要被洗出去，想买的可以准备子弹了。")
+            elif pct_5d < -5:
+                label = ("回调幅度稍大（近5天跌了%.1f%%），但仍在上升趋势框架内。"
+                         "关注是否跌破20日均线。不破=正常调整，破了且放量=可能转弱。" % abs(pct_5d))
+            elif pct_5d > 0 and vol_ratio > 1:
+                label = ("回调出现企稳信号！放量反弹说明回调可能结束了。"
+                         "如果明天继续放量上涨=确认回调结束，可以加仓。")
+            else:
+                label = "上涨中的回调，短期在消化获利盘，耐心等待企稳信号"
+
         else:
             label = "趋势不明确，不建议操作"
 
@@ -1328,27 +1427,37 @@ class EnhancedActionGenerator:
         low = sliced.get("low", close)
         open_arr = sliced.get("open", close)
 
-        ind = self._calc_indicators(close, volume, high, low, open_arr)
-        state = self._determine_state(close)
+        # 构建 DataFrame 供 StateMachine 使用
+        daily_df = pd.DataFrame({
+            "open": open_arr, "high": high, "low": low,
+            "close": close, "volume": volume,
+        })
 
-        # ── 趋势质量过滤：只推荐真正上升趋势的标的 ──
-        if state < 3:
-            return None
+        ind = self._calc_indicators(close, volume, high, low, open_arr)
+        state = self._determine_state(daily_df)
+
+        # ── 趋势质量过滤 ──
+        if state == 1 or state == 2 or state == "3'":
+            return None  # 下跌/弱反弹/转跌确认 = 不推荐
         # state=3：必须有正向中期动量
         if state == 3:
             pct_20d = ind.get("pct_20d", 0)
             if pct_20d < -3:
                 return None
-        # state=4：必须是真正的多头排列，不能只是价格虚高
-        if state == 4:
-            # MA5近3天在下滑 = 短期拐头向下，降级
-            ma5_vals = ind.get("ma5", None)
-            if ma5_vals is not None and len(ma5_vals) >= 3:
-                if ma5_vals[-1] < ma5_vals[-3]:
-                    state = 3
-            # 出现死叉或MA5已在MA10下方 = 短期趋势走坏
+        # state=4 或 state=5：多头排列检查
+        if state in (4, 5):
+            # state=4/5: 死叉或MA5在MA10下方 = 短期趋势走坏
             if ind.get("ma5_below_ma10") or ind.get("ma_death_cross"):
-                return None  # 死叉 = 不推荐
+                if state == 4:
+                    # MA5在下滑 = 降级为回调
+                    ma5_vals = ind.get("ma5", None)
+                    if ma5_vals is not None and len(ma5_vals) >= 3:
+                        if ma5_vals[-1] < ma5_vals[-3]:
+                            state = 5
+                    else:
+                        return None
+                else:
+                    return None  # state=5死叉 = 不推荐
 
         trend_ctx = self._calc_trend_context(close, ind, state)
         probability = self._calc_probability(close, trend_ctx, state, ind)

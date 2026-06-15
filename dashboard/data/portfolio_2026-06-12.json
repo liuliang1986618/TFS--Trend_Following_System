@@ -1,0 +1,86 @@
+{
+  "date": "2026-06-12",
+  "initial_capital": 1000000,
+  "cash": 620151.7,
+  "total_value": 1000000.0,
+  "total_return_pct": 0.0,
+  "holdings": [
+    {
+      "code": "515880",
+      "name": "通信ETF国泰",
+      "type": "etf",
+      "shares": 50500,
+      "avg_cost": 1.584,
+      "current_price": 1.584,
+      "market_value": 79992.0,
+      "cost_basis": 79992.0,
+      "pnl": 0.0,
+      "pnl_pct": 0.0,
+      "entry_date": "2026-06-12",
+      "days_held": 1,
+      "current_state": 0,
+      "prev_state": 0
+    },
+    {
+      "code": "159327",
+      "name": "半导体设备ETF万家",
+      "type": "etf",
+      "shares": 121500,
+      "avg_cost": 1.234,
+      "current_price": 1.234,
+      "market_value": 149931.0,
+      "cost_basis": 149931.0,
+      "pnl": 0.0,
+      "pnl_pct": 0.0,
+      "entry_date": "2026-06-12",
+      "days_held": 1,
+      "current_state": 0,
+      "prev_state": 0
+    },
+    {
+      "code": "159582",
+      "name": "半导体ETF博时",
+      "type": "etf",
+      "shares": 151900,
+      "avg_cost": 0.987,
+      "current_price": 0.987,
+      "market_value": 149925.3,
+      "cost_basis": 149925.3,
+      "pnl": 0.0,
+      "pnl_pct": 0.0,
+      "entry_date": "2026-06-12",
+      "days_held": 1,
+      "current_state": 0,
+      "prev_state": 0
+    }
+  ],
+  "orders": [
+    {
+      "code": "515880",
+      "name": "通信ETF国泰",
+      "type": "etf",
+      "action": "建仓",
+      "amount": 80000.0,
+      "target_pct": 8,
+      "reason": "趋势确认(state=3, score=66),试探建仓"
+    },
+    {
+      "code": "159327",
+      "name": "半导体设备ETF万家",
+      "type": "etf",
+      "action": "建仓",
+      "amount": 150000.0,
+      "target_pct": 15,
+      "reason": "趋势确认(state=4, score=71),试探建仓"
+    },
+    {
+      "code": "159582",
+      "name": "半导体ETF博时",
+      "type": "etf",
+      "action": "建仓",
+      "amount": 150000.0,
+      "target_pct": 15,
+      "reason": "趋势确认(state=4, score=68),试探建仓"
+    }
+  ]
+}
