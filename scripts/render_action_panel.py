@@ -203,7 +203,8 @@ def process_date(date_str):
     # WATCHLIST 从模板提取（不在操作建议面板内，需单独追加）
     tmpl = open(TMPL).read()
     wl_start = tmpl.find('<!--WATCHLIST-->')
-    wl_end = tmpl.find('🔍 焦点板块', wl_start)
+    focus_div = '<div class="panel"><h2 style="color:#42a5f5">🔍 焦点板块'
+    wl_end = tmpl.find(focus_div, wl_start)
     wl_html = tmpl[wl_start:wl_end] if wl_start > 0 and wl_end > 0 else ''
     combined = panel1 + hot_panel + wl_html
     if inject(dash_path, combined):
