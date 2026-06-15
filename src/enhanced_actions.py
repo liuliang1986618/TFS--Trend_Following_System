@@ -1592,6 +1592,16 @@ class EnhancedActionGenerator:
         # 仓位计算 (Kelly公式, 从 PositionOptimizer 获取)
         pos = self._calc_position(state, ind)
 
+        # ── 仓位追加到操作建议 ──
+        pct = pos.get("pct", 0)
+        if pct > 0:
+            is_etf_type = is_etf
+            max_pct = 20 if is_etf_type else 10
+            if pct >= max_pct * 0.8:
+                action_label += f"；💰 建议仓位{pct}%(接近上限)"
+            else:
+                action_label += f"；💰 建议仓位{pct}%"
+
         return {
             "code": code,
             "name": name,
