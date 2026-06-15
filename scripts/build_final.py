@@ -295,20 +295,20 @@ h += '<div class="header"><div><h1>趋势跟随交易系统</h1></div><span styl
 
 
 # Focus cards
-h += '<div class="panel"><h2 style="color:#42a5f5">🔍 焦点板块（%d个 — 全展开，含龙头个股+入选原因）</h2><div class="focus-grid">' % len(focus)
+h += '<div class="panel" style="margin:10px 20px 12px;border:2px solid #42a5f5;border-radius:10px;padding:16px;background:linear-gradient(135deg,rgba(66,165,245,0.08),rgba(66,165,245,0.02))"><h2 style="color:#42a5f5;margin-bottom:8px">🔍 焦点板块（%d个 — 全展开，含龙头个股+入选原因）</h2><div class="focus-grid">' % len(focus)
 for s in focus:
     h += card(s, s.get("is_mainline", False))
 h += '</div></div>'
 
 # Watching
 if watching:
-    h += '<div class="panel"><h2 style="color:#8b949e">👀 观察区（反弹中 — 接近突破，随时可能进入上涨趋势）</h2><div class="focus-grid">'
+    h += '<div class="panel" style="margin:10px 20px 12px;border:2px solid #8b949e;border-radius:10px;padding:16px;background:linear-gradient(135deg,rgba(139,148,158,0.08),rgba(139,148,158,0.02))"><h2 style="color:#8b949e;margin-bottom:8px">👀 观察区（反弹中 — 接近突破，随时可能进入上涨趋势）</h2><div class="focus-grid">'
     for s in watching:
         h += card(s, False)
     h += '</div></div>'
 
 # Stocks table with sector/theme columns
-h += '<div class="panel"><h2>📈 趋势个股（%d只）<span style="color:#8b949e;font-weight:400;font-size:11px"> 含板块归属+关联题材</span></h2></div>' % len(stocks)
+h += '<div class="panel" style="margin:10px 20px 12px;border:2px solid #3fb950;border-radius:10px;padding:16px;background:linear-gradient(135deg,rgba(63,185,80,0.08),rgba(63,185,80,0.02))"><h2 style="margin-bottom:8px">📈 趋势个股（%d只）<span style="color:#8b949e;font-weight:400;font-size:11px"> 含板块归属+关联题材</span></h2></div>' % len(stocks)
 h += '<div class="search"><input type="text" placeholder="搜索个股..." oninput="var q=this.value.toLowerCase();document.querySelectorAll(\'tr[data-s]\').forEach(function(r){r.style.display=r.getAttribute(\'data-s\').includes(q)?\'\':\'none\'})"></div>'
 h += '<div class="all-t"><table><thead><tr><th>名称</th><th>代码</th><th>状态</th><th>得分</th><th>结构</th><th>量能</th><th>持续</th><th>所属板块</th><th>关联题材</th><th>现价</th><th>止损</th><th>仓位</th></tr></thead><tbody>'
 
