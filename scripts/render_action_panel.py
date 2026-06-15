@@ -82,6 +82,18 @@ def replace_panel_data(panel_html, date_str, etfs, stocks, regime):
         if idx > 0:
             h = h[:idx] + new_ln + h[idx + len(old_ln):]
 
+    # 从每个卡片中删除「仓位管理」widget（面板级展示，不入卡片）
+    while True:
+        pos = h.find('📋 仓位管理')
+        if pos < 0:
+            break
+        det_start = h.rfind('<details', 0, pos)
+        det_end = h.find('</details>', pos)
+        if det_start >= 0 and det_end >= 0:
+            h = h[:det_start] + h[det_end + len('</details>'):]
+        else:
+            break
+
     return h
 
 
@@ -198,6 +210,22 @@ def process_date(date_str):
         panel2 = panel2.replace('rgba(74,222,128,', 'rgba(245,158,11,')
         panel2 = panel2.replace('color:#4ade80', 'color:#f59e0b')
         hot_panel = panel2
+
+    # 提取面板级「仓位管理」内容，插入每个面板一次
+    mgmt_html = ''
+    mgmt_pos = panel_tmpl.find('📋 仓位管理')
+    if mgmt_pos > 0:
+        det_start = panel_tmpl.rfind('<details', 0, mgmt_pos)
+        det_end = panel_tmpl.find('</details>', mgmt_pos)
+        if det_start >= 0 and det_end >= 0:
+            mgmt_block = panel_tmpl[det_start:det_end + len('</details>')]
+            mgmt_html = '<div style="margin:8px 0 14px">' + mgmt_block + '</div>'
+    # 插入到面板标题下方
+    grid_marker = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+    if mgmt_html and grid_marker in panel1:
+        panel1 = panel1.replace(grid_marker, mgmt_html + grid_marker, 1)
+    if mgmt_html and hot_panel and grid_marker in hot_panel:
+        hot_panel = hot_panel.replace(grid_marker, mgmt_html + grid_marker, 1)
 
     # 注入（稳健面板 + 强势面板 + WATCHLIST拼在一起）
     # WATCHLIST 从模板提取（不在操作建议面板内，需单独追加）
