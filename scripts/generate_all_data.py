@@ -25,9 +25,11 @@ def make_item(code, name, item_type, ts, price, ma20, ma_deviation, ret20, vol_r
     elif "[健康]" in vol_detail or "[企稳]" in vol_detail: score += 10
     if conds["persistence"].pass_:
         score += 10
-        if max_cons >= 5: score += 5
+        score += max_cons  # 连阳几天加几分
+    if ret20 > 20: score += 10
+    elif ret20 > 10: score += 5
 
-    is_mainline = (ts.state == 4 and conds["structure"].pass_ and conds["volume"].pass_ and conds["persistence"].pass_)
+    is_mainline = False  # 等全部板块汇总后取 state=4 Top2
 
     if item_type == "sector":
         link = f"https://q.10jqka.com.cn/thshy/detail/code/{code}/"
@@ -173,6 +175,8 @@ trend_stocks.sort(key=lambda x: -x["score"])
 print(f"  个股: {len(all_stocks)}只 | 趋势: {len(trend_stocks)}只 | 状态4: {sum(1 for s in trend_stocks if s['state']==4)}")
 
 # ====== 4. 漏斗统计 ======
+s4 = sorted([s for s in all_sectors if s["state"] == 4], key=lambda x: (-x["score"], -x["ret_20d"]))
+for s in s4[:2]: s["is_mainline"] = True
 mainline = [s for s in all_sectors if s["is_mainline"]]
 uptrend_sectors = sum(1 for s in all_sectors if s["state"] in (3,4,5))
 state4_themes = sum(1 for t in all_themes if t["state"] == 4)

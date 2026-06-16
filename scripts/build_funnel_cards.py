@@ -83,10 +83,10 @@ def build(date_str):
 
     themes = dd.get('themes', [])
     sectors = [s for s in dd.get('sectors', []) if s.get('state', 0) >= 3]
-    sectors.sort(key=lambda x: -x.get('score', 0))
+    sectors.sort(key=lambda x: (-x.get('score', 0), -x.get('ret_20d', 0)))
 
     funnel_cards = []
-    for sec in sectors[:3]:
+    for sec in sectors[:4]:
         sname = sec.get('name', '')
         # 完整板块信息（从dashboard_data搬过来）
         card = {

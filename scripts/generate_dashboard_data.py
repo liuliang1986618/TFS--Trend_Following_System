@@ -74,13 +74,7 @@ for _, row in sectors_df.iterrows():
     ph = PivotDetector.recent_high(df)
     pl = PivotDetector.recent_low(df)
 
-    # 主线判断: 状态4 + 三条件全满
-    is_mainline = (
-        ts.state == 4
-        and ts.conditions["structure"].pass_
-        and ts.conditions["volume"].pass_
-        and ts.conditions["persistence"].pass_
-    )
+    # 主线判断: 不在此处计算，等全部板块汇总后取 state=4 的 Top2
 
     # 综合得分（优化版：量能分级评分 + state=3 基础分提升）
     score = 0
@@ -100,11 +94,15 @@ for _, row in sectors_df.iterrows():
         score += 15   # 涨时放量，最强
     elif "[健康]" in vol_detail or "[企稳]" in vol_detail:
         score += 10   # 涨时缩量/跌时缩量，偏强
-    # 持续性：连阳>5天额外加分
+    # 持续性：连阳按天数加分（越强越多）
     if ts.conditions["persistence"].pass_:
         score += 10
-        if max_cons >= 5:
-            score += 5
+        score += max_cons  # 连阳几天加几分
+    # 涨幅加分
+    if ret20 > 20:
+        score += 10
+    elif ret20 > 10:
+        score += 5
 
     # 判断状态原因
     reasons = []
@@ -199,7 +197,7 @@ for _, row in sectors_df.iterrows():
         "max_consecutive_yang": max_cons,
         "prev_high": {"price": round(ph["price"], 2), "date": str(ph["date"])[:10]} if ph else None,
         "prev_low": {"price": round(pl["price"], 2), "date": str(pl["date"])[:10]} if pl else None,
-        "is_mainline": is_mainline,
+        "is_mainline": False,  # 等全部板块汇总后重新判定
         "link": f"https://q.10jqka.com.cn/thshy/detail/code/{code}/",
         "score": score,
         "reasons": reasons,
@@ -352,6 +350,10 @@ for code, filepath in stock_files:
 all_stocks.sort(key=lambda x: -x["score"])
 
 # ── 构建完整数据 ──────────────────────────────────────────
+# 主线判定: state=4 中 score 最高的 Top2（平局按 20日涨幅排）
+s4 = sorted([s for s in all_sectors if s["state"] == 4], key=lambda x: (-x["score"], -x["ret_20d"]))
+for s in s4[:2]:
+    s["is_mainline"] = True
 mainline_sectors = [s for s in all_sectors if s.get("is_mainline")]
 
 data = {

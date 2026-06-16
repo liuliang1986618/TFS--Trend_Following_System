@@ -6,13 +6,16 @@ PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def render_card(c):
+    is_ml = c.get('is_mainline', False)
     sc = {4: '#26a69a', 3: '#42a5f5'}.get(c.get('state', 0), '#8b949e')
-    h = f'<div style="background:#161b22;border:2px solid {sc};border-radius:8px;padding:12px;margin-bottom:12px">'
+    bg_glow = 'linear-gradient(135deg,rgba(210,153,34,0.06),#161b22)' if is_ml else '#161b22'
+    h = f'<div style="background:{bg_glow};border:2px solid {sc};border-radius:8px;padding:12px;margin-bottom:12px">'
 
     # 标题：板块名 + 代码 + 状态标签 + 评分
     code = c.get('code', '')
+    icon = '★' if is_ml else '🔵'
     h += f'<div style="font-size:14px;font-weight:700;color:#e6edf3;margin-bottom:2px">'
-    h += f'🔵 <a href="{c.get("link","#")}" target="_blank" style="color:#e6edf3;text-decoration:none">{c["name"]}</a>'
+    h += f'<span style="color:#d29922;font-size:16px">{icon}</span> <a href="{c.get("link","#")}" target="_blank" style="color:#e6edf3;text-decoration:none">{c["name"]}</a>'
     h += f' <span style="font-size:10px;color:#8b949e">{code}</span></div>'
     h += f'<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;background:{sc};color:#fff">{c.get("state_label","")}</span>'
     h += f' <span style="font-size:11px;color:#8b949e">📊{c["score"]}分</span>'
@@ -97,7 +100,7 @@ def inject(dash_path, date_str):
 
     panel = '<div class="panel" style="margin:10px 20px 12px;border:2px solid #d29922;border-radius:10px;padding:16px;background:linear-gradient(135deg,rgba(210,153,34,0.08),rgba(210,153,34,0.02))">'
     panel += '<h2 style="color:#d29922;margin-bottom:2px;font-size:16px">🔥 强势板块深度穿透</h2>'
-    panel += '<p style="color:#8b949e;font-size:10px;margin-bottom:8px">Top3趋势最强板块（state≥3，按评分降序） | 每板块下钻：ETF→成分股龙头→趋势最强题材</p>'
+    panel += '<p style="color:#8b949e;font-size:10px;margin-bottom:8px">Top4趋势最强板块（state≥3，按评分降序） | 每板块下钻：ETF→成分股龙头→趋势最强题材</p>'
     panel += '<div class="focus-grid">'  # 使用双列布局
     for c in cards:
         panel += render_card(c)
@@ -105,12 +108,19 @@ def inject(dash_path, date_str):
 
     h = open(dash_path).read()
 
-    # 先删除已有的漏斗面板（避免重复注入）
-    old_start = h.find('强势板块深度穿透')
-    if old_start > 0:
-        old_end = h.find('<div class="panel"', old_start + 1)
-        if old_end > 0:
-            h = h[:old_start] + h[old_end:]
+    # 先删除所有已有的漏斗面板（循环删除避免残留）
+    while '强势板块深度穿透' in h:
+        old_start = h.find('强势板块深度穿透')
+        # 往前找最近的 <div class="panel" 
+        panel_start = h.rfind('<div class="panel"', 0, old_start)
+        if panel_start < 0: break
+        # 往后找这个 panel 的闭合 </div>（找下一个 <div class="panel" 作为边界）
+        next_marker = h.find('<div class="panel"', old_start + 1)
+        if next_marker < 0: next_marker = h.find('<div class="footer"', old_start)
+        if next_marker < 0: next_marker = len(h)
+        panel_end = h.rfind('</div>', 0, next_marker)
+        if panel_end < panel_start: break
+        h = h[:panel_start] + h[panel_end + 6:]
 
     marker = '<h2 style="color:#42a5f5'
     idx = h.find(marker)
