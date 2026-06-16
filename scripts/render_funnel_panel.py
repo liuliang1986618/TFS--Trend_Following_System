@@ -112,7 +112,7 @@ def inject(dash_path, date_str):
         if old_end > 0:
             h = h[:old_start] + h[old_end:]
 
-    marker = '<div class="panel"><h2 style="color:#42a5f5">🔍 焦点板块'
+    marker = '<h2 style="color:#42a5f5'
     idx = h.find(marker)
     if idx < 0:
         print('  ❌ no marker')

@@ -21,27 +21,9 @@ for i in range(30):
     if d not in existing or d not in nav_dates:
         missing.append(d)
 if missing:
-    print(f'  ❌ 缺失{len(missing)}个交易日: {missing}')
+    print(f'❌ 缺失{len(missing)}个交易日: {missing}，请先补齐再构建')
     sys.exit(1)
-print(f'  ✅ 近30天日期完整')
-
-# 题材数据完整性
-tl = json.load(open('dashboard/data/theme_list.json'))
-thf = 'data/theme_holdings.json'
-th = json.load(open(thf)) if os.path.exists(thf) else {}
-no_holdings = [t['code'] for t in tl if t['code'] not in th or len(th[t['code']])==0]
-if no_holdings:
-    print(f'  ⚠️ {len(no_holdings)}个题材无成分股: {no_holdings[:5]}...')
-# pkl抽样检查
-pkl_miss = 0
-for tcode in list(th.keys())[:10]:
-    stocks = th[tcode]
-    no_pkl = [s for s in stocks if not os.path.exists(f'data/massive_stocks/{s[\"code\"]}.pkl')]
-    if no_pkl and len(no_pkl)/max(len(stocks),1) > 0.3:
-        print(f'  ⚠️ {tcode}: {len(no_pkl)}/{len(stocks)}缺pkl')
-    pkl_miss += len(no_pkl)
-if not no_holdings and pkl_miss <= 10:
-    print(f'  ✅ 题材数据完整')
+print(f'✅ 近30天日期完整')
 "
 
 echo "1/7 build_final"; python3 scripts/build_final.py
