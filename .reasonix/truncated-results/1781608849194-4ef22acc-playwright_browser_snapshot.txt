@@ -1,0 +1,577 @@
+### Page
+- Page URL: http://localhost:8765/index.html
+- Page Title: 趋势跟随交易系统 · 看板
+### Snapshot
+```yaml
+- iframe [ref=e821]:
+  - generic [active] [ref=f2e1]:
+    - generic [ref=f2e2]:
+      - heading "趋势跟随交易系统" [level=1] [ref=f2e4]
+      - generic [ref=f2e5]: 弱势
+    - generic [ref=f2e6]:
+      - generic [ref=f2e7]: 📅
+      - link "06-11 周四 13.5涨" [ref=f2e8] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-11.html
+      - link "06-12 周五 13.5涨" [ref=f2e9] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-12.html
+      - link "06-10 周三 13.5涨" [ref=f2e10] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-10.html
+      - link "06-09 周二 13.5涨" [ref=f2e11] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-09.html
+      - link "06-08 周一 13.5涨" [ref=f2e12] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-08.html
+      - link "06-07 周日 17.3涨" [ref=f2e13] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-07.html
+      - link "06-06 周六 17.3涨" [ref=f2e14] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-06.html
+      - link "06-05 周五 17.3涨" [ref=f2e15] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-05.html
+      - link "06-04 周四 17.2涨" [ref=f2e16] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-04.html
+      - link "06-03 周三 17.3涨" [ref=f2e17] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-03.html
+      - link "06-02 周二 18.3涨" [ref=f2e18] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-02.html
+      - link "06-01 周一 20.3涨" [ref=f2e19] [cursor=pointer]:
+        - /url: trend_dashboard_2026-06-01.html
+      - link "05-31 周日 18.2涨" [ref=f2e20] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-31.html
+      - link "05-30 周六 18.2涨" [ref=f2e21] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-30.html
+      - link "05-29 周五 18.2涨" [ref=f2e22] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-29.html
+      - link "05-28 周四 25.1涨" [ref=f2e23] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-28.html
+      - link "05-27 周三 24.5涨" [ref=f2e24] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-27.html
+      - link "05-26 周二 31.1涨" [ref=f2e25] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-26.html
+      - link "05-25 周一 36.9涨" [ref=f2e26] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-25.html
+      - link "05-24 周日 37.7涨" [ref=f2e27] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-24.html
+      - link "05-23 周六 37.7涨" [ref=f2e28] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-23.html
+      - link "05-22 周五 37.7涨" [ref=f2e29] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-22.html
+      - link "05-21 周四 31涨" [ref=f2e30] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-21.html
+      - link "05-20 周三 44.8涨" [ref=f2e31] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-20.html
+      - link "05-19 周二 51.3涨" [ref=f2e32] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-19.html
+      - link "05-18 周一 48.2涨" [ref=f2e33] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-18.html
+      - link "05-17 周日 48.4涨" [ref=f2e34] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-17.html
+      - link "05-16 周六 48.4涨" [ref=f2e35] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-16.html
+      - link "05-15 周五 48.4涨" [ref=f2e36] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-15.html
+      - link "05-14 周四 52.8涨" [ref=f2e37] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-14.html
+      - link "05-13 周三 65.4涨" [ref=f2e38] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-13.html
+      - link "05-12 周二 64.5涨" [ref=f2e39] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-12.html
+      - link "05-11 周一 73.8涨" [ref=f2e40] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-11.html
+      - link "05-10 周日 73涨" [ref=f2e41] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-10.html
+      - link "05-09 周六 73涨" [ref=f2e42] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-09.html
+      - link "05-08 周五 73涨" [ref=f2e43] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-08.html
+      - link "05-07 周四 68.7涨" [ref=f2e44] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-07.html
+      - link "05-06 周三 66.8涨" [ref=f2e45] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-06.html
+      - link "05-05 周二 60.8涨" [ref=f2e46] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-05.html
+      - link "05-04 周一 60.8涨" [ref=f2e47] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-04.html
+      - link "05-03 周日 60.8涨" [ref=f2e48] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-03.html
+      - link "05-02 周六 60.8涨" [ref=f2e49] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-02.html
+      - link "05-01 周五 60.8涨" [ref=f2e50] [cursor=pointer]:
+        - /url: trend_dashboard_2026-05-01.html
+      - link "04-30 周四 60.8涨" [ref=f2e51] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-30.html
+      - link "04-29 周三 59.5涨" [ref=f2e52] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-29.html
+      - link "04-28 周二 50.4涨" [ref=f2e53] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-28.html
+      - link "04-27 周一 59.3涨" [ref=f2e54] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-27.html
+      - link "04-26 周日 53.8涨" [ref=f2e55] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-26.html
+      - link "04-25 周六 53.8涨" [ref=f2e56] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-25.html
+      - link "04-24 周五 53.8涨" [ref=f2e57] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-24.html
+      - link "04-23 周四 57.3涨" [ref=f2e58] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-23.html
+      - link "04-22 周三 68涨" [ref=f2e59] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-22.html
+      - link "04-21 周二 69.9涨" [ref=f2e60] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-21.html
+      - link "04-20 周一 76.2涨" [ref=f2e61] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-20.html
+      - link "04-19 周日 73.4涨" [ref=f2e62] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-19.html
+      - link "04-18 周六 73.4涨" [ref=f2e63] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-18.html
+      - link "04-17 周五 73.4涨" [ref=f2e64] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-17.html
+      - link "04-16 周四 77.6涨" [ref=f2e65] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-16.html
+      - link "04-15 周三 62.4涨" [ref=f2e66] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-15.html
+      - link "04-14 周二 64.3涨" [ref=f2e67] [cursor=pointer]:
+        - /url: trend_dashboard_2026-04-14.html
+    - generic [ref=f2e68]:
+      - generic [ref=f2e69]:
+        - generic [ref=f2e70]: "14"
+        - generic [ref=f2e71]: 全部板块
+      - generic [ref=f2e72]:
+        - generic [ref=f2e73]: "1"
+        - generic [ref=f2e74]: 上涨趋势板块
+      - generic [ref=f2e75]:
+        - generic [ref=f2e76]: "0"
+        - generic [ref=f2e77]: 翻转确认中
+      - generic [ref=f2e78]:
+        - generic [ref=f2e79]: "0"
+        - generic [ref=f2e80]: 主线板块
+      - generic [ref=f2e81]:
+        - generic [ref=f2e82]: "463"
+        - generic [ref=f2e83]: 上涨趋势个股
+      - generic [ref=f2e84]:
+        - generic [ref=f2e85]: "55"
+        - generic [ref=f2e86]: 上涨趋势ETF
+    - generic [ref=f2e87]:
+      - heading "📋 稳健推荐 — 趋势初期，适合建仓 — 2026-06-15" [level=2] [ref=f2e88]
+      - paragraph [ref=f2e89]: ⚡ 基于今日收盘数据生成 · 每日14:57集合竞价执行 ≈ 贴合回测收益率
+      - paragraph [ref=f2e90]: 强熊 | 止损:ETF-3%/个股-8% | 仓位上限:80%
+      - group [ref=f2e92]:
+        - generic "▾ 📋 仓位管理" [ref=f2e93] [cursor=pointer]:
+          - generic [ref=f2e94]: ▾
+          - text: 📋 仓位管理
+        - generic [ref=f2e95]:
+          - generic [ref=f2e96]: 预案一：连续3天 连续3天收盘站稳20日均线且成交量逐步放大 → 每次回调加仓3%~5%
+          - generic [ref=f2e97]: 预案二：连续2天 连续2天收盘低于20日均线 → 减掉一半仓位，观望
+          - generic [ref=f2e98]: 预案三：连续3天 连续3天收盘低于60日均线且成交量放大 → 全部清仓，保护本金
+      - generic [ref=f2e99]:
+        - generic [ref=f2e100]:
+          - heading "📈 ETF稳健(5只)" [level=3] [ref=f2e101]
+          - generic [ref=f2e102]:
+            - generic [ref=f2e103]:
+              - generic [ref=f2e104]:
+                - generic [ref=f2e105]:
+                  - link "成长ETF易方达" [ref=f2e106] [cursor=pointer]:
+                    - /url: https://quote.eastmoney.com/sz159259.html
+                  - text: (159259)
+                - generic [ref=f2e108]: 📈 评分 86.0
+              - generic [ref=f2e109]: 💡 趋势运行了一段时间了，涨幅已经积累了不少，目前价格在布林带上轨附近，短期可能冲高回落，注意不要追高；⚠️ RSI顶背离，价格新高但动能跟不上，谨慎追高；💰 建议仓位20.0%(接近上限)
+            - group [ref=f2e110]:
+              - generic "▾ 📈 趋势大背景 · 📈 上升趋势 · 已运行 74 天 · 累计+12.6%" [ref=f2e111] [cursor=pointer]:
+                - generic [ref=f2e112]: ▾
+                - text: 📈 趋势大背景 · 📈 上升趋势 · 已运行 74 天 · 累计+12.6%
+              - generic [ref=f2e113]:
+                - generic [ref=f2e114]: 均线状态：多头排列（5日均线在上、10日均线在中、20日均线在下、60日均线在最下方，这是典型的上升趋势结构，说明近期买入的人都在赚钱）
+                - generic [ref=f2e115]: 📍 今日定位：横盘休整
+                - generic [ref=f2e116]: 今天跌了0.43%且成交量放大（是20日均量的1.7倍），需要重点关注。如果明天继续放量下跌且跌破20日均线（约1.276），可能意味着趋势转弱。目前近20天涨了10.9%，回调幅度还在正常范围内。
+                - generic [ref=f2e117]: 🧭 策略总纲：上升趋势完好，顺势持有。回调到20日均线附近（缩量更好）= 加仓机会。没有跌破20日均线前不用太担心。
+            - group [ref=f2e118]:
+              - generic "▾ 📊 明日行情推演" [ref=f2e119] [cursor=pointer]:
+                - generic [ref=f2e120]: ▾
+                - text: 📊 明日行情推演
+              - generic [ref=f2e121]:
+                - generic [ref=f2e122]: 基于 9,807 次相似走势的回测统计（上升趋势中横盘整理的相似走势）
+                - generic [ref=f2e123]:
+                  - 'generic "止跌回升: 45%" [ref=f2e124]': 止跌回升 45%
+                  - 'generic "继续回调: 40%" [ref=f2e125]': 继续回调 40%
+                  - 'generic "趋势反转: 15%" [ref=f2e126]': 趋势反转 15%
+                - generic [ref=f2e127]: 止跌回升（45%） 涨1.3%~2.5% · 上升趋势中的正常回调结束后，反弹力度通常较强，短期创新高的概率大
+                - generic [ref=f2e128]: 继续回调（40%） 跌不破20日均线 · 缩量回调是健康的调整方式，不太会大跌，大概率在均线附近企稳
+                - generic [ref=f2e129]: 趋势反转（15%） 需放量跌破60日均线才能确认 · 目前没有看到反转信号，概率很低，不用过于担心
+            - generic [ref=f2e130]:
+              - group [ref=f2e131]:
+                - generic "▾ 🎯 明日最佳买卖区间" [ref=f2e132] [cursor=pointer]:
+                  - generic [ref=f2e133]: ▾
+                  - text: 🎯 明日最佳买卖区间
+                - generic [ref=f2e134]:
+                  - generic [ref=f2e135]:
+                    - generic [ref=f2e136]:
+                      - generic [ref=f2e137]: 🟢 买入 1.099~1.199
+                      - generic [ref=f2e138]: 布林带下轨和20日均线构成双重支撑，上升趋势中回调到这个位置买入，历史上5天内的盈利概率约65%~70%。缩量回调到此处是最佳买点。...
+                    - generic [ref=f2e139]:
+                      - generic [ref=f2e140]: 🔴 卖出 1.445~1.488
+                      - generic [ref=f2e141]: 前期高点加上布林带上轨构成压力区，涨到这里可以先卖出一部分锁定利润，等回调再买回来。不要一次性全卖光，留一些仓位享受趋势的惯性上涨。...
+                  - generic [ref=f2e142]:
+                    - generic [ref=f2e143]: 🛑 止损:1.220
+                    - generic [ref=f2e144]: 🎯 止盈:1.503
+                    - generic [ref=f2e145]: 📌 昨收:1.389
+              - group [ref=f2e146]:
+                - generic "▾ 📐 关键价位" [ref=f2e147] [cursor=pointer]:
+                  - generic [ref=f2e148]: ▾
+                  - text: 📐 关键价位
+                - generic [ref=f2e150]:
+                  - generic [ref=f2e151]:
+                    - generic [ref=f2e152]: 🟢 支撑位
+                    - generic [ref=f2e153]: "1.121"
+                  - generic [ref=f2e154]:
+                    - generic [ref=f2e155]: 🔴 阻力位
+                    - generic [ref=f2e156]: "1.459"
+                  - generic [ref=f2e157]:
+                    - generic [ref=f2e158]: 🛑 止损位
+                    - generic [ref=f2e159]: "1.220"
+                  - generic [ref=f2e160]:
+                    - generic [ref=f2e161]: 🎯 止盈位
+                    - generic [ref=f2e162]: "1.503"
+                  - generic [ref=f2e163]:
+                    - generic [ref=f2e164]: 📌 昨收
+                    - generic [ref=f2e165]: "1.389"
+            - group [ref=f2e166]:
+              - generic "▾ ⚡ 明天盯盘指南 — 5场景多维信号共振" [ref=f2e167] [cursor=pointer]:
+                - generic [ref=f2e168]: ▾
+                - text: ⚡ 明天盯盘指南 — 5场景多维信号共振
+              - generic [ref=f2e169]:
+                - generic [ref=f2e170]:
+                  - text: A:加仓15% 回调到支撑位+抛压衰竭（最佳买点） 胜率68%
+                  - generic [ref=f2e171]: ⏳ 价格在1.389，距离20日均线（1.276）还有一点距离，耐心等回踩
+                  - generic [ref=f2e172]: ✅ 成交量是20日均量的1.7倍，还没缩到位，继续观察
+                  - generic [ref=f2e173]: ⏳ MACD绿柱还在加长，下跌动能还没释放完，再等一等
+                  - generic [ref=f2e174]: 💡 在上升趋势中，价格回踩20日均线、成交量萎缩到一半以下（抛压枯竭）、MACD绿柱缩短（下跌动能减弱）、出现长下影线（多头反击），这四个信号同时出现=回调结束的经典信号。历史上这种形态出现后5天内的盈利...
+                - generic [ref=f2e175]:
+                  - text: B:加仓12% 回调结束确认（安全性更高） 胜率62%
+                  - generic [ref=f2e176]: ⏳ 价格还在5日均线下方，等站上去再确认回调结束
+                  - generic [ref=f2e177]: ⏳ 成交量放大到20日均量的1.7倍（买盘重新入场）
+                  - generic [ref=f2e178]: ✅ MACD还在弱势，等金叉信号出现再动手
+                  - generic [ref=f2e179]: 💡 价格重新站上5日均线+成交量放大到1.2倍以上+MACD金叉=回调结束得到确认。这个信号比场景A晚一两天出现，但安全性更高（因为趋势已经重新确认了）。历史上这种形态出现后5天内的盈利概率约62%。...
+                - generic [ref=f2e180]:
+                  - text: C:不动0% 方向不明，等待信号
+                  - generic [ref=f2e181]: ⏳ 目前方向不明朗，多个信号互相矛盾，做多做空都没有充分依据
+                  - generic [ref=f2e182]: ⏳ 成交量正常，没有明确的放量或缩量突破信号
+                  - generic [ref=f2e183]: ⏳ 价格在均线之间徘徊，既不是最佳买点也不是最佳卖点
+                  - generic [ref=f2e184]: 💡 市场目前在纠结，多空力量相当，做多做空都没有胜算。这个时候最好的操作就是不操作——耐心等方向明确。...
+                - generic [ref=f2e185]:
+                  - text: D:减仓3% 关键支撑破位，风险控制 胜率55%
+                  - generic [ref=f2e186]: ✅ 价格还在20日均线（1.276）上方，但已经接近，需要警惕
+                  - generic [ref=f2e187]: ⏳ 放量下跌（成交量是20日均量的1.7倍），有资金在出逃
+                  - generic [ref=f2e188]: ⏳ 短期均线还没形成死叉，但需要关注
+                  - generic [ref=f2e189]: 💡 价格跌破20日均线（中期支撑）+成交量放大（恐慌出逃）+短期均线死叉=趋势可能转弱。这时候减仓是为了控制风险，不是彻底看空。如果后面趋势重新走好，可以再买回来。历史上这个信号出现后5天继续下跌的概率约...
+                - generic [ref=f2e190]:
+                  - text: E:清仓0% 长期趋势破坏，保本第一 胜率72%
+                  - generic [ref=f2e191]: ⏳ 价格还在60日均线（1.258）上方，长期趋势暂时没坏
+                  - generic [ref=f2e192]: ⏳ 当前最大回撤11.8%，还没到趋势破坏的程度
+                  - generic [ref=f2e193]: ⏳ 20日均线下穿60日均线（中线死叉，确认上升趋势结束）
+                  - generic [ref=f2e194]: 💡 价格跌破60日均线（长期趋势线）+回撤超过15%+中线死叉=上升趋势大概率结束了。这时候最重要的是保住本金，不要心疼之前的盈利回吐，先把钱拿出来再说。历史上这个信号出现后趋势反转的概率约72%。...
+          - generic [ref=f2e195]:
+            - generic [ref=f2e196]:
+              - generic [ref=f2e197]:
+                - generic [ref=f2e198]:
+                  - link "科创半导体ETF华夏" [ref=f2e199] [cursor=pointer]:
+                    - /url: https://quote.eastmoney.com/sh588170.html
+                  - text: (588170)
+                - generic [ref=f2e201]: 📈 评分 74.0
+              - generic [ref=f2e202]: "💡 趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎；💰 建议仓位20.0%(接近上限) | 🏆龙头: 中船特气 中巨芯 新益昌 | 📂半导体"
+            - group [ref=f2e203]:
+              - generic "▾ 📈 趋势大背景 · 📈 上升趋势 · 已运行 24 天 · 累计+45.7%" [ref=f2e204] [cursor=pointer]:
+                - generic [ref=f2e205]: ▾
+                - text: 📈 趋势大背景 · 📈 上升趋势 · 已运行 24 天 · 累计+45.7%
+              - generic [ref=f2e206]:
+                - generic [ref=f2e207]: 均线状态：多头排列（5日均线在上、10日均线在中、20日均线在下、60日均线在最下方，这是典型的上升趋势结构，说明近期买入的人都在赚钱）
+                - generic [ref=f2e208]: 📍 今日定位：放量回调（警惕）
+                - generic [ref=f2e209]: 今天跌了3.73%且成交量放大（是20日均量的1.5倍），需要重点关注。如果明天继续放量下跌且跌破20日均线（约1.565），可能意味着趋势转弱。目前近20天涨了8.0%，回调幅度还在正常范围内。
+                - generic [ref=f2e210]: 🧭 策略总纲：上升趋势完好，顺势持有。回调到20日均线附近（缩量更好）= 加仓机会。没有跌破20日均线前不用太担心。
+            - group [ref=f2e211]:
+              - generic "▾ 📊 明日行情推演" [ref=f2e212] [cursor=pointer]:
+                - generic [ref=f2e213]: ▾
+                - text: 📊 明日行情推演
+              - generic [ref=f2e214]:
+                - generic [ref=f2e215]: 基于 15,465 次相似走势的回测统计（上升趋势中横盘整理的相似走势）
+                - generic [ref=f2e216]:
+                  - 'generic "止跌回升: 45%" [ref=f2e217]': 止跌回升 45%
+                  - 'generic "继续回调: 40%" [ref=f2e218]': 继续回调 40%
+                  - 'generic "趋势反转: 15%" [ref=f2e219]': 趋势反转 15%
+                - generic [ref=f2e220]: 止跌回升（45%） 涨5.3%~9.9% · 上升趋势中的正常回调结束后，反弹力度通常较强，短期创新高的概率大
+                - generic [ref=f2e221]: 继续回调（40%） 跌不破20日均线 · 缩量回调是健康的调整方式，不太会大跌，大概率在均线附近企稳
+                - generic [ref=f2e222]: 趋势反转（15%） 需放量跌破60日均线才能确认 · 目前没有看到反转信号，概率很低，不用过于担心
+            - generic [ref=f2e223]:
+              - group [ref=f2e224]:
+                - generic "▸ 🎯 明日最佳买卖区间" [ref=f2e225] [cursor=pointer]:
+                  - generic [ref=f2e226]: ▸
+                  - text: 🎯 明日最佳买卖区间
+              - group [ref=f2e227]:
+                - generic "▸ 📐 关键价位" [ref=f2e228] [cursor=pointer]:
+                  - generic [ref=f2e229]: ▸
+                  - text: 📐 关键价位
+            - group [ref=f2e230]:
+              - generic "▸ ⚡ 明天盯盘指南 — 5场景多维信号共振" [ref=f2e231] [cursor=pointer]:
+                - generic [ref=f2e232]: ▸
+                - text: ⚡ 明天盯盘指南 — 5场景多维信号共振
+          - generic [ref=f2e233]:
+            - generic [ref=f2e234]:
+              - generic [ref=f2e235]:
+                - generic [ref=f2e236]:
+                  - link "科创半导体设备ETF鹏华" [ref=f2e237] [cursor=pointer]:
+                    - /url: https://quote.eastmoney.com/sh589020.html
+                  - text: (589020)
+                - generic [ref=f2e239]: 📈 评分 74.0
+              - generic [ref=f2e240]: 💡 趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎；💰 建议仓位20.0%(接近上限) | 📂半导体
+            - group [ref=f2e241]:
+              - generic "▾ 📈 趋势大背景 · 📈 上升趋势 · 已运行 22 天 · 累计+12.6%" [ref=f2e242] [cursor=pointer]:
+                - generic [ref=f2e243]: ▾
+                - text: 📈 趋势大背景 · 📈 上升趋势 · 已运行 22 天 · 累计+12.6%
+              - generic [ref=f2e244]:
+                - generic [ref=f2e245]: 均线状态：中期均线（20日）还在长期均线（60日）上方，但短期均线（5日、10日）开始走弱，说明最近几天买盘力量有所减弱
+                - generic [ref=f2e246]: 📍 今日定位：横盘休整
+                - generic [ref=f2e247]: 今天小幅波动（涨了0.43%），上升趋势中的横盘整理。价格在20日均线（约1.161）附近，属于正常的休整，不需要着急操作。
+                - generic [ref=f2e248]: 🧭 策略总纲：上升趋势完好，顺势持有。回调到20日均线附近（缩量更好）= 加仓机会。没有跌破20日均线前不用太担心。
+            - group [ref=f2e249]:
+              - generic "▾ 📊 明日行情推演" [ref=f2e250] [cursor=pointer]:
+                - generic [ref=f2e251]: ▾
+                - text: 📊 明日行情推演
+              - generic [ref=f2e252]:
+                - generic [ref=f2e253]: 基于 12,919 次相似走势的回测统计（上升趋势中横盘整理的相似走势）
+                - generic [ref=f2e254]:
+                  - 'generic "止跌回升: 45%" [ref=f2e255]': 止跌回升 45%
+                  - 'generic "继续回调: 40%" [ref=f2e256]': 继续回调 40%
+                  - 'generic "趋势反转: 15%" [ref=f2e257]': 趋势反转 15%
+                - generic [ref=f2e258]: 止跌回升（45%） 涨1.3%~2.5% · 上升趋势中的正常回调结束后，反弹力度通常较强，短期创新高的概率大
+                - generic [ref=f2e259]: 继续回调（40%） 跌不破20日均线 · 缩量回调是健康的调整方式，不太会大跌，大概率在均线附近企稳
+                - generic [ref=f2e260]: 趋势反转（15%） 需放量跌破60日均线才能确认 · 目前没有看到反转信号，概率很低，不用过于担心
+            - generic [ref=f2e261]:
+              - group [ref=f2e262]:
+                - generic "▸ 🎯 明日最佳买卖区间" [ref=f2e263] [cursor=pointer]:
+                  - generic [ref=f2e264]: ▸
+                  - text: 🎯 明日最佳买卖区间
+              - group [ref=f2e265]:
+                - generic "▸ 📐 关键价位" [ref=f2e266] [cursor=pointer]:
+                  - generic [ref=f2e267]: ▸
+                  - text: 📐 关键价位
+            - group [ref=f2e268]:
+              - generic "▸ ⚡ 明天盯盘指南 — 5场景多维信号共振" [ref=f2e269] [cursor=pointer]:
+                - generic [ref=f2e270]: ▸
+                - text: ⚡ 明天盯盘指南 — 5场景多维信号共振
+          - generic [ref=f2e271]:
+            - generic [ref=f2e272]:
+              - generic [ref=f2e273]:
+                - generic [ref=f2e274]:
+                  - link "半导体设备ETF万家" [ref=f2e275] [cursor=pointer]:
+                    - /url: https://quote.eastmoney.com/sz159327.html
+                  - text: (159327)
+                - generic [ref=f2e277]: 📈 评分 71.0
+              - generic [ref=f2e278]: "💡 趋势运行了一段时间了，涨幅已经积累了不少，仍在上涨通道中，可以持有但新买入要谨慎；💰 建议仓位20.0%(接近上限) | 🏆龙头: 南大光电 北方华创 | 📂半导体"
+            - group [ref=f2e279]:
+              - generic "▾ 📈 趋势大背景 · 📊 偏强震荡 · 已运行 12 天 · 累计+1.0%" [ref=f2e280] [cursor=pointer]:
+                - generic [ref=f2e281]: ▾
+                - text: 📈 趋势大背景 · 📊 偏强震荡 · 已运行 12 天 · 累计+1.0%
+              - generic [ref=f2e282]:
+                - generic [ref=f2e283]: 均线状态：均线排列偏弱，价格在长期均线附近挣扎，方向还不明确
+                - generic [ref=f2e284]: 📍 今日定位：区间震荡
+                - generic [ref=f2e285]: 今天跌了0.51%，处于震荡格局中。价格在布林带中轨附近（位置约79%），成交量是20日均量的0.9倍。震荡行情方向不明确，多看少动，等趋势走出来再做决定。
+                - generic [ref=f2e286]: 🧭 策略总纲：震荡行情，方向不明朗。多看少动，控制好仓位。等价格明确突破布林带上轨（向上突破）或跌破布林下轨（向下突破）后，再决定方向。现在最好的操作就是不操作。
+            - group [ref=f2e287]:
+              - generic "▾ 📊 明日行情推演" [ref=f2e288] [cursor=pointer]:
+                - generic [ref=f2e289]: ▾
+                - text: 📊 明日行情推演
+              - generic [ref=f2e290]:
+                - generic [ref=f2e291]: 基于 10,569 次相似走势的回测统计（震荡行情中当前位置的相似走势）
+                - generic [ref=f2e292]:
+                  - 'generic "向上突破: 20%" [ref=f2e293]': 向上突破 20%
+                  - 'generic "区间震荡: 40%" [ref=f2e294]': 区间震荡 40%
+                  - 'generic "向下破位: 40%" [ref=f2e295]': 向下破位 40%
+                - generic [ref=f2e296]: 向上突破（20%） 涨1.4%~2.7% · 如果放量突破布林上轨，可能开启新的上升趋势
+                - generic [ref=f2e297]: 区间震荡（40%） 维持震荡 · 大概率继续在布林带上下轨之间波动，方向不明
+                - generic [ref=f2e298]: 向下破位（40%） 跌0.9%~1.8% · 如果跌破布林下轨且放量，可能开启新的下跌趋势
+            - generic [ref=f2e299]:
+              - group [ref=f2e300]:
+                - generic "▸ 🎯 明日最佳买卖区间" [ref=f2e301] [cursor=pointer]:
+                  - generic [ref=f2e302]: ▸
+                  - text: 🎯 明日最佳买卖区间
+              - group [ref=f2e303]:
+                - generic "▸ 📐 关键价位" [ref=f2e304] [cursor=pointer]:
+                  - generic [ref=f2e305]: ▸
+                  - text: 📐 关键价位
+            - group [ref=f2e306]:
+              - generic "▸ ⚡ 明天盯盘指南 — 5场景多维信号共振" [ref=f2e307] [cursor=pointer]:
+                - generic [ref=f2e308]: ▸
+                - text: ⚡ 明天盯盘指南 — 5场景多维信号共振
+          - generic [ref=f2e309]:
+            - generic [ref=f2e310]:
+              - generic [ref=f2e311]:
+                - generic [ref=f2e312]:
+                  - link "日经ETF工银" [ref=f2e313] [cursor=pointer]:
+                    - /url: https://quote.eastmoney.com/sz159866.html
+                  - text: (159866)
+                - generic [ref=f2e315]: 📈 评分 69.0
+              - generic [ref=f2e316]: "💡 上涨中的回调，短期在消化获利盘，耐心等待企稳信号；⚠️ 放量回调: 回撤5.1%, 警惕出货；⬆升级 4→5；💰 建议仓位20.0%(接近上限)"
+            - group [ref=f2e317]:
+              - generic "▾ 📈 趋势大背景 · 📊 偏强震荡 · 已运行 13 天 · 累计+1.3%" [ref=f2e318] [cursor=pointer]:
+                - generic [ref=f2e319]: ▾
+                - text: 📈 趋势大背景 · 📊 偏强震荡 · 已运行 13 天 · 累计+1.3%
+              - generic [ref=f2e320]:
+                - generic [ref=f2e321]: 均线状态：均线排列偏弱，价格在长期均线附近挣扎，方向还不明确
+                - generic [ref=f2e322]: 📍 今日定位：接近布林上轨（高位）
+                - generic [ref=f2e323]: 今天涨了0.64%，处于震荡格局中。价格在布林带中轨附近（位置约90%），成交量是20日均量的1.3倍。震荡行情方向不明确，多看少动，等趋势走出来再做决定。
+                - generic [ref=f2e324]: 🧭 策略总纲：震荡行情，方向不明朗。多看少动，控制好仓位。等价格明确突破布林带上轨（向上突破）或跌破布林下轨（向下突破）后，再决定方向。现在最好的操作就是不操作。
+            - group [ref=f2e325]:
+              - generic "▾ 📊 明日行情推演" [ref=f2e326] [cursor=pointer]:
+                - generic [ref=f2e327]: ▾
+                - text: 📊 明日行情推演
+              - generic [ref=f2e328]:
+                - generic [ref=f2e329]: 基于 9,640 次相似走势的回测统计（震荡行情中当前位置的相似走势）
+                - generic [ref=f2e330]:
+                  - 'generic "向上突破: 20%" [ref=f2e331]': 向上突破 20%
+                  - 'generic "区间震荡: 40%" [ref=f2e332]': 区间震荡 40%
+                  - 'generic "向下破位: 40%" [ref=f2e333]': 向下破位 40%
+                - generic [ref=f2e334]: 向上突破（20%） 涨1.6%~2.9% · 如果放量突破布林上轨，可能开启新的上升趋势
+                - generic [ref=f2e335]: 区间震荡（40%） 维持震荡 · 大概率继续在布林带上下轨之间波动，方向不明
+                - generic [ref=f2e336]: 向下破位（40%） 跌1.0%~2.0% · 如果跌破布林下轨且放量，可能开启新的下跌趋势
+            - generic [ref=f2e337]:
+              - group [ref=f2e338]:
+                - generic "▸ 🎯 明日最佳买卖区间" [ref=f2e339] [cursor=pointer]:
+                  - generic [ref=f2e340]: ▸
+                  - text: 🎯 明日最佳买卖区间
+              - group [ref=f2e341]:
+                - generic "▸ 📐 关键价位" [ref=f2e342] [cursor=pointer]:
+                  - generic [ref=f2e343]: ▸
+                  - text: 📐 关键价位
+            - group [ref=f2e344]:
+              - generic "▸ ⚡ 明天盯盘指南 — 5场景多维信号共振" [ref=f2e345] [cursor=pointer]:
+                - generic [ref=f2e346]: ▸
+                - text: ⚡ 明天盯盘指南 — 5场景多维信号共振
+        - generic [ref=f2e347]:
+          - heading "📊 个股稳健(5只)" [level=3] [ref=f2e348]
+          - generic [ref=f2e349]:
+            - generic [ref=f2e350]:
+              - generic [ref=f2e351]:
+                - generic [ref=f2e352]:
+                  - link "国风新材" [ref=f2e353] [cursor=pointer]:
+                    - /url: https://quote.eastmoney.com/sz000859.html
+                  - text: (000859)
+                - generic [ref=f2e355]: 📈 评分 100.0
+              - generic [ref=f2e356]: 💡 短期走势偏强，均线正在向多头排列靠拢，趋势在好转，最近一个月涨了18%，方向是向上的，可以关注；💰 建议仓位16.3%(接近上限)
+            - group [ref=f2e357]:
+              - generic "▾ 📈 趋势大背景 · 📈 上升趋势 · 已运行 1 天 · 累计+33.4%" [ref=f2e358] [cursor=pointer]:
+                - generic [ref=f2e359]: ▾
+                - text: 📈 趋势大背景 · 📈 上升趋势 · 已运行 1 天 · 累计+33.4%
+              - generic [ref=f2e360]:
+                - generic [ref=f2e361]: 均线状态：多头排列（5日均线在上、10日均线在中、20日均线在下、60日均线在最下方，这是典型的上升趋势结构，说明近期买入的人都在赚钱）
+                - generic [ref=f2e362]: 📍 今日定位：顺势上涨
+                - generic [ref=f2e363]: 今天涨了2.87%，继续沿着上升趋势前进。均线多头排列，近20天累计涨了40.9%，趋势健康，顺势持有就好。
+                - generic [ref=f2e364]: 🧭 策略总纲：价格接近布林带上轨，短期可能冲高回落。建议持有为主，不要在这么高的位置追涨加仓。想加仓的话，等回调到20日均线附近再说。
+            - group [ref=f2e365]:
+              - generic "▾ 📊 明日行情推演" [ref=f2e366] [cursor=pointer]:
+                - generic [ref=f2e367]: ▾
+                - text: 📊 明日行情推演
+              - generic [ref=f2e368]:
+                - generic [ref=f2e369]: 基于 10,653 次相似走势的回测统计（上升趋势中顺势上涨的相似走势）
+                - generic [ref=f2e370]:
+                  - 'generic "止跌回升: 50%" [ref=f2e371]': 止跌回升 50%
+                  - 'generic "继续回调: 30%" [ref=f2e372]': 继续回调 30%
+                  - 'generic "趋势反转: 20%" [ref=f2e373]': 趋势反转 20%
+                - generic [ref=f2e374]: 止跌回升（50%） 涨4.2%~8.0% · 上升趋势中的正常回调结束后，反弹力度通常较强，短期创新高的概率大
+                - generic [ref=f2e375]: 继续回调（30%） 跌不破20日均线 · 缩量回调是健康的调整方式，不太会大跌，大概率在均线附近企稳
+                - generic [ref=f2e376]: 趋势反转（20%） 需放量跌破60日均线才能确认 · 目前没有看到反转信号，概率很低，不用过于担心
+            - generic [ref=f2e377]:
+              - group [ref=f2e378]:
+                - generic "▾ 🎯 明日最佳买卖区间" [ref=f2e379] [cursor=pointer]:
+                  - generic [ref=f2e380]: ▾
+                  - text: 🎯 明日最佳买卖区间
+                - generic [ref=f2e381]:
+                  - generic [ref=f2e382]:
+                    - generic [ref=f2e383]:
+                      - generic [ref=f2e384]: 🟢 买入 39.082~47.192
+                      - generic [ref=f2e385]: 布林带下轨和20日均线构成双重支撑，上升趋势中回调到这个位置买入，历史上5天内的盈利概率约65%~70%。缩量回调到此处是最佳买点。...
+                    - generic [ref=f2e386]:
+                      - generic [ref=f2e387]: 🔴 卖出 70.846~74.011
+                      - generic [ref=f2e388]: 前期高点加上布林带上轨构成压力区，涨到这里可以先卖出一部分锁定利润，等回调再买回来。不要一次性全卖光，留一些仓位享受趋势的惯性上涨。...
+                  - generic [ref=f2e389]:
+                    - generic [ref=f2e390]: 🛑 止损:52.558
+                    - generic [ref=f2e391]: 🎯 止盈:72.589
+                    - generic [ref=f2e392]: 📌 昨收:69.780
+              - group [ref=f2e393]:
+                - generic "▾ 📐 关键价位" [ref=f2e394] [cursor=pointer]:
+                  - generic [ref=f2e395]: ▾
+                  - text: 📐 关键价位
+                - generic [ref=f2e397]:
+                  - generic [ref=f2e398]:
+                    - generic [ref=f2e399]: 🟢 支撑位
+                    - generic [ref=f2e400]: "39.879"
+                  - generic [ref=f2e401]:
+                    - generic [ref=f2e402]: 🔴 阻力位
+                    - generic [ref=f2e403]: "72.560"
+                  - generic [ref=f2e404]:
+                    - generic [ref=f2e405]: 🛑 止损位
+                    - generic [ref=f2e406]: "52.558"
+                  - generic [ref=f2e407]:
+                    - generic [ref=f2e408]: 🎯 止盈位
+                    - generic [ref=f2e409]: "72.589"
+                  - generic [ref=f2e410]:
+                    - generic [ref=f2e411]: 📌 昨收
+                    - generic [ref=f2e412]: "69.780"
+            - group [ref=f2e413]:
+              - generic "▾ ⚡ 明天盯盘指南 — 5场景多维信号共振" [ref=f2e414] [cursor=pointer]:
+                - generic [ref=f2e415]: ▾
+                - text: ⚡ 明天盯盘指南 — 5场景多维信号共振
+              - generic [ref=f2e416]:
+                - generic [ref=f2e417]:
+                  - text: A:加仓15% 回调到支撑位+抛压衰竭（最佳买点） 胜率68%
+                  - generic [ref=f2e418]: ⏳ 价格在69.780，距离20日均线（54.506）还有一点距离，耐心等回踩
+                  - generic [ref=f2e419]: ✅ 成交量是20日均量的1.7倍，还没缩到位，继续观察
+                  - generic [ref=f2e420]: ⏳ MACD绿柱还在加长，下跌动能还没释放完，再等一等
+                  - generic [ref=f2e421]: 💡 在上升趋势中，价格回踩20日均线、成交量萎缩到一半以下（抛压枯竭）、MACD绿柱缩短（下跌动能减弱）、出现长下影线（多头反击），这四个信号同时出现=回调结束的经典信号。历史上这种形态出现后5天内的盈利...
+                - generic [ref=f2e422]:
+                  - text: B:加仓12% 回调结束确认（安全性更高） 胜率62%
+                  - generic [ref=f2e423]: ⏳ 价格重新站上5日均线（短期走势转强）
+                  - generic [ref=f2e424]: ⏳ 成交量放大到20日均量的1.7倍（买盘重新入场）
+                  - generic [ref=f2e425]: ✅ MACD还在弱势，等金叉信号出现再动手
+                  - generic [ref=f2e426]: 💡 价格重新站上5日均线+成交量放大到1.2倍以上+MACD金叉=回调结束得到确认。这个信号比场景A晚一两天出现，但安全性更高（因为趋势已经重新确认了）。历史上这种形态出现后5天内的盈利概率约62%。...
+                - generic [ref=f2e427]:
+                  - text: C:不动0% 方向不明，等待信号
+                  - generic [ref=f2e428]: ⏳ 目前方向不明朗，多个信号互相矛盾，做多做空都没有充分依据
+                  - generic [ref=f2e429]: ⏳ 成交量正常，没有明确的放量或缩量突破信号
+                  - generic [ref=f2e430]: ⏳ 价格在均线之间徘徊，既不是最佳买点也不是最佳卖点
+                  - generic [ref=f2e431]: 💡 市场目前在纠结，多空力量相当，做多做空都没有胜算。这个时候最好的操作就是不操作——耐心等方向明确。...
+                - generic [ref=f2e432]:
+                  - text: D:减仓3% 关键支撑破位，风险控制 胜率55%
+                  - generic [ref=f2e433]: ✅ 价格还在20日均线（54.506）上方，但已经接近，需要警惕
+                  - generic [ref=f2e434]: ⏳ 放量下跌（成交量是20日均量的1.7倍），有资金在出逃
+                  - generic [ref=f2e435]: ⏳ 短期均线还没形成死叉，但需要关注
+                  - generic [ref=f2e436]: 💡 价格跌破20日均线（中期支撑）+成交量放大（恐慌出逃）+短期均线死叉=趋势可能转弱。这时候减仓是为了控制风险，不是彻底看空。如果后面趋势重新走好，可以再买回来。历史上这个信号出现后5天继续下跌的概率约...
+                - generic [ref=f2e437]:
+                  - text: E:清仓0% 长期趋势破坏，保本第一 胜率72%
+                  - generic [ref=f2e438]: ⏳ 价格还在60日均线（54.183）上方，长期趋势暂时没坏
+                  - generic [ref=f2e439]: ⏳ 从最高点回撤超过23.7%（超过15%的回撤通常意味着趋势破坏）
+                  - generic [ref=f2e440]: ⏳ 20日均线下穿60日均线（中线死叉，确认上升趋势结束）
+                  - gener
+
+[…truncated 209949 chars — raise BridgeOptions.maxResultChars, or call the tool with a narrower scope (filter, head, pagination)…]
+
+f=f2e4419]
+            - cell "14%" [ref=f2e4420]
+          - row "翻转确认中 53% 33% 14%" [ref=f2e4421]:
+            - cell "翻转确认中" [ref=f2e4422]
+            - cell "53%" [ref=f2e4423]
+            - cell "33%" [ref=f2e4424]
+            - cell "14%" [ref=f2e4425]
+          - row "上涨趋势 63% 28% 9%" [ref=f2e4426]:
+            - cell "上涨趋势" [ref=f2e4427]
+            - cell "63%" [ref=f2e4428]
+            - cell "28%" [ref=f2e4429]
+            - cell "9%" [ref=f2e4430]
+          - row "上涨回调 54% 27% 18%" [ref=f2e4431]:
+            - cell "上涨回调" [ref=f2e4432]
+            - cell "54%" [ref=f2e4433]
+            - cell "27%" [ref=f2e4434]
+            - cell "18%" [ref=f2e4435]
+          - row "转跌确认中 47% 29% 24%" [ref=f2e4436]:
+            - cell "转跌确认中" [ref=f2e4437]
+            - cell "47%" [ref=f2e4438]
+            - cell "29%" [ref=f2e4439]
+            - cell "24%" [ref=f2e4440]
+    - generic [ref=f2e4441]: 趋势跟随交易系统 | 焦点9板块 | 趋势148个股 | 0ETF | 2026-06-12 | 30天回测 | ★主线 🔵翻转 | 5d状态条+sparkline | 推演+准确率+反思闭环 | 免责声明:仅供辅助参考
+```
