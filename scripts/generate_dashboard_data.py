@@ -17,7 +17,7 @@ from src.engine.pivots import PivotDetector
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(PROJECT_ROOT, "dashboard", "data")
-date_str = "2026-05-31"
+date_str = sys.argv[1] if len(sys.argv) > 1 else "2026-05-31"
 
 # ── 加载板块列表 ──────────────────────────────────────────
 sectors_df = pd.read_json(os.path.join(DATA_DIR, "sector_list.json"))
@@ -26,7 +26,7 @@ print(f"板块列表: {len(sectors_df)} 个")
 all_sectors = []
 for _, row in sectors_df.iterrows():
     code = str(row["code"]).zfill(6)
-    name = row["sector_name"]
+    name = row["name"]
     path = os.path.join(DATA_DIR, f"sector_{code}.parquet")
     if not os.path.exists(path):
         print(f"  跳过 {code} {name}: 数据文件不存在")
@@ -82,22 +82,29 @@ for _, row in sectors_df.iterrows():
         and ts.conditions["persistence"].pass_
     )
 
-    # 综合得分
+    # 综合得分（优化版：量能分级评分 + state=3 基础分提升）
     score = 0
     if ts.state == 4:
         score += 70
     elif ts.state == 5:
         score += 55
     elif ts.state == 3:
-        score += 40
+        score += 50
     elif ts.state == 2:
         score += 15
     if ts.conditions["structure"].pass_:
         score += 10
-    if ts.conditions["volume"].pass_:
-        score += 10
+    # 量能分级评分
+    vol_detail = ts.conditions["volume"].detail if ts.conditions["volume"].pass_ else ""
+    if "[强势]" in vol_detail:
+        score += 15   # 涨时放量，最强
+    elif "[健康]" in vol_detail or "[企稳]" in vol_detail:
+        score += 10   # 涨时缩量/跌时缩量，偏强
+    # 持续性：连阳>5天额外加分
     if ts.conditions["persistence"].pass_:
         score += 10
+        if max_cons >= 5:
+            score += 5
 
     # 判断状态原因
     reasons = []

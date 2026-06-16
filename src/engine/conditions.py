@@ -104,15 +104,17 @@ class TrendConditions:
 
     @staticmethod
     def check_volume(daily_df: pd.DataFrame) -> ConditionResult:
-        """条件B：量能判断 — 上涨日的平均成交量是否大于下跌日。
+        """条件B：量能判断 — 量价是否协调（替代简单比大小）。
 
-        设计文档§1.1 B条件:
-          近20日：上涨日平均成交量 > 下跌日平均成交量
+        加分场景（通过）：
+          - 涨时放量（真金白银推动）
+          - 涨时缩量但涨多跌少（筹码锁定，轻松推价格）
+          - 跌时缩量（卖压衰竭）
+          - 突破前高放量（真突破确认）
 
-        为什么上涨日必须放量？
-        → 少亏钱：无量上涨=庄股拉高出货或散户跟风。这样的"趋势"一旦逆转
-          往往连续跌停，根本跑不掉。真金白银推动的上涨才有持续性。
-          量能确认=确认上涨是由大资金推动的=确认跟随的安全性。
+        减分场景（不通过）：
+          - 涨时放量但涨不动（滞涨出货）
+          - 跌时放量（恐慌抛售）
         """
         if daily_df is None or len(daily_df) < TrendConditions.LOOKBACK:
             return ConditionResult(False, f"数据不足，至少需要{TrendConditions.LOOKBACK}个交易日")
@@ -124,20 +126,46 @@ class TrendConditions:
         if len(up_days) == 0:
             return ConditionResult(False, "近20日无阳线, 空头完全主导")
 
-        if len(down_days) == 0:
-            return ConditionResult(True, "近20日无阴线, 极强多头(涨均量远超跌均量)")
+        up_avg_vol = float(up_days["volume"].mean()) if len(up_days) > 0 else 0
+        down_avg_vol = float(down_days["volume"].mean()) if len(down_days) > 0 else 0
+        up_count = len(up_days)
+        down_count = len(down_days)
 
-        up_avg_vol = float(up_days["volume"].mean())
-        down_avg_vol = float(down_days["volume"].mean())
+        # 近20日涨跌幅
+        ret_20d = (float(recent["close"].iloc[-1]) / float(recent["close"].iloc[0]) - 1) * 100
 
-        if up_avg_vol > down_avg_vol:
-            ratio = up_avg_vol / down_avg_vol
-            return ConditionResult(True,
-                f"上涨均量>下跌均量 {ratio:.1f}x (涨{up_avg_vol/1e8:.1f}亿 vs 跌{down_avg_vol/1e8:.1f}亿)")
-        else:
+        # 减分1：跌时放量（恐慌抛售）
+        if down_count >= up_count and ret_20d < 0 and down_avg_vol > up_avg_vol:
             ratio = down_avg_vol / up_avg_vol if up_avg_vol > 0 else float("inf")
             return ConditionResult(False,
-                f"上涨缩量, 下跌均量是上涨的{ratio:.1f}x")
+                f"跌时放量(恐慌抛售): 跌均量{down_avg_vol/1e8:.1f}亿>{up_avg_vol/1e8:.1f}亿, 跌{down_count}天>{up_count}天")
+
+        # 减分2：涨时放量但涨不动（滞涨出货）
+        if up_avg_vol > down_avg_vol and ret_20d < 3 and down_avg_vol > 0:
+            return ConditionResult(False,
+                f"涨时放量但涨不动(滞涨出货): 量比{up_avg_vol/down_avg_vol:.1f}x, 但20日仅涨{ret_20d:+.1f}%")
+
+        # 加分1：涨时放量（真金白银推）
+        if up_avg_vol > down_avg_vol:
+            ratio = up_avg_vol / down_avg_vol if down_avg_vol > 0 else 99
+            return ConditionResult(True,
+                f"[强势]涨时放量: 涨均量{up_avg_vol/1e8:.1f}亿, 量比{ratio:.1f}x, 涨{up_count}天跌{down_count}天")
+
+        # 加分2：涨时缩量但涨多跌少（筹码锁定）
+        if up_count > down_count and ret_20d > 0:
+            ratio = down_avg_vol / up_avg_vol if up_avg_vol > 0 else float("inf")
+            return ConditionResult(True,
+                f"[健康]涨时缩量(筹码锁定): 涨{up_count}天跌{down_count}天, 涨{ret_20d:+.1f}%, 跌均量是涨的{ratio:.1f}x")
+
+        # 加分3：跌时缩量（卖压衰竭）
+        if down_count >= up_count and down_avg_vol < up_avg_vol:
+            ratio = up_avg_vol / down_avg_vol if down_avg_vol > 0 else 99
+            return ConditionResult(True,
+                f"[企稳]跌时缩量(卖压衰竭): 跌均量仅{down_avg_vol/1e8:.1f}亿, 涨均量{up_avg_vol/1e8:.1f}亿")
+
+        # 默认不通过
+        return ConditionResult(False,
+            f"量价背离: 涨{up_count}天跌{down_count}天, 20日涨{ret_20d:+.1f}%")
 
     @staticmethod
     def check_persistence(daily_df: pd.DataFrame) -> ConditionResult:

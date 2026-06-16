@@ -17,10 +17,15 @@ def make_item(code, name, item_type, ts, price, ma20, ma_deviation, ret20, vol_r
     conds = ts.conditions
     score = 0
     if ts.state == 4: score += 70
-    elif ts.state == 3: score += 40
+    elif ts.state == 3: score += 50
     if conds["structure"].pass_: score += 10
-    if conds["volume"].pass_: score += 10
-    if conds["persistence"].pass_: score += 10
+    # 量能分级评分
+    vol_detail = conds["volume"].detail if conds["volume"].pass_ else ""
+    if "[强势]" in vol_detail: score += 15
+    elif "[健康]" in vol_detail or "[企稳]" in vol_detail: score += 10
+    if conds["persistence"].pass_:
+        score += 10
+        if max_cons >= 5: score += 5
 
     is_mainline = (ts.state == 4 and conds["structure"].pass_ and conds["volume"].pass_ and conds["persistence"].pass_)
 
