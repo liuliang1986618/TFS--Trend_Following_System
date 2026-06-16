@@ -453,6 +453,15 @@ class EnhancedActionGenerator:
                     and golden_cross and pct_20d > 0):
                 state = 4
 
+            # 规则1.5: state=1 但金叉完好+中期正动量 → 趋势向上不判弱
+            if state == 1 and golden_cross and pct_20d > 0:
+                if p > ma20:
+                    state = 3
+                elif pct_20d > 5:
+                    state = 3  # 中期动量足够强, 短暂跌穿MA20不改变趋势
+                else:
+                    state = 2
+
             # 规则2: state=2 但金叉完好+价格贴近MA20 → 正常回调
             if state == 2 and golden_cross and p > ma20 * 0.97:
                 state = 3
