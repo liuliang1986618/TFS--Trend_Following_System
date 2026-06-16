@@ -82,18 +82,6 @@ def replace_panel_data(panel_html, date_str, etfs, stocks, regime):
         if idx > 0:
             h = h[:idx] + new_ln + h[idx + len(old_ln):]
 
-    # 从每个卡片中删除「仓位管理」widget（面板级展示，不入卡片）
-    while True:
-        pos = h.find('📋 仓位管理')
-        if pos < 0:
-            break
-        det_start = h.rfind('<details', 0, pos)
-        det_end = h.find('</details>', pos)
-        if det_start >= 0 and det_end >= 0:
-            h = h[:det_start] + h[det_end + len('</details>'):]
-        else:
-            break
-
     return h
 
 
@@ -105,11 +93,18 @@ def inject(dashboard_path, panel_html):
     # 删除旧面板，但保留WATCHLIST/特别关注
     old_start = html.find('<div class="panel" style="margin:10px 20px 12px;border:2px solid #4ade80')
     if old_start > 0:
-        old_end = html.find('🔍 焦点板块', old_start)
+        old_end = html.find('<!--WATCHLIST-->', old_start)
+        if old_end < 0:
+            old_end = html.find('🔍 焦点板块', old_start)
         if old_end > 0:
             html = html[:old_start] + html[old_end:]
     # 注入新面板
-    idx = html.find('🔍 焦点板块')
+    marker = '<div class="panel"><h2 style="color:#42a5f5">🔍 焦点板块'
+    idx = html.find(marker)
+    if idx < 0:
+        idx = html.find('🔍 焦点板块')
+        if idx > 0:
+            idx = html.rfind('<div class="panel"', 0, idx)
     if idx > 0:
         html = html[:idx] + panel_html + html[idx:]
         open(dashboard_path, 'w').write(html)
@@ -206,73 +201,12 @@ def process_date(date_str):
         panel2 = panel2.replace('color:#4ade80', 'color:#f59e0b')
         hot_panel = panel2
 
-    # 提取面板级「仓位管理」内容，插入每个面板一次
-    mgmt_html = ''
-    mgmt_pos = panel_tmpl.find('📋 仓位管理')
-    if mgmt_pos > 0:
-        det_start = panel_tmpl.rfind('<details', 0, mgmt_pos)
-        det_end = panel_tmpl.find('</details>', mgmt_pos)
-        if det_start >= 0 and det_end >= 0:
-            mgmt_block = panel_tmpl[det_start:det_end + len('</details>')]
-            mgmt_html = '<div style="margin:8px 0 14px">' + mgmt_block + '</div>'
-    # 插入到面板标题下方
-    grid_marker = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-    if mgmt_html and grid_marker in panel1:
-        panel1 = panel1.replace(grid_marker, mgmt_html + grid_marker, 1)
-    if mgmt_html and hot_panel and grid_marker in hot_panel:
-        hot_panel = hot_panel.replace(grid_marker, mgmt_html + grid_marker, 1)
-
     # 注入（稳健面板 + 强势面板 + WATCHLIST拼在一起）
     # WATCHLIST 从模板提取（不在操作建议面板内，需单独追加）
     tmpl = open(TMPL).read()
     wl_start = tmpl.find('<!--WATCHLIST-->')
-    focus_div = '<div class="panel"><h2 style="color:#42a5f5">🔍 焦点板块'
-    wl_end = tmpl.find(focus_div, wl_start)
+    wl_end = tmpl.find('🔍 焦点板块', wl_start)
     wl_html = tmpl[wl_start:wl_end] if wl_start > 0 and wl_end > 0 else ''
-    # 提取特别关注的JavaScript（addStock/removeStock函数）
-    wl_script_start = tmpl.find('<script>\n// === 特别关注', wl_end)
-    if wl_script_start > 0:
-        wl_script_end = tmpl.find('</script>', wl_script_start)
-        if wl_script_end > 0:
-            wl_script = tmpl[wl_script_start:wl_script_end + len('</script>')]
-            wl_html += wl_script
-    # 从 actions_{date}.json 加载 watchlist 数据，填充到 tbody
-    actions_path = os.path.join(PROJECT, 'dashboard', 'data', f'actions_{date_str}.json')
-    wl_rows = ''
-    wl_count = 0
-    if os.path.exists(actions_path):
-        try:
-            adata = json.load(open(actions_path))
-            wl_items = adata.get('watchlist', [])
-            wl_count = len(wl_items)
-            for item in wl_items:
-                code = item.get('code', '')
-                name = item.get('name', code)
-                score = item.get('score', 0)
-                action = item.get('action', '')
-                pct = item.get('position_pct', 0)
-                reason = item.get('reason', '')
-                link = item.get('link', '#')
-                if score >= 50: sc_color = '#4ade80'
-                elif score >= 20: sc_color = '#d29922'
-                else: sc_color = '#f87171'
-                wl_rows += (
-                    f'<tr>'
-                    f'<td></td>'
-                    f'<td><a href="{link}" target="_blank" style="color:#58a6ff;font-weight:600;font-size:12px">{name}</a>'
-                    f'<br><span style="font-size:10px;color:#8b949e">{code}</span></td>'
-                    f'<td style="text-align:center"><span style="color:{sc_color};font-weight:700;font-size:12px">{score:.1f}</span></td>'
-                    f'<td style="text-align:center"><span style="color:#a371f7;font-size:11px">{action}</span></td>'
-                    f'<td style="text-align:center"><span style="color:#8b949e;font-size:11px">{pct:.0f}%</span></td>'
-                    f'<td style="font-size:10px;color:#8b949e;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{reason}</td>'
-                    f'<td><button onclick="removeStock(event,\'{code}\')" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:14px;line-height:1;padding:2px">×</button></td>'
-                    f'</tr>'
-                )
-        except Exception as ex:
-            print(f'  ⚠️ 加载 watchlist 数据失败: {ex}')
-    if wl_rows:
-        wl_html = wl_html.replace('<tbody></tbody>', f'<tbody>{wl_rows}</tbody>')
-        wl_html = wl_html.replace('⭐ 特别关注 (0只)', f'⭐ 特别关注 ({wl_count}只)')
     combined = panel1 + hot_panel + wl_html
     if inject(dash_path, combined):
         size = os.path.getsize(dash_path)
