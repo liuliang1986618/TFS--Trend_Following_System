@@ -1,6 +1,59 @@
 {
   "dates": [
     {
+      "date": "2026-06-16",
+      "weekday": "周二",
+      "uptrend_count": 13.5,
+      "downtrend_count": 86.5,
+      "health": "弱势",
+      "top_sectors": [
+        {
+          "name": "通信",
+          "code": "sector_通信"
+        },
+        {
+          "name": "金融",
+          "code": "sector_金融"
+        },
+        {
+          "name": "红利",
+          "code": "sector_红利"
+        },
+        {
+          "name": "科技",
+          "code": "sector_科技"
+        },
+        {
+          "name": "基建",
+          "code": "sector_基建"
+        },
+        {
+          "name": "其他",
+          "code": "sector_其他"
+        },
+        {
+          "name": "宽基",
+          "code": "sector_宽基"
+        },
+        {
+          "name": "医药",
+          "code": "sector_医药"
+        }
+      ],
+      "top_flip": [],
+      "leaders": {
+        "通信": [
+          {
+            "code": "159511",
+            "ret20": 0.0,
+            "name": "通信ETF南方"
+          }
+        ]
+      },
+      "is_today": true,
+      "is_monday": false
+    },
+    {
       "date": "2026-06-15",
       "weekday": "周一",
       "uptrend_count": 13.5,
@@ -103,7 +156,7 @@
           }
         ]
       },
-      "is_today": true,
+      "is_today": false,
       "is_monday": false
     },
     {
