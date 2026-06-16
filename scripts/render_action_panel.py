@@ -196,9 +196,9 @@ def process_date(date_str):
         panel2 = panel2.replace('ETF操作', 'ETF强势')
         panel2 = panel2.replace('个股操作', '个股强势')
         # 绿框 → 橙框，区分视觉
-        panel2 = panel2.replace('border:2px solid #4ade80', 'border:2px solid #f59e0b')
-        panel2 = panel2.replace('rgba(74,222,128,', 'rgba(245,158,11,')
-        panel2 = panel2.replace('color:#4ade80', 'color:#f59e0b')
+        panel2 = panel2.replace('border:2px solid #4ade80', 'border:2px solid #06b6d4')
+        panel2 = panel2.replace('rgba(74,222,128,', 'rgba(6,182,212,')
+        panel2 = panel2.replace('color:#4ade80', 'color:#06b6d4')
         hot_panel = panel2
 
     # 注入（稳健面板 + 强势面板 + WATCHLIST拼在一起）
