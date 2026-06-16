@@ -1,1 +1,69 @@
-{"date": "2026-06-12", "generated_at": "2026-06-12", "market_regime": "bear", "etf_top5": [], "stock_top5": [], "watchlist": []}
+{
+  "date": "2026-06-12",
+  "generated_at": "2026-06-12",
+  "market_regime": "bear",
+  "etf_top5": [],
+  "stock_top5": [],
+  "watchlist": [
+    {
+      "code": "000651",
+      "name": "格力电器",
+      "score": -3.3,
+      "action": "减仓",
+      "position_pct": 5.0,
+      "reason": "MACD金叉",
+      "link": "https://quote.eastmoney.com/sz000651.html",
+      "state": 2,
+      "ma_deviation": -0.7240215402888389,
+      "ret_20d": -4.344587884806356
+    },
+    {
+      "code": "600584",
+      "name": "长电科技",
+      "score": -5.5,
+      "action": "减仓",
+      "position_pct": 5.0,
+      "reason": "信号偏弱",
+      "link": "https://quote.eastmoney.com/sh600584.html",
+      "state": 2,
+      "ma_deviation": -7.722793487575102,
+      "ret_20d": 18.72523686477176
+    },
+    {
+      "code": "688456",
+      "name": "有研粉材",
+      "score": 1.5,
+      "action": "观察",
+      "position_pct": 5.0,
+      "reason": "均线多头，MACD金叉，放量上涨",
+      "link": "https://quote.eastmoney.com/sh688456.html",
+      "state": 4,
+      "ma_deviation": 11.911389808656008,
+      "ret_20d": 17.15337423312884
+    },
+    {
+      "code": "300747",
+      "name": "锐科激光",
+      "score": 3.7,
+      "action": "持仓",
+      "position_pct": 8.0,
+      "reason": "均线多头，MACD金叉，放量上涨",
+      "link": "https://quote.eastmoney.com/sz300747.html",
+      "state": 4,
+      "ma_deviation": 14.561615274879216,
+      "ret_20d": 19.26884996191926
+    },
+    {
+      "code": "603005",
+      "name": "晶方科技",
+      "score": -0.5,
+      "action": "减仓",
+      "position_pct": 5.0,
+      "reason": "均线多头，MACD金叉",
+      "link": "https://quote.eastmoney.com/sh603005.html",
+      "state": 4,
+      "ma_deviation": 15.77368360321426,
+      "ret_20d": 37.65243902439025
+    }
+  ]
+}

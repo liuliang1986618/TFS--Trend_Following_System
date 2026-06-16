@@ -213,6 +213,7 @@ else:
 | 10 | **核心龙头缺pkl** | 06-16 | 长电科技/中芯国际等封测龙头无日线数据 | 概念成分股pkl覆盖率需检查 |
 | 11 | **StateMachine判定与常识冲突** | 06-16 | 华天+12.3%被判弱,深科技+10.2%判跌 | 规则1.5:金叉+正动量不判弱 |
 | 12 | **评分排序≠领域龙头** | 06-16 | 材料公司趋势强但封测核心才是用户关心的 | 系统看趋势,领域看基本面 |
+| 13 | **行业标签偏见覆盖系统数据** | 06-16 | score:材料100>设备96>封测75,却因"封测龙头"标签反复推荐长电 | 系统数据优先于行业叙事 |
 
 ## 七、铁律补充
 
@@ -221,8 +222,41 @@ else:
 3. **API调用有成本。** 被封后用Playwright爬同花顺替代。
 4. **多源对比。** 同花顺和东方财富概念定义不同(成分股数差5倍),需标注来源。
 5. **核心标的pkl覆盖率。** 概念龙头必须全部有pkl,发现缺失立即下载。
+6. **系统数据优先。** 行业叙事会骗人,系统score不会。相信数据而非标签。
+7. **三级漏斗是核心工具。** sector→theme→stock,用好了自动告诉你哪个题材最强。
 
-## 八、与现有规则的关系
+## 八、数据完整性保障策略
+
+### 题材成分股多源获取
+
+```
+Source 1: akshare 东方财富 stock_board_concept_cons_em
+  → 3s重试 → 9s重试 → Source 2
+Source 2: 东方财富 API 直连 push2.eastmoney.com
+  → Source 3
+Source 3: 同花顺 Playwright 翻页渲染(5页全抓)
+  → 缓存到 theme_holdings.json
+Source 4: 本地缓存 data/theme_holdings.json
+  → 无? 标记缺失, 不猜测
+```
+
+### 个股pkl多源获取
+
+```
+Source 1: akshare stock_zh_a_hist
+  → Source 2: baostock
+  → Source 3: 本地 pkl
+  → 无? 报告缺失
+```
+
+### 构建前强制检查
+
+```
+Step 0 新增: 题材成分股覆盖率 + pkl覆盖率 + parquet覆盖率
+任一维度<80% → 警告, <50% → 终止
+```
+
+## 九、与现有规则的关系
 
 - [[stock-screening-quality-gate]] — 第4条已禁止空actions JSON，本规则加强为自动化检测+补齐时限
 - [[display-layer-prime-directive]] — 构建序列不可缺步骤

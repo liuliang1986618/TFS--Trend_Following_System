@@ -291,7 +291,7 @@ def generate_html(entries: list[dict], output_path: str):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>趋势跟随交易系统 · 看板</title>
-	h += '<style>
+<style>
 	
 	*{{margin:0;padding:0;box-sizing:border-box}}
 	html,body{{height:100%;overflow:hidden}}
@@ -336,7 +336,7 @@ def generate_html(entries: list[dict], output_path: str):
 	  .sidebar{{width:240px;min-width:240px}}
 	}}
 	
-	</style>'
+</style>
 </head>
 <body>
 <div class="sidebar" id="sidebar">
