@@ -112,9 +112,6 @@ def inject(dash_path, date_str):
         if old_end > 0:
             h = h[:old_start] + h[old_end:]
 
-    # 追加深钻入口链接
-    panel += '<div style="margin:12px 0;padding:10px 16px;background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);border-radius:8px;text-align:center"><a href="theme_dive_309004.html" target="_blank" style="color:#58a6ff;text-decoration:none;font-size:13px;font-weight:600">📊 查看题材深度分析 → 成分股排名·分类对比·智能选股</a></div>'
-
     marker = '<div class="panel"><h2 style="color:#42a5f5">🔍 焦点板块'
     idx = h.find(marker)
     if idx < 0:
