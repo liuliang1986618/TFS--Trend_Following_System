@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """四级漏斗卡片数据构建"""
 import json, os, sys
+import pandas as pd
 
 PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT)
+from src.engine.state_machine import StateMachine
 
 CATEGORY_ETF_MAP = {
     '半导体': ['半导体', '芯片'], '通信设备': ['通信', '5G'],
@@ -117,36 +120,62 @@ def build(date_str):
         else:
             card['etf'] = None
 
-        # 趋势最强题材：用全量theme_list做关键词匹配
+        # 趋势最强题材：关键词匹配 + 状态机跑趋势判定
         theme_list_path = os.path.join(PROJECT, 'dashboard', 'data', 'theme_list.json')
-        all_theme_names = []
+        theme_name_map = {}
         if os.path.exists(theme_list_path):
-            all_theme_names = json.load(open(theme_list_path))
+            for tn in json.load(open(theme_list_path)):
+                theme_name_map[str(tn.get('code',''))] = tn.get('name','')
 
-        theme_index = {t.get('name', ''): t for t in themes}
         keywords = CATEGORY_ETF_MAP.get(sname, [sname])
         related = []
-        for tn in all_theme_names:
-            tname = tn.get('name', '')
-            tcode = tn.get('code', '')
+
+        # 遍历已有的 theme_*.parquet，匹配关键词 + 跑状态机
+        data_dir = os.path.join(PROJECT, 'dashboard', 'data')
+        for fname in sorted(os.listdir(data_dir)):
+            if not fname.startswith('theme_') or not fname.endswith('.parquet'):
+                continue
+            tcode = fname.replace('theme_','').replace('.parquet','')
+            tname = theme_name_map.get(tcode, tcode)
             matched = any(kw in tname for kw in keywords)
             if not matched:
                 continue
-            if tname in theme_index:
-                t = theme_index[tname]
-                if t.get('state', 0) >= 3:
-                    related.append(t)
-            elif theme_holdings.get(tcode):
-                related.append({'name': tname, 'code': tcode, 'state': 0, 'score': 0,
-                                '_no_data': True})
+            try:
+                df = pd.read_parquet(os.path.join(data_dir, fname))
+                if len(df) < 20:
+                    continue
+                ts = StateMachine.classify(df)
+                if ts.state >= 3:
+                    # 计算评分（与板块同公式）
+                    tscore = 0
+                    if ts.state == 4: tscore += 70
+                    elif ts.state == 3: tscore += 50
+                    if ts.conditions["structure"].pass_: tscore += 10
+                    vol_d = ts.conditions["volume"].detail
+                    if "[强势]" in vol_d: tscore += 15
+                    elif "[健康]" in vol_d or "[企稳]" in vol_d: tscore += 10
+                    if ts.conditions["persistence"].pass_: tscore += 10
+                    related.append({
+                        'name': tname, 'code': tcode,
+                        'state': ts.state, 'score': tscore,
+                        'state_label': ts.state_label,
+                        'conditions': {
+                            'structure': {'pass': ts.conditions['structure'].pass_},
+                            'volume': {'pass': ts.conditions['volume'].pass_},
+                            'persistence': {'pass': ts.conditions['persistence'].pass_},
+                        }
+                    })
+            except:
+                pass
 
         related.sort(key=lambda x: -x.get('score', 0))
 
         card['themes'] = []
         for t in related[:3]:
-            tname = t.get('name', '')
-            tc = {'name': tname, 'code': t.get('code', ''),
-                  'state': t.get('state'), 'score': t.get('score', 0)}
+            tname = t['name']
+            tc = {'name': tname, 'code': t['code'],
+                  'state': t['state'], 'score': t['score'],
+                  'state_label': t.get('state_label','')}
             t_etf = match_best_etf(tname, etf_pool)
             if t_etf:
                 tc['etf'] = {'name': t_etf['name'], 'code': t_etf['code'],
@@ -156,7 +185,6 @@ def build(date_str):
                     tc['etf']['leaders'] = get_trend_leaders(e_stocks, date_str)
             else:
                 tc['etf'] = None
-            # 题材龙头：从theme_holdings取成分股，趋势择优
             th_code = t.get('code', '')
             th_stocks = theme_holdings.get(th_code, [])
             tc['leaders'] = get_trend_leaders(th_stocks, date_str) if th_stocks else []
