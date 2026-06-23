@@ -29,4 +29,4 @@
 
 ## 入口页面
 
-用户查看的是 `http://localhost:8765/index.html`（侧边栏壳 + iframe），不是 `trend_dashboard_*.html`。
+用户查看的是 `http://localhost:8765/index.html`。触发词：说"运行系统"自动setup→渲染→自测→打开浏览器。

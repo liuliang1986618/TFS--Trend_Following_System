@@ -35,3 +35,9 @@
 ## 入口页面
 
 用户查看的是 `http://localhost:8765/index.html`（侧边栏壳 + iframe），不是 `trend_dashboard_*.html`。
+
+## 触发词
+
+| 触发词 | 动作 |
+|:---|:---|
+| "运行系统"、"启动系统"、"跑系统" | 自动执行：`bash scripts/setup.sh` → `bash scripts/render_daily.sh` → Playwright自测 → `open index.html` |
