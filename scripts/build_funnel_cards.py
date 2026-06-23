@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """四级漏斗卡片数据构建"""
 import json, os, sys
+import pandas as pd
 
 PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT)
+from src.engine.state_machine import StateMachine
 
 CATEGORY_ETF_MAP = {
     '半导体': ['半导体', '芯片'], '通信设备': ['通信', '5G'],
