@@ -194,14 +194,18 @@ def build(date_str):
             sc = gen._build_card({'code': code, 'name': name, 'link': link},
                                  date_str, is_etf=False)
             if sc and sc.get('state') in (3, 4):
+                ctx = sc.get('trend_context', {})
+                # 漏斗龙头：按涨幅强度排序（不用freshness/vol等时机因子）
+                leader_score = ctx.get('total_return_pct', 0) * 0.6 + sc.get('score', 0) * 0.4
                 scored_leaders.append({
                     'code': code, 'name': name,
-                    'ret20': sc.get('trend_context', {}).get('total_return_pct', 0),
+                    'ret20': ctx.get('total_return_pct', 0),
                     'state': sc.get('state'),
                     'state_label': sc.get('state_label', ''),
-                    'score': sc.get('score', 0)
+                    'score': sc.get('score', 0),
+                    '_sort': leader_score
                 })
-        scored_leaders.sort(key=lambda x: -x['score'])
+        scored_leaders.sort(key=lambda x: -x['_sort'])
         card['leaders'] = scored_leaders[:3]
 
         if sector_stocks:
@@ -245,9 +249,9 @@ def build(date_str):
                     if tcode in info.get('themes', []):
                         t_stocks.append(code)
                 
-                # 取前50只扫描趋势（防过多）
+                # 取前100只扫描趋势（确保覆盖完整）
                 scored = []
-                for code in t_stocks[:50]:
+                for code in t_stocks[:100]:
                     path = os.path.join(PROJECT, 'dashboard', 'data', 'stock', f'{code}.parquet')
                     if not os.path.exists(path): continue
                     name = stock_names.get(code, code)
@@ -256,8 +260,12 @@ def build(date_str):
                     sc = gen._build_card({'code': code, 'name': name, 'link': link},
                                            date_str, is_etf=False)
                     if sc and sc.get('state') in (3, 4) and sc.get('score', 0) >= 60:
-                        scored.append({'code': code, 'name': name, 'score': sc['score']})
-                scored.sort(key=lambda x: -x['score'])
+                        ctx = sc.get('trend_context', {})
+                        pct = ctx.get('total_return_pct', 0)
+                        # 题材龙头：涨幅权重60% + score权重40%(去freshness影响)
+                        sort_key = pct * 0.6 + sc['score'] * 0.4
+                        scored.append({'code': code, 'name': name, 'score': sc['score'], '_s': sort_key})
+                scored.sort(key=lambda x: -x['_s'])
                 
                 tc = {'name': tname, 'code': tcode,
                       'state': 4 if pct20 > 5 else 3, 'score': round(tscore, 1),
