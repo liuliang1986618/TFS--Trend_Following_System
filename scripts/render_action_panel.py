@@ -10,7 +10,6 @@ TMPL = os.path.join(PROJECT, 'dashboard', 'data', 'standard_template.html')
 
 
 def extract_action_panel(html):
-    """提取操作建议面板（不含特别关注/WATCHLIST）"""
     start = html.find('<div class="panel" style="margin:10px 20px 12px;border:2px solid #4ade80')
     if start < 0:
         return None
@@ -18,7 +17,7 @@ def extract_action_panel(html):
     if end < 0:
         end = html.find('🔍 焦点板块', start)
     if end < 0:
-        end = html.find('</body>', start)  # fallback：取到body结尾
+        end = html.find('</body>', start)
     if end < 0:
         end = len(html)
     return html[start:end]
@@ -202,7 +201,7 @@ def process_date(date_str):
     # 面板1: 稳健推荐（绿色边框）
     panel1 = replace_panel_data(tmpl_robust, date_str, etfs, stocks, regime)
     panel1 = panel1.replace('📋 明日操作建议', '📋 稳健推荐 — 趋势初期，适合建仓')
-    panel1 = panel1.replace(' — 2026-06-15', ' — 全量直扫')
+    panel1 = panel1.replace(' — 2026-06-15', '<span style=\"color:#ff4444\"> · 全量直扫</span>')
     panel1 = panel1.replace('ETF操作', 'ETF稳健')
     panel1 = panel1.replace('个股操作', '个股稳健')
 
@@ -211,7 +210,7 @@ def process_date(date_str):
     if hot_etfs or hot_stocks:
         panel2 = replace_panel_data(tmpl_hot, date_str, hot_etfs, hot_stocks, regime)
         panel2 = panel2.replace('📋 明日操作建议', '🔥 强势追踪 — 趋势极强但短期过热，等回调再进')
-        panel2 = panel2.replace(' — 2026-06-15', ' — 全量直扫')
+        panel2 = panel2.replace(' — 2026-06-15', '<span style=\"color:#ff4444\"> · 全量直扫</span>')
         panel2 = panel2.replace('ETF操作', 'ETF强势')
         panel2 = panel2.replace('个股操作', '个股强势')
         panel2 = panel2.replace('border:2px solid #4ade80', 'border:2px solid #06b6d4')
