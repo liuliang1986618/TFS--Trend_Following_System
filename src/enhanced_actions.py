@@ -1246,7 +1246,7 @@ class EnhancedActionGenerator:
         elif days_running < 60:
             freshness = 5    # 中期，趋势确立
         else:
-            freshness = 2    # 成熟期，有趋势惯性，不是0
+            freshness = 3    # 成熟期有趋势惯性，不应归零
 
         # ── 临界爆发 ──
         # state=3 均线多头+放量 → 即将进入上升趋势
@@ -1279,6 +1279,21 @@ class EnhancedActionGenerator:
         if ind.get("ma_mid_bullish"):
             quality += 3
 
+        # ── 趋势强度（强势因子）：奖励高涨幅，不因趋势老旧扣分 ──
+        # 互补新鲜因子(freshness)，确保长期强势趋势不被埋没
+        strength = 0
+        total_ret = ind.get("total_return_pct", pct_20d)
+        if total_ret > 150:
+            strength = 15
+        elif total_ret > 100:
+            strength = 12
+        elif total_ret > 60:
+            strength = 8
+        elif total_ret > 30:
+            strength = 4
+        elif total_ret > 10:
+            strength = 2
+
         # ── 量能确认 ──
         vol = 0
         vol_ratio = ind.get("vol_ratio", 1)
@@ -1293,7 +1308,7 @@ class EnhancedActionGenerator:
         elif pct_5d < -3:
             penalty = -5
 
-        score = base + freshness + transition + momentum + quality + vol + penalty
+        score = base + freshness + transition + momentum + quality + strength + vol + penalty
         return max(0, min(150, round(score, 1)))  # 上限150，避免全满分无区分度
 
     @staticmethod
