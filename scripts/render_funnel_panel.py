@@ -88,7 +88,7 @@ def render_card(c):
             if t_leaders:
                 names = ' '.join(
                     f'<a href="https://quote.eastmoney.com/{"sh" if str(l.get("code","")).startswith(("6","9")) else "sz"}{l.get("code","")}.html" target="_blank" style="color:#4ade80;text-decoration:none;font-size:10px">{l.get("name","")}</a>'
-                    for l in t_leaders[:3])
+                    for l in t_leaders[:5])
                 h += f' | 🏆 <span style="color:#4ade80;font-size:10px">{names}</span>'
             h += '</div>'
 

@@ -195,8 +195,8 @@ def build(date_str):
                                  date_str, is_etf=False)
             if sc and sc.get('state') in (3, 4):
                 ctx = sc.get('trend_context', {})
-                # 漏斗龙头：按涨幅强度排序（不用freshness/vol等时机因子）
-                leader_score = ctx.get('total_return_pct', 0) * 0.6 + sc.get('score', 0) * 0.4
+                state_penalty = 1.0 if sc.get('state') == 4 else 0.5
+                leader_score = (ctx.get('total_return_pct', 0) * 0.6 + sc.get('score', 0) * 0.4) * state_penalty
                 scored_leaders.append({
                     'code': code, 'name': name,
                     'ret20': ctx.get('total_return_pct', 0),
@@ -243,15 +243,26 @@ def build(date_str):
             # 为每个主题找最强的趋势龙头
             for tcode, tscore, pct20, ma_dev in top_themes:
                 tname = theme_names_map.get(tcode, tcode)
-                # 从constituent_map找该主题的成分股，扫描趋势
+                # 从constituent_map找该主题的成分股，找主板块（出现频率最高的板块）
                 t_stocks = []
+                sector_counter = {}
                 for code, info in cm_rev.items():
                     if tcode in info.get('themes', []):
                         t_stocks.append(code)
+                        for sc in info.get('sectors', []):
+                            sector_counter[sc] = sector_counter.get(sc, 0) + 1
                 
-                # 取前100只扫描趋势（确保覆盖完整）
+                # 确定主板块（该题材真正的业务归属）
+                main_sector = max(sector_counter, key=sector_counter.get) if sector_counter else None
+                
+                # 只取属于主板块的成分股（排除业务关联弱的杂股）
+                t_filtered = [c for c in t_stocks if main_sector and main_sector in cm_rev.get(c, {}).get('sectors', [])]
+                if len(t_filtered) < 3:
+                    t_filtered = t_stocks  # 不够3只就不过滤
+                
+                # 扫描趋势，取top5
                 scored = []
-                for code in t_stocks[:100]:
+                for code in t_filtered[:100]:
                     path = os.path.join(PROJECT, 'dashboard', 'data', 'stock', f'{code}.parquet')
                     if not os.path.exists(path): continue
                     name = stock_names.get(code, code)
@@ -262,14 +273,15 @@ def build(date_str):
                     if sc and sc.get('state') in (3, 4) and sc.get('score', 0) >= 60:
                         ctx = sc.get('trend_context', {})
                         pct = ctx.get('total_return_pct', 0)
-                        # 题材龙头：涨幅权重60% + score权重40%(去freshness影响)
-                        sort_key = pct * 0.6 + sc['score'] * 0.4
+                        # 龙头排序：state=4上升趋势优先，state=3打折（不稳定的不算龙头）
+                        state_penalty = 1.0 if sc.get('state') == 4 else 0.5
+                        sort_key = (pct * 0.6 + sc['score'] * 0.4) * state_penalty
                         scored.append({'code': code, 'name': name, 'score': sc['score'], '_s': sort_key})
                 scored.sort(key=lambda x: -x['_s'])
                 
                 tc = {'name': tname, 'code': tcode,
                       'state': 4 if pct20 > 5 else 3, 'score': round(tscore, 1),
-                      'leaders': scored[:3]}
+                      'leaders': scored[:5]}
                 # 匹配ETF
                 t_etf = match_best_etf(tname, etf_pool)
                 if t_etf:
