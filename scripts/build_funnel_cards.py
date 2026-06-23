@@ -17,6 +17,16 @@ CATEGORY_ETF_MAP = {
     '白酒': ['白酒', '酒'], '电力': ['电力', '绿电'],
     '零售': ['零售', '电商', '消费'],
     '光学光电子': ['光学', '光电子', 'LED'],
+    '电子化学品': ['电子化学', '化工', '材料', '电子'],
+    '非金属材料': ['非金属', '材料', '化工', '建材'],
+    '金属新材料': ['金属', '新材料', '有色', '稀土', '材料'],
+    '小金属': ['小金属', '稀有', '稀土', '钨', '有色', '金属'],
+    '工业金属': ['工业金属', '有色', '金属', '铜', '铝'],
+    '自动化设备': ['自动化', '机器人', '智能', '设备'],
+    '通用设备': ['通用设备', '设备', '机械'],
+    '军工电子': ['军工', '电子', '国防'],
+    '能源金属': ['能源金属', '锂', '钴', '镍', '有色'],
+    '塑料制品': ['塑料', '化工', '材料'],
 }
 
 
@@ -71,7 +81,30 @@ def build(date_str):
     dd = json.load(open(os.path.join(PROJECT, 'dashboard/data/dashboard_data.json')))
     ea = json.load(open(os.path.join(PROJECT, 'dashboard/data',
                      f'enhanced_actions_{date_str}.json')))
-    etf_pool = ea.get('etf_cards', []) + ea.get('hot_etf_cards', [])
+
+    # 全量ETF池：从parquet目录扫描，不用top20硬编码
+    import pandas as pd
+    etf_names_map = {}
+    etf_names_path = os.path.join(PROJECT, 'dashboard', 'data', 'etf_names.json')
+    if os.path.exists(etf_names_path):
+        etf_names_map = json.load(open(etf_names_path))
+    # fallback: etf_list.json
+    if not etf_names_map:
+        etf_list_path = os.path.join(PROJECT, 'dashboard', 'data', 'etf_list.json')
+        if os.path.exists(etf_list_path):
+            for e in json.load(open(etf_list_path)):
+                etf_names_map[e.get('symbol', e.get('code', ''))] = e.get('name', '')
+
+    etf_pool = []
+    etf_dir = os.path.join(PROJECT, 'dashboard', 'data', 'etf')
+    if os.path.isdir(etf_dir):
+        for fname in sorted(os.listdir(etf_dir)):
+            if not fname.endswith('.parquet'): continue
+            code = fname.replace('.parquet', '')
+            name = etf_names_map.get(code, code)
+            link = f'https://quote.eastmoney.com/sh{code}.html' if code.startswith('5') \
+                   else f'https://quote.eastmoney.com/sz{code}.html'
+            etf_pool.append({'code': code, 'name': name, 'score': 0, 'link': link})
 
     etf_holdings = {}
     if os.path.exists(os.path.join(PROJECT, 'data/etf_holdings.json')):
@@ -81,12 +114,36 @@ def build(date_str):
     if os.path.exists(os.path.join(PROJECT, 'data/theme_holdings.json')):
         theme_holdings = json.load(open(os.path.join(PROJECT, 'data/theme_holdings.json')))
 
+    # 加载constituent_map反向映射（用于题材关联）
+    cm = json.load(open(os.path.join(PROJECT, 'dashboard/data/constituent_map.json')))
+    cm_rev = cm.get('reverse', {})
+
+    # 加载主题名称映射
+    theme_names_map = {}
+    theme_list_path = os.path.join(PROJECT, 'dashboard', 'data', 'theme_list.json')
+    if os.path.exists(theme_list_path):
+        for t in json.load(open(theme_list_path)):
+            theme_names_map[t.get('code', '')] = t.get('name', '')
+
+    # 加载stock_names
+    stock_names = {}
+    sp = os.path.join(PROJECT, 'data/stock_names.json')
+    if os.path.exists(sp):
+        stock_names = json.load(open(sp))
+
+    # 初始化增强扫描器（用于题材龙头趋势判定）
+    import sys
+    if PROJECT not in sys.path:
+        sys.path.insert(0, PROJECT)
+    from src.enhanced_actions import EnhancedActionGenerator
+    gen = EnhancedActionGenerator()
+
     themes = dd.get('themes', [])
     sectors = [s for s in dd.get('sectors', []) if s.get('state', 0) >= 3]
     sectors.sort(key=lambda x: (-x.get('score', 0), -x.get('ret_20d', 0)))
 
     funnel_cards = []
-    for sec in sectors[:4]:
+    for sec in sectors[:6]:  # 从Top4扩展到Top6，覆盖更多板块
         sname = sec.get('name', '')
         # 完整板块信息（从dashboard_data搬过来）
         card = {
@@ -117,50 +174,102 @@ def build(date_str):
         else:
             card['etf'] = None
 
-        # 趋势最强题材：用全量theme_list做关键词匹配
-        theme_list_path = os.path.join(PROJECT, 'dashboard', 'data', 'theme_list.json')
-        all_theme_names = []
-        if os.path.exists(theme_list_path):
-            all_theme_names = json.load(open(theme_list_path))
-
-        theme_index = {t.get('name', ''): t for t in themes}
-        keywords = CATEGORY_ETF_MAP.get(sname, [sname])
-        related = []
-        for tn in all_theme_names:
-            tname = tn.get('name', '')
-            tcode = tn.get('code', '')
-            matched = any(kw in tname for kw in keywords)
-            if not matched:
-                continue
-            if tname in theme_index:
-                t = theme_index[tname]
-                if t.get('state', 0) >= 3:
-                    related.append(t)
-            elif theme_holdings.get(tcode):
-                related.append({'name': tname, 'code': tcode, 'state': 0, 'score': 0,
-                                '_no_data': True})
-
-        related.sort(key=lambda x: -x.get('score', 0))
-
+        # 趋势最强题材：从constituent_map反向映射，统计板块成分股的热门主题
         card['themes'] = []
-        for t in related[:3]:
-            tname = t.get('name', '')
-            tc = {'name': tname, 'code': t.get('code', ''),
-                  'state': t.get('state'), 'score': t.get('score', 0)}
-            t_etf = match_best_etf(tname, etf_pool)
-            if t_etf:
-                tc['etf'] = {'name': t_etf['name'], 'code': t_etf['code'],
-                             'score': t_etf['score'], 'link': t_etf.get('link', '')}
-                e_stocks = etf_holdings.get(t_etf['code'], [])
-                if e_stocks:
-                    tc['etf']['leaders'] = get_trend_leaders(e_stocks, date_str)
-            else:
-                tc['etf'] = None
-            # 题材龙头：从theme_holdings取成分股，趋势择优
-            th_code = t.get('code', '')
-            th_stocks = theme_holdings.get(th_code, [])
-            tc['leaders'] = get_trend_leaders(th_stocks, date_str) if th_stocks else []
-            card['themes'].append(tc)
+        # 板块成分股：从constituent_map反向映射获取（同时用于龙头和题材）
+        scode = sec.get('code', '')
+        sector_stocks = []
+        for code, info in cm_rev.items():
+            if scode in info.get('sectors', []):
+                sector_stocks.append(code)
+
+        # 板块成分股龙头：用_build_card实时扫描取top3
+        scored_leaders = []
+        for code in sector_stocks:
+            path = os.path.join(PROJECT, 'dashboard', 'data', 'stock', f'{code}.parquet')
+            if not os.path.exists(path): continue
+            name = stock_names.get(code, code)
+            link = f'https://quote.eastmoney.com/sh{code}.html' if code.startswith(('6','9')) \
+                   else f'https://quote.eastmoney.com/sz{code}.html'
+            sc = gen._build_card({'code': code, 'name': name, 'link': link},
+                                 date_str, is_etf=False)
+            if sc and sc.get('state') in (3, 4):
+                scored_leaders.append({
+                    'code': code, 'name': name,
+                    'ret20': sc.get('trend_context', {}).get('total_return_pct', 0),
+                    'state': sc.get('state'),
+                    'state_label': sc.get('state_label', ''),
+                    'score': sc.get('score', 0)
+                })
+        scored_leaders.sort(key=lambda x: -x['score'])
+        card['leaders'] = scored_leaders[:3]
+
+        if sector_stocks:
+            # 找出该板块关联的所有题材（去重）
+            theme_set = set()
+            for code in sector_stocks:
+                for tcode in cm_rev.get(code, {}).get('themes', []):
+                    theme_set.add(tcode)
+            
+            # 对每个题材做趋势评估：读parquet数据，计算评分
+            import pandas as pd
+            import numpy as np
+            theme_scored = []
+            for tcode in theme_set:
+                tpath = os.path.join(PROJECT, 'dashboard', 'data', 'theme', f'{tcode}.parquet')
+                if not os.path.exists(tpath): continue
+                try:
+                    tdf = pd.read_parquet(tpath)
+                    if len(tdf) < 30: continue
+                    close = tdf['close'].values
+                    # 简单趋势评估：20日涨幅 + state判定
+                    pct20 = (close[-1] / close[-21] - 1) * 100 if len(close) >= 21 else 0
+                    ma20 = np.mean(close[-20:])
+                    ma_dev = (close[-1] / ma20 - 1) * 100
+                    # 粗略评分：20日涨幅越大越好，回调越少越好
+                    score = pct20 * 0.5 + ma_dev * 0.3 + 30  # 基础分30
+                    score = max(0, min(150, score))
+                    theme_scored.append((tcode, score, pct20, ma_dev))
+                except: pass
+            
+            # 按评分降序取top10
+            theme_scored.sort(key=lambda x: -x[1])
+            top_themes = theme_scored[:10]
+            
+            # 为每个主题找最强的趋势龙头
+            for tcode, tscore, pct20, ma_dev in top_themes:
+                tname = theme_names_map.get(tcode, tcode)
+                # 从constituent_map找该主题的成分股，扫描趋势
+                t_stocks = []
+                for code, info in cm_rev.items():
+                    if tcode in info.get('themes', []):
+                        t_stocks.append(code)
+                
+                # 取前50只扫描趋势（防过多）
+                scored = []
+                for code in t_stocks[:50]:
+                    path = os.path.join(PROJECT, 'dashboard', 'data', 'stock', f'{code}.parquet')
+                    if not os.path.exists(path): continue
+                    name = stock_names.get(code, code)
+                    link = f'https://quote.eastmoney.com/sh{code}.html' if code.startswith(('6','9')) \
+                           else f'https://quote.eastmoney.com/sz{code}.html'
+                    sc = gen._build_card({'code': code, 'name': name, 'link': link},
+                                           date_str, is_etf=False)
+                    if sc and sc.get('state') in (3, 4) and sc.get('score', 0) >= 60:
+                        scored.append({'code': code, 'name': name, 'score': sc['score']})
+                scored.sort(key=lambda x: -x['score'])
+                
+                tc = {'name': tname, 'code': tcode,
+                      'state': 4 if pct20 > 5 else 3, 'score': round(tscore, 1),
+                      'leaders': scored[:3]}
+                # 匹配ETF
+                t_etf = match_best_etf(tname, etf_pool)
+                if t_etf:
+                    tc['etf'] = {'name': t_etf['name'], 'code': t_etf['code'],
+                                 'score': t_etf['score'], 'link': t_etf.get('link', '')}
+                else:
+                    tc['etf'] = None
+                card['themes'].append(tc)
 
         funnel_cards.append(card)
 

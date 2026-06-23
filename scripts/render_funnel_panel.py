@@ -50,7 +50,9 @@ def render_card(c):
     if etf:
         h += f'<div style="font-size:11px;margin:4px 0">📊 最佳ETF: <a href="{etf.get("link","#")}" target="_blank" style="color:#f59e0b;text-decoration:none">{etf["name"]}</a> <span style="color:#8b949e">({etf["score"]:.0f}分)</span>'
         if etf.get('leaders'):
-            names = ' '.join(l['name'] for l in etf['leaders'][:3])
+            names = ' '.join(
+                f'<a href="https://quote.eastmoney.com/{"sh" if str(l.get("code","")).startswith(("6","9")) else "sz"}{l.get("code","")}.html" target="_blank" style="color:#4ade80;text-decoration:none;font-size:10px">{l["name"]}</a>'
+                for l in etf['leaders'][:3])
             h += f' <span style="color:#8b949e;font-size:10px">└ {names}</span>'
         h += '</div>'
 
@@ -60,7 +62,9 @@ def render_card(c):
         h += '<div style="font-size:10px;color:#d29922;font-weight:700;margin:6px 0 2px">🏆 板块龙头（近20日涨幅）</div>'
         for l in leaders[:3]:
             ret20 = l.get('ret20', 0)
-            h += f'<span style="color:#4ade80;font-size:10px">{l.get("name",l.get("code"))}({ret20:+.1f}%)</span> '
+            code = str(l.get('code', ''))
+            mkt = 'sh' if code.startswith(('6','9')) else 'sz'
+            h += f'<a href="https://quote.eastmoney.com/{mkt}{code}.html" target="_blank" style="color:#4ade80;font-size:10px;text-decoration:none">{l.get("name",code)}({ret20:+.1f}%)</a> '
 
     h += '<div style="border-top:1px solid #21262d;margin:8px 0"></div>'
 
@@ -76,11 +80,15 @@ def render_card(c):
             if t_etf:
                 h += f' | 📊 <a href="{t_etf.get("link","#")}" target="_blank" style="color:#f59e0b;text-decoration:none;font-size:10px">{t_etf["name"]}</a>'
                 if t_etf.get('leaders'):
-                    names = ' '.join(l['name'] for l in t_etf['leaders'][:2])
+                    names = ' '.join(
+                        f'<a href="https://quote.eastmoney.com/{"sh" if str(l.get("code","")).startswith(("6","9")) else "sz"}{l.get("code","")}.html" target="_blank" style="color:#4ade80;text-decoration:none;font-size:9px">{l["name"]}</a>'
+                        for l in t_etf['leaders'][:2])
                     h += f' <span style="color:#8b949e;font-size:9px">└{names}</span>'
             t_leaders = t.get('leaders', [])
             if t_leaders:
-                names = ' '.join(l.get('name', '') for l in t_leaders[:3])
+                names = ' '.join(
+                    f'<a href="https://quote.eastmoney.com/{"sh" if str(l.get("code","")).startswith(("6","9")) else "sz"}{l.get("code","")}.html" target="_blank" style="color:#4ade80;text-decoration:none;font-size:10px">{l.get("name","")}</a>'
+                    for l in t_leaders[:3])
                 h += f' | 🏆 <span style="color:#4ade80;font-size:10px">{names}</span>'
             h += '</div>'
 
@@ -99,8 +107,8 @@ def inject(dash_path, date_str):
         return False
 
     panel = '<div class="panel" style="margin:10px 20px 12px;border:2px solid #d29922;border-radius:10px;padding:16px;background:linear-gradient(135deg,rgba(210,153,34,0.08),rgba(210,153,34,0.02))">'
-    panel += '<h2 style="color:#d29922;margin-bottom:2px;font-size:16px">🔥 强势板块深度穿透</h2>'
-    panel += '<p style="color:#8b949e;font-size:10px;margin-bottom:8px">Top4趋势最强板块（state≥3，按评分降序） | 每板块下钻：ETF→成分股龙头→趋势最强题材</p>'
+    panel += '<h2 style="color:#d29922;margin-bottom:2px;font-size:16px">🔥 强势板块深度穿透 <span style="color:#ff4444;font-size:14px;font-weight:900">· 漏斗精选</span></h2>'
+    panel += '<p style="color:#8b949e;font-size:10px;margin-bottom:8px">Top6趋势最强板块（state≥3，按评分降序） | 每板块下钻：ETF→成分股龙头→趋势最强题材</p>'
     panel += '<div class="focus-grid">'  # 使用双列布局
     for c in cards:
         panel += render_card(c)
@@ -122,12 +130,13 @@ def inject(dash_path, date_str):
         if panel_end < panel_start: break
         h = h[:panel_start] + h[panel_end + 6:]
 
-    marker = '<h2 style="color:#42a5f5'
-    idx = h.find(marker)
-    if idx < 0:
-        print('  ❌ no marker')
+    # 注入到第一个panel之前（header之后），使漏斗排第一位
+    first_panel = h.find('<div class="panel"')
+    if first_panel > 0:
+        h = h[:first_panel] + panel + h[first_panel:]
+    else:
+        print('  ❌ no panel found')
         return False
-    h = h[:idx] + panel + h[idx:]
     open(dash_path, 'w').write(h)
     print(f'  ✅ {date_str}: 漏斗面板 {len(cards)}张卡')
     return True

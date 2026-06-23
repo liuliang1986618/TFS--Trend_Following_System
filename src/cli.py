@@ -11,6 +11,20 @@ import json
 import webbrowser
 from datetime import datetime, timedelta
 
+# === 数据源 AB 开关 ===
+# 默认使用新数据管理模块 (src/data_mgr)
+# 设置环境变量 USE_NEW_DATA_MGR=0 回退老管道 (src/data)
+USE_NEW_DATA_MGR = os.environ.get("USE_NEW_DATA_MGR", "1") != "0"
+
+def _get_fetcher():
+    """根据 AB 开关返回 DataFetcher。"""
+    if USE_NEW_DATA_MGR:
+        from src.data_mgr.fetcher import DataFetcher
+    else:
+        from src.data.fetcher import DataFetcher
+    return DataFetcher()
+
+
 # === 融合层导入（可通过 config 禁用） ===
 try:
     from src.fusion import FusionOrchestrator
@@ -25,12 +39,12 @@ def cmd_run(date_str: str = None):
         date_str = datetime.now().strftime("%Y-%m-%d")
 
     print(f"🔍 趋势跟随系统 — 分析日期: {date_str}")
+    print(f"   数据源: {'新 data_mgr' if USE_NEW_DATA_MGR else '老 src/data'}")
     print("=" * 60)
 
     # 1. 数据获取
     print("📡 [1/5] 获取数据...")
-    from src.data.fetcher import DataFetcher
-    fetcher = DataFetcher()
+    fetcher = _get_fetcher()
 
     # 检查是否已有本地数据，没有则初始化
     if not fetcher.local_db.list_symbols("sector"):
@@ -47,9 +61,22 @@ def cmd_run(date_str: str = None):
     print("📊 [2/5] 加载数据...")
     sector_data = fetcher.load_all_sectors()
     theme_data = fetcher.load_all_themes()
-    stock_data = fetcher.load_all_stocks()
     etf_data = fetcher.load_all_etfs()
-    print(f"   板块: {len(sector_data)}, 题材: {len(theme_data)}, 个股: {len(stock_data)}, ETF: {len(etf_data)}")
+    # 漏斗懒加载：从活跃题材提取成分股，只加载需要的个股
+    constituent_symbols = set()
+    for gn_code in theme_data:
+        constituent_symbols.update(fetcher.mapping.get_theme_symbols(gn_code))
+    # 也加入板块成分股
+    for bk_code in sector_data:
+        constituent_symbols.update(fetcher.mapping.get_sector_symbols(bk_code))
+
+    if constituent_symbols:
+        stock_data = fetcher.load_stocks_by_symbols(list(constituent_symbols))
+    else:
+        # 降级：成分股映射为空时（如东方财富IP被封），回退全量加载
+        print("   ⚠️ 成分股映射为空，回退全量加载个股...")
+        stock_data = fetcher.load_all_stocks()
+    print(f"   板块: {len(sector_data)}, 题材: {len(theme_data)}, 个股: {len(stock_data)} (候选{len(constituent_symbols)}只), ETF: {len(etf_data)}")
 
     # 2.5 融合层：市场环境门控
     fusion_regime = None

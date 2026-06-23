@@ -99,8 +99,12 @@ def inject(dashboard_path, panel_html):
         if old_end > 0:
             html = html[:old_start] + html[old_end:]
     # 注入新面板
-    marker = '<div class="panel"><h2 style="color:#42a5f5">🔍 焦点板块'
+    marker = '<div class="panel" style="margin:10px 20px 12px;border:2px solid #42a5f5'
     idx = html.find(marker)
+    if idx < 0:
+        idx = html.find('border:2px solid #42a5f5')
+        if idx > 0:
+            idx = html.rfind('<div class="panel"', 0, idx)
     if idx < 0:
         idx = html.find('🔍 焦点板块')
         if idx > 0:
@@ -182,20 +186,33 @@ def process_date(date_str):
         print(f'  ❌ {date_str}: cannot extract panel from template')
         return False
 
-    # 面板1: 稳健推荐（绿色边框，沿用原模板配色）
-    panel1 = replace_panel_data(panel_tmpl, date_str, etfs, stocks, regime)
+    # 模板含双h2（稳健+强势各10卡片），拆分为独立面板避免重复显示
+    import re as _re
+    _h2s = [m.start() for m in _re.finditer(r'<h2[^>]*>', panel_tmpl)]
+    if len(_h2s) >= 2:
+        _split = panel_tmpl.rfind('</div></div>', 0, _h2s[1])
+        _split = _split + 12 if _split > 0 else _h2s[1]
+        tmpl_robust = panel_tmpl[:_split]
+        tmpl_hot = panel_tmpl[_split:]
+    else:
+        tmpl_robust = panel_tmpl
+        tmpl_hot = panel_tmpl
+
+    # 面板1: 稳健推荐（绿色边框）
+    panel1 = replace_panel_data(tmpl_robust, date_str, etfs, stocks, regime)
     panel1 = panel1.replace('📋 明日操作建议', '📋 稳健推荐 — 趋势初期，适合建仓')
+    panel1 = panel1.replace(' — 2026-06-15', ' — 全量扫描')
     panel1 = panel1.replace('ETF操作', 'ETF稳健')
     panel1 = panel1.replace('个股操作', '个股稳健')
 
-    # 面板2: 强势追踪（橙色边框，趋势强但过热）
+    # 面板2: 强势追踪（青色边框）
     hot_panel = ''
     if hot_etfs or hot_stocks:
-        panel2 = replace_panel_data(panel_tmpl, date_str, hot_etfs, hot_stocks, regime)
+        panel2 = replace_panel_data(tmpl_hot, date_str, hot_etfs, hot_stocks, regime)
         panel2 = panel2.replace('📋 明日操作建议', '🔥 强势追踪 — 趋势极强但短期过热，等回调再进')
+        panel2 = panel2.replace(' — 2026-06-15', ' — 全量扫描')
         panel2 = panel2.replace('ETF操作', 'ETF强势')
         panel2 = panel2.replace('个股操作', '个股强势')
-        # 绿框 → 橙框，区分视觉
         panel2 = panel2.replace('border:2px solid #4ade80', 'border:2px solid #06b6d4')
         panel2 = panel2.replace('rgba(74,222,128,', 'rgba(6,182,212,')
         panel2 = panel2.replace('color:#4ade80', 'color:#06b6d4')

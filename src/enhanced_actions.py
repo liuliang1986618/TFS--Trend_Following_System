@@ -180,9 +180,9 @@ class EnhancedActionGenerator:
 
     # ── 强势追踪选择标准（类常量，可调优） ─────────────────────
     HOT_MIN_PCT_20D = 30       # 个股：20日涨幅阈值（%），超此视为过热
-    HOT_MIN_SCORE = 75         # 个股：最低趋势评分，保证不是垃圾票
+    HOT_MIN_SCORE = 110        # 个股：最低趋势评分（上限150，原75→110）
     HOT_MIN_PCT_20D_ETF = 10   # ETF：20日涨幅阈值（%）
-    HOT_MIN_SCORE_ETF = 60     # ETF：最低趋势评分（放宽以纳入更多候选）
+    HOT_MIN_SCORE_ETF = 90     # ETF：最低趋势评分（上限150，原60→90）
     HOT_TOP_N = 10             # 强势追踪每类取前N只
 
     # ── 仓位基准映射 (对齐6状态机 POSITIONS dict) ─────────────────
@@ -228,40 +228,49 @@ class EnhancedActionGenerator:
     # ── 数据加载 ───────────────────────────────────────────────
 
     def _load_price_data(self, code: str, is_etf: bool) -> Optional[dict]:
-        """加载标的的价格数据。
+        """加载标的的价格数据（从 LocalDB Parquet 读取）。
 
         返回 {date, open, high, low, close, volume} 的 numpy arrays，
         或 None（数据不足）。
+
+        Phase 5 改造：老代码读 data/etf_stocks/etf_{code}.pkl 和
+        data/massive_stocks/{code}.pkl，改为读 dashboard/data/{type}/{code}.parquet。
         """
         cache_key = f"{code}_{'etf' if is_etf else 'stock'}"
         if cache_key in self._cache:
             return self._cache[cache_key]
 
-        if is_etf:
-            path = os.path.join(self.data_dir, "etf_stocks",
-                                f"etf_{code}.pkl")
-        else:
-            path = os.path.join(self.data_dir, "massive_stocks",
-                                f"{code}.pkl")
+        dtype = "etf" if is_etf else "stock"
+        # parquet 数据存储在 output_dir（默认 dashboard/data），而非老 data_dir（默认 data）
+        path = os.path.join(self.output_dir, dtype, f"{code}.parquet")
 
         if not os.path.exists(path):
             self._cache[cache_key] = None
             return None
 
         try:
-            df = pickle.load(open(path, "rb"))
+            import pandas as pd
+            df = pd.read_parquet(path)
             if df is None or len(df) < 30:
                 self._cache[cache_key] = None
                 return None
+
             result = {}
             for col in df.columns:
                 result[col] = df[col].values
+
+            # 确保 date 字段存在（parquet 索引可能不叫 date）
+            if "date" not in result:
+                result["date"] = df.index.values
+
+            # 确保 date 是 datetime64 类型
             if "date" in result:
                 try:
                     result["date"] = result["date"].astype("datetime64[ns]")
                 except (TypeError, ValueError):
                     import pandas as pd
                     result["date"] = pd.to_datetime(result["date"]).values
+
             self._cache[cache_key] = result
             return result
         except Exception:
@@ -1215,13 +1224,13 @@ class EnhancedActionGenerator:
             base += 10   # 中期动量为正
         # Range: 30 (0条件) → 60 (3条件)
 
-        # State 方向微调 (±5, 不是 ±13)
+        # State 方向调整：上升趋势(4)是实盘黄金状态，远优于翻转确认(3)
         if state == 4:
-            base += 5
+            base += 35   # 上升趋势是实盘最可靠的状态，大幅领先
         elif state == 5:
-            base += 3   # 回调 = 小幅折扣，不是断崖
+            base += 25   # 回调中的上升趋势，仍远优于未确认的翻转
         elif state == 3:
-            base += 0
+            base += 5    # 翻转确认中，有潜力但需更多证据
         else:
             base -= 5
 
@@ -1229,16 +1238,15 @@ class EnhancedActionGenerator:
         if stage == "late":
             base -= 5   # 晚期趋势风险加大
 
-        # ── 趋势阶段：越早期分越高 ──
-        # 刚启动的趋势利润空间最大，已经跑了很久的趋势可能接近尾声
+        # ── 趋势阶段：早期趋势机会更大，但成熟趋势也有惯性价值 ──
         if days_running < 10:
-            freshness = 15   # 刚启动，最佳介入时机
+            freshness = 12   # 刚启动，最佳介入时机
         elif days_running < 30:
-            freshness = 10   # 早期，趋势还在发展
+            freshness = 8    # 早期，趋势还在发展
         elif days_running < 60:
-            freshness = 5    # 中期，趋势确立但空间变小
+            freshness = 5    # 中期，趋势确立
         else:
-            freshness = 0    # 成熟期，可能随时进入震荡或反转
+            freshness = 2    # 成熟期，有趋势惯性，不是0
 
         # ── 临界爆发 ──
         # state=3 均线多头+放量 → 即将进入上升趋势
@@ -1286,7 +1294,7 @@ class EnhancedActionGenerator:
             penalty = -5
 
         score = base + freshness + transition + momentum + quality + vol + penalty
-        return max(0, min(100, round(score, 1)))
+        return max(0, min(150, round(score, 1)))  # 上限150，避免全满分无区分度
 
     @staticmethod
     def _detect_top_divergence(close: np.ndarray) -> bool:
@@ -1658,7 +1666,7 @@ class EnhancedActionGenerator:
         对每只个股跑 _build_card 做趋势判定+评分，
         返回趋势评分最高的 top_n 只。
         """
-        holdings_path = os.path.join(self.data_dir, "etf_holdings.json")
+        holdings_path = os.path.join(self.output_dir, "etf_holdings.json")
         if not os.path.exists(holdings_path):
             return []
 
@@ -1707,7 +1715,7 @@ class EnhancedActionGenerator:
         """
         # 加载 ETF 名称：缓存文件 > ETF_NAME_MAP > "ETF{code}"
         _etf_names = {}
-        cache_path = os.path.join(self.data_dir, "etf_names.json")
+        cache_path = os.path.join(self.output_dir, "etf_names.json")
         if os.path.exists(cache_path):
             try:
                 _etf_names = json.load(open(cache_path))
@@ -1723,15 +1731,15 @@ class EnhancedActionGenerator:
             except ImportError:
                 _etf_names = {}
 
-        etf_dir = os.path.join(self.data_dir, "etf_stocks")
+        etf_dir = os.path.join(self.output_dir, "etf")
         if not os.path.isdir(etf_dir):
             return [], []
 
         candidates = []
         for fname in sorted(os.listdir(etf_dir)):
-            if not fname.endswith(".pkl"):
+            if not fname.endswith(".parquet"):
                 continue
-            code = fname.replace("etf_", "").replace(".pkl", "")
+            code = fname.replace(".parquet", "")
             name = _etf_names.get(code, f"ETF{code}")
             link = self._etf_link(code)
             card = self._build_card(
@@ -1854,20 +1862,20 @@ class EnhancedActionGenerator:
         (state=4, pct_20d>30%, score>=75)，取 top_n 只过热票。
         返回 (stock_cards, hot_stock_cards) 元组。
         """
-        stock_dir = os.path.join(self.data_dir, "massive_stocks")
+        stock_dir = os.path.join(self.output_dir, "stock")
         if not os.path.isdir(stock_dir):
             return [], []
 
         # 加载股票名称和板块映射
         stock_names = {}
-        names_path = os.path.join(self.data_dir, "stock_names.json")
+        names_path = os.path.join(self.output_dir, "stock_names.json")
         if os.path.exists(names_path):
             try:
                 stock_names = json.load(open(names_path))
             except Exception:
                 pass
         stock_sectors = {}
-        sectors_path = os.path.join(self.data_dir, "stock_sectors.json")
+        sectors_path = os.path.join(self.output_dir, "stock_sectors.json")
         if os.path.exists(sectors_path):
             try:
                 stock_sectors = json.load(open(sectors_path))
@@ -1877,9 +1885,9 @@ class EnhancedActionGenerator:
         candidates = []
         files = sorted(os.listdir(stock_dir))
         for fname in files:
-            if not fname.endswith(".pkl"):
+            if not fname.endswith(".parquet"):
                 continue
-            code = fname.replace(".pkl", "")
+            code = fname.replace(".parquet", "")
             name = stock_names.get(code, code)
             sector = stock_sectors.get(code, "")
             # 生成东方财富个股行情页链接
@@ -1898,13 +1906,23 @@ class EnhancedActionGenerator:
 
         candidates.sort(key=lambda x: (-x[0], -x[1]))
 
-        # 稳健推荐: top N
-        stock_cards = [card for _, _, card in candidates[:top_n]]
+        # 稳健推荐: top N，行业分散
+        stock_cards = []
+        seen_sectors_robust = set()
+        for _, _, card in candidates:
+            sector = card.get("sector", "")
+            if sector and sector in seen_sectors_robust:
+                continue
+            if sector:
+                seen_sectors_robust.add(sector)
+            stock_cards.append(card)
+            if len(stock_cards) >= top_n:
+                break
         top_codes = {c["code"] for c in stock_cards}
 
-        # 强势追踪: 从剩余中选 state=4 且涨幅过大的标的
+        # 强势追踪: 从全量候选中选 state=4 且涨幅过大的标的（独立于稳健推荐）
         hot_candidates = []
-        for _, _, card in candidates[top_n:]:
+        for _, _, card in candidates:  # 从全量候选中选，不限于稳健推荐之后
             if card.get("state") != 4:
                 continue
             ctx = card.get("trend_context", {})
@@ -1913,12 +1931,22 @@ class EnhancedActionGenerator:
                 continue
             if card.get("score", 0) < self.HOT_MIN_SCORE:
                 continue
-            if card["code"] in top_codes:
-                continue
             hot_candidates.append((pct_20d, 0, card))
 
         hot_candidates.sort(key=lambda x: -x[0])  # 按涨幅降序，最热的排前面
-        hot_stock_cards = [card for _, _, card in hot_candidates[:top_n]]
+        
+        # 行业分散：避免同一板块霸榜，每个行业只取最强1只
+        hot_stock_cards = []
+        seen_sectors = set()
+        for _, _, card in hot_candidates:
+            sector = card.get("sector", "")
+            if sector and sector in seen_sectors:
+                continue
+            if sector:
+                seen_sectors.add(sector)
+            hot_stock_cards.append(card)
+            if len(hot_stock_cards) >= top_n:
+                break
 
         return stock_cards, hot_stock_cards
 
@@ -1939,8 +1967,76 @@ class EnhancedActionGenerator:
 
     # ── 主方法 ─────────────────────────────────────────────────
 
+    def _check_data_completeness(self) -> dict:
+        """数据完整性门禁：检查各维度数据是否达标，不达标则拒绝生成。"""
+        import os, json
+        issues = []
+        stats = {}
+        
+        # 1. 个股 parquet 数量
+        stock_dir = os.path.join(self.output_dir, "stock")
+        stock_count = len([f for f in os.listdir(stock_dir) if f.endswith('.parquet')]) if os.path.isdir(stock_dir) else 0
+        stats['stock_parquet'] = stock_count
+        if stock_count < 4500:
+            issues.append(f"个股parquet不足: {stock_count} < 4500 (缺失{4500-stock_count}只)")
+        
+        # 2. ETF parquet 数量
+        etf_dir = os.path.join(self.output_dir, "etf")
+        etf_count = len([f for f in os.listdir(etf_dir) if f.endswith('.parquet')]) if os.path.isdir(etf_dir) else 0
+        stats['etf_parquet'] = etf_count
+        if etf_count < 600:
+            issues.append(f"ETF parquet不足: {etf_count} < 600")
+        
+        # 3. 板块 parquet 数量
+        sector_dir = os.path.join(self.output_dir, "sector")
+        sector_count = len([f for f in os.listdir(sector_dir) if f.endswith('.parquet')]) if os.path.isdir(sector_dir) else 0
+        stats['sector_parquet'] = sector_count
+        if sector_count < 80:
+            issues.append(f"板块parquet不足: {sector_count} < 80")
+        
+        # 4. 名称映射完整性
+        names_path = os.path.join(self.output_dir, "stock_names.json")
+        alt_path = "data/stock_names.json"
+        stock_names = {}
+        if os.path.exists(names_path):
+            stock_names = json.load(open(names_path))
+        elif os.path.exists(alt_path):
+            stock_names = json.load(open(alt_path))
+        stats['stock_names'] = len(stock_names)
+        missing_names = stock_count - len([c for c in 
+            [f.replace('.parquet','') for f in os.listdir(stock_dir) if f.endswith('.parquet')]
+            if c in stock_names])
+        if len(stock_names) < 5000:
+            issues.append(f"个股名称映射不足: {len(stock_names)} < 5000")
+        
+        # 5. 核心热门标的抽样（确保长电科技等热门股有数据）
+        hot_checks = ['600584','601869','000657','600519','000858','300750']
+        missing_hot = []
+        for code in hot_checks:
+            path = os.path.join(stock_dir, f"{code}.parquet")
+            if not os.path.exists(path):
+                missing_hot.append(code)
+        if missing_hot:
+            issues.append(f"核心热门股缺失: {missing_hot}")
+        
+        return {
+            "pass": len(issues) == 0,
+            "issues": issues,
+            "summary": f"个股{stock_count} ETF{etf_count} 板块{sector_count} 名称{len(stock_names)}",
+            "stats": stats
+        }
+
     def generate(self, date_str: str) -> Optional[dict]:
         """为指定日期生成增强操作建议。"""
+        # ── 数据完整性门禁（最高优先级） ──
+        completeness = self._check_data_completeness()
+        if not completeness["pass"]:
+            print(f"  ❌ 数据不完整，拒绝生成！")
+            for issue in completeness["issues"]:
+                print(f"     - {issue}")
+            return None
+        print(f"  ✅ 数据完整性: {completeness['summary']}")
+        
         self._today = date_str
         self._load_prev_states(date_str)  # 加载前一日状态缓存
 
@@ -1958,34 +2054,22 @@ class EnhancedActionGenerator:
         hot_etf_cards = []
         hot_stock_cards = []
 
-        # 优先使用 actions JSON 中的标的，空则从全量 ETF 池动态扫描最佳标的
-        etf_list = actions.get("etf_top5", [])
-        if not etf_list:
-            print(f"  📊 actions JSON 无 ETF 数据，从 {len(os.listdir(os.path.join(self.data_dir, 'etf_stocks')))} 只 ETF 中动态择优筛选...")
-            etf_cards, hot_etf_cards = self._scan_best_etfs(date_str)
-            # 直接使用 scan 结果，跳过下方的逐条 _build_card
-            stock_list = actions.get("stock_top5", [])
-            if not stock_list:
-                stock_cards, hot_stock_cards = self._scan_best_stocks(date_str)
-            else:
-                stock_cards = []
-                for r in stock_list:
-                    card = self._build_card(r, date_str, is_etf=False)
-                    if card:
-                        stock_cards.append(card)
-            result = {
-                "date": date_str,
-                "market_regime": market_regime,
-                "etf_cards": etf_cards,
-                "stock_cards": stock_cards,
-                "hot_etf_cards": hot_etf_cards,
-                "hot_stock_cards": hot_stock_cards,
-            }
-            output_path = os.path.join(self.output_dir, f"enhanced_actions_{date_str}.json")
-            with open(output_path, "w") as f:
-                json.dump(result, f, ensure_ascii=False, indent=2)
-            self._save_prev_states()
-            return result
+        # 始终从全量 parquet 池动态扫描（actions JSON 数据可能过时）
+        etf_cards, hot_etf_cards = self._scan_best_etfs(date_str)
+        stock_cards, hot_stock_cards = self._scan_best_stocks(date_str)
+        result = {
+            "date": date_str,
+            "market_regime": market_regime,
+            "etf_cards": etf_cards,
+            "stock_cards": stock_cards,
+            "hot_etf_cards": hot_etf_cards,
+            "hot_stock_cards": hot_stock_cards,
+        }
+        output_path = os.path.join(self.output_dir, f"enhanced_actions_{date_str}.json")
+        with open(output_path, "w") as f:
+            json.dump(result, f, ensure_ascii=False, indent=2)
+        self._save_prev_states()
+        return result
 
         stock_list = actions.get("stock_top5", [])
         if not stock_list:

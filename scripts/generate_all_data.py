@@ -110,8 +110,8 @@ print("=" * 60)
 sectors_df = pd.read_json(f"{data_dir}/sector_list.json")
 all_sectors = []
 for _, row in sectors_df.iterrows():
-    code = str(row["code"])
-    name = row["name"]
+    code = (str(row.get("code") or row.get("bk_code", "")))
+    name = (row.get("name") or row.get("sector_name", ""))
     path = f"{data_dir}/sector_{code}.parquet"
     if not os.path.exists(path): continue
     df = pd.read_parquet(path)
@@ -127,7 +127,7 @@ print(f"  板块: {len(all_sectors)}个 | 状态4: {sum(1 for s in all_sectors i
 print("\n2. 题材层 (20个)")
 theme_files = sorted([f for f in os.listdir(data_dir) if f.startswith("theme_") and f.endswith(".parquet")])
 themes_df = pd.read_json(f"{data_dir}/theme_list.json")
-theme_name_map = {str(row["code"]): row["name"] for _, row in themes_df.iterrows()}
+theme_name_map = {(str(row.get("code") or row.get("bk_code", ""))): (row.get("name") or row.get("sector_name", "")) for _, row in themes_df.iterrows()}
 
 all_themes = []
 for f in theme_files:
@@ -186,22 +186,26 @@ state4_stocks = sum(1 for s in all_stocks if s["state"] == 4)
 
 # ====== 个股名称 + 板块映射 + 龙头计算（永久固化）======
 print("\n5. 个股名称+板块映射+龙头...")
-import baostock as _bs, re as _re
-_bs.login()
-_rs = _bs.query_stock_basic()
-_code_name = {}
-while (_rs.error_code=='0') & _rs.next():
-    _row = _rs.get_row_data()
-    _code_name[_row[0].replace("sh.","").replace("sz.","")] = _row[1]
-_rs2 = _bs.query_stock_industry()
-_stock_ind = {}
-while (_rs2.error_code=='0') & _rs2.next():
-    _row = _rs2.get_row_data()
-    _code = _row[1].replace("sh.","").replace("sz.","")
-    _ind = _row[3]
-    _m = _re.match(r'[A-Z]\d+(.+)', _ind) if _ind else None
-    _stock_ind[_code] = _m.group(1) if _m else _ind
-_bs.logout()
+try:
+    import baostock as _bs, re as _re
+    _bs.login()
+    _rs = _bs.query_stock_basic()
+    _code_name = {}
+    while (_rs.error_code=='0') & _rs.next():
+        _row = _rs.get_row_data()
+        _code_name[_row[0].replace("sh.","").replace("sz.","")] = _row[1]
+    _rs2 = _bs.query_stock_industry()
+    _stock_ind = {}
+    while (_rs2.error_code=='0') & _rs2.next():
+        _row = _rs2.get_row_data()
+        _code = _row[1].replace("sh.","").replace("sz.","")
+        _ind = _row[3]
+        _m = _re.match(r'[A-Z]\d+(.+)', _ind) if _ind else None
+        _stock_ind[_code] = _m.group(1) if _m else _ind
+    _bs.logout()
+except Exception:
+    _code_name = {}
+    _stock_ind = {}
 
 # 名称填充
 for _s in all_stocks:

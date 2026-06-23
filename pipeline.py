@@ -20,10 +20,27 @@ os.chdir(PROJECT_ROOT)
 sys.path.insert(0, PROJECT_ROOT)
 
 from src.fusion.scanner import MarketScanner, ETF_NAME_MAP, ScanResult
+import os as _os
+
+def _load_parquet(dtype, data_dir='dashboard/data'):
+    import pandas as pd
+    d = _os.path.join(data_dir, dtype)
+    r = {}
+    if _os.path.isdir(d):
+        for f in _os.listdir(d):
+            if not f.endswith('.parquet'): continue
+            c = f.replace('.parquet','')
+            try:
+                df = pd.read_parquet(_os.path.join(d,f))
+                if len(df) >= 30: r[c] = {col: df[col].values for col in df.columns}
+            except: pass
+    return r
 
 
 def load_cached_etfs(data_dir: str = "data") -> dict[str, dict]:
-    """加载所有 ETF pkl 缓存，返回 {code: {col: np.ndarray}}。"""
+    """加载ETF缓存，优先parquet，回退pkl。"""
+    r = _load_parquet("etf")
+    if r: return r
     etf_dir = os.path.join(data_dir, "etf_stocks")
     result = {}
     if not os.path.isdir(etf_dir):
@@ -43,10 +60,9 @@ def load_cached_etfs(data_dir: str = "data") -> dict[str, dict]:
 
 
 def load_cached_stocks(data_dir: str = "data") -> dict[str, dict]:
-    """加载全量个股 pkl 缓存，返回 {code: {col: np.ndarray}}。
-
-    全量加载，不设上限。市场有多少只就加载多少只。
-    """
+    """加载个股缓存，优先parquet，回退pkl。"""
+    r = _load_parquet("stock")
+    if r: return r
     stock_dir = os.path.join(data_dir, "massive_stocks")
     result = {}
     if not os.path.isdir(stock_dir):
@@ -694,6 +710,22 @@ def run_pipeline(target_date: str = None):
                 print(f"   {r.stderr[:300]}")
     else:
         print(f"   ⚠️ 未找到 {build_final}")
+
+
+    # Step 5.5: 注入操作建议面板（从标准模板提取紧凑+可展开卡片）
+    print("   执行 render_action_panel.py...")
+    render_actions = os.path.join(PROJECT_ROOT, "scripts", "render_action_panel.py")
+    if os.path.exists(render_actions):
+        r = subprocess.run([sys.executable, render_actions, target_date], capture_output=True, text=True,
+                           cwd=PROJECT_ROOT, timeout=120)
+        if r.returncode == 0:
+            print(r.stdout[-300:] if len(r.stdout) > 300 else r.stdout)
+        else:
+            print(f"   ⚠️ render_action_panel 返回非零: {r.returncode}")
+            if r.stderr:
+                print(f"   {r.stderr[:300]}")
+    else:
+        print(f"   ⚠️ 未找到 {render_actions}")
 
     if os.path.exists(build_nav):
         print("   执行 build_nav_index.py...")
