@@ -1,0 +1,46 @@
+---
+description: TFS v2 refactor engineering principles
+alwaysApply: true
+---
+
+# TFS v2 Refactor Principles
+
+This project is a refactor, not a greenfield rewrite. Every design and implementation decision must optimize for practical delivery and behavior preservation.
+
+## 1. Implementability First
+
+Designs must be easy to implement in the current repository.
+
+- Prefer the smallest design that solves the current stage.
+- Split designs into `MVP / later enhancement` when scope grows.
+- A first-stage module design should name the exact files to change and the acceptance checks.
+- Do not introduce platform-level infrastructure unless the current implementation needs it.
+- If a design cannot be implemented in a few focused files, shrink it or explicitly defer the extra parts.
+
+## 2. Refactor, Do Not Rebuild Blindly
+
+This is a reconstruction on top of the existing system. This rule is not a suggestion; it must be actively applied in every module design and implementation step.
+
+- Before designing or implementing any v2 module, first identify the old system source files, functions, scripts, data files, and outputs that already provide similar behavior.
+- Reuse existing working functions, data files, scripts, and verified behavior wherever practical.
+- Naming a module differently in v2 is only a boundary clarification; it is not permission to invent a new system.
+- Focus changes on places where the current design or implementation is clearly wrong: scattered ownership, hidden data flow, duplicated logic, unsafe data assumptions, or impossible-to-test code.
+- Do not rewrite stable behavior just because a cleaner design is imaginable.
+- When replacing old code, identify the old source, the new owner, and the behavior equivalence check.
+- Keep strategy behavior separate from structural refactor unless the user explicitly approves behavior change.
+
+## 3. Preserve Verifiable Behavior
+
+Each refactor step must have a concrete verification target.
+
+- Use old outputs, known dashboard data, or fixed-date samples as regression references.
+- For data modules, verify completeness and relation consistency before engine/display consumption.
+- For display modules, preserve the existing sidebar/index flow unless the user approves a display redesign.
+
+## 4. Document Module Boundaries
+
+`v2/REFACTOR_MANUAL.md` is the total design. Detailed module designs live in `v2/doc/`.
+
+- Update the relevant module document before implementation when scope or contracts change.
+- Keep total design and module documents linked and consistent.
+- If total design and module design conflict, stop and reconcile documents before coding.
