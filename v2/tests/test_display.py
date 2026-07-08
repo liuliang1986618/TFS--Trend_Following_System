@@ -54,8 +54,10 @@ def test_display_payload_builder_outputs_regions_and_card_templates_without_html
     validated = validate_display_payload(payload)
 
     assert validated["meta"]["date"] == "2026-06-26"
-    assert [region["id"] for region in validated["regions"]] == ["overview", "strong_tracking", "steady_recommend", "sector_focus", "signal_groups", "evaluation"]
-    assert {card["type"] for card in validated["cards"]} >= {"metric_card", "action_card", "signal_card", "sector_focus_card"}
+    expected_regions = ["overview", "strong_tracking", "steady_recommend", "watchlist", "funnel_deep_dive", "focus_sectors", "observation", "stock_table", "etf_table", "signal_groups", "evaluation"]
+    actual_regions = [region["id"] for region in validated["regions"]]
+    assert actual_regions == expected_regions
+    assert {card["type"] for card in validated["cards"]} >= {"metric_card", "action_card", "signal_card"}
     assert all("<" not in str(card) and ">" not in str(card) for card in validated["cards"])
     assert validated["cards_by_id"]["signal_stock_300308"]["body"]["relations"]["theme"] == "AI算力"
 
@@ -137,6 +139,14 @@ def _decision_pool():
 
 
 def test_display_payload_builder_creates_reference_style_regions_and_sector_focus_card():
+    funnel_cards = [{
+        "code": "BK0448", "name": "通信设备", "candidate_count": 2, "top_score": 92.0,
+        "abc": {"structure": "✅ 结构 通过", "volume": "✅ 量能平稳", "persistence": "✅ 持续性 通过", "state": 4, "pct_20d": 12.6, "vol_ratio": 1.2},
+        "best_etf": {"name": "通信ETF", "code": "512760", "score": 78.0},
+        "leaders": [{"code": "300308", "name": "中际旭创", "score": 92.0, "state": 4, "state_label": "上涨趋势"}],
+        "recent_states": [4, 3, 3, 3, 2], "recent_scores": [85, 75, 75, 75, 40],
+        "sector_stats": {"avg_uptrend_days": 5, "max_uptrend_days": 17, "tomorrow_prob": 0.8, "streak_days": 22},
+    }]
     payload = DisplayPayloadBuilder().build(
         date="2026-06-26",
         run_id="2026-06-26_171822",
@@ -147,22 +157,17 @@ def test_display_payload_builder_creates_reference_style_regions_and_sector_focu
         ],
         evaluation_report={"total": 3, "display_data_pool": _decision_pool(), "trade_plans": {"300308": _trade_plan()}},
         health={"market": {"status": "complete"}, "relation": {"status": "complete"}},
+        funnel_cards=funnel_cards,
     )
     validated = validate_display_payload(payload)
-    sector_card = validated["cards_by_id"]["sector_focus_0"]
 
     assert validated["regions"][1]["id"] == "strong_tracking"
     assert validated["regions"][1]["title"] == "强势追踪"
     assert validated["regions"][2]["id"] == "steady_recommend"
     assert validated["regions"][2]["title"] == "稳健推荐"
-    assert validated["regions"][3]["id"] == "sector_focus"
-    assert sector_card["type"] == "sector_focus_card"
-    assert sector_card["title"] == "通信设备"
-    assert sector_card["body"]["leaders"][0]["name"] == "中际旭创"
-    assert sector_card["body"]["leaders"][0]["reason"] == "上涨趋势 / AI算力"
-    assert sector_card["body"]["status_strip"] == ["4", "4"]
-    assert sector_card["body"]["key_metrics"][:2] == [{"label": "板块强度", "value": 85.0}, {"label": "趋势标的", "value": 2}]
-    assert sector_card["body"]["projection"][0]["probability"] == 0.82
+    funnel_card = validated["cards_by_id"]["funnel_deep_dive_0"]
+    assert funnel_card["type"] == "funnel_deep_dive_card"
+    assert funnel_card["title"] == "通信设备"
 
 
 def test_display_payload_builder_exposes_shared_data_pool_and_action_card_consumes_it():
@@ -220,10 +225,8 @@ def test_display_renderer_renders_trade_plan_inside_action_card_template(tmp_pat
     assert "action-card__score" in html
     assert "action-card__grid" in html
     assert "action-card__section--projection" in html
-    assert "action-card__levels" in html
-    assert "核心指标" in html
-    assert "明日推演" in html
-    assert "龙头线索" in html
+    assert "action-card__section--levels" in html
+    assert "widget-details" in html
     assert (output_path.parent / "assets" / "display.css").exists()
 
 
@@ -338,8 +341,8 @@ def test_display_renderer_uses_date_nav_card_template_for_index_html(tmp_path):
     assert result == str(output_path)
     assert "data-card-type=\"date_nav_card\"" in html
     assert "data-template=\"date-nav-card-template\"" in html
-    assert "date-nav-card__meta" in html
-    assert "date-nav-card__tag" in html
+    assert "date-nav-card__date" in html
+    assert "date-nav-card__leaders" in html
     assert "2026-06-26" in html
     assert "周五" in html
     assert "通信设备" in html

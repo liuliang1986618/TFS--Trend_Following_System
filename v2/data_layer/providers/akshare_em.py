@@ -47,6 +47,16 @@ class AkshareEMProvider:
         )
         return self._normalize_daily(df)
 
+    def fetch_index_daily(self, code: str, start_date: str, end_date: str) -> pd.DataFrame:
+        """拉取指数日线（上证/科创/创业板/沪深300）。"""
+        try:
+            df = self.ak.stock_zh_index_daily_em(symbol=f"sh{code}" if code.startswith(("000", "688")) else f"sz{code}")
+        except Exception:
+            df = self.ak.index_zh_a_hist(symbol=code, period="daily",
+                                         start_date=self._compact_date(start_date),
+                                         end_date=self._compact_date(end_date))
+        return self._normalize_daily(df)
+
     def fetch_sector_universe(self) -> list[dict[str, str]]:
         if self._uses_default_ak:
             return self.fetch_relation_universe("eastmoney", "sector")

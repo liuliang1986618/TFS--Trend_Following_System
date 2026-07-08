@@ -61,10 +61,23 @@ class DisplayRenderer:
         cards = "\n".join(self._render_date_nav_card(item) for item in nav_payload["items"])
         default_date = nav_payload.get("default_date") or ""
         iframe_src = f"trend_dashboard_{default_date}.html" if default_date else ""
+        report_count = nav_payload.get("report_count", 0)
+        sidebar_header = (
+            '<div class="sidebar-inner">'
+            '<div class="sidebar-header">'
+            '<button class="sidebar-toggle" onclick="toggleSidebar()">◀</button>'
+            '<h1>📊 趋势跟随</h1>'
+            f'<div class="sub">{report_count} 个交易日</div>'
+            '</div>'
+            '<div class="sidebar-list">'
+            f'{cards}'
+            '</div>'
+            '</div>'
+        )
         body = "\n".join(
             [
-                '<div class="display-shell">',
-                f'  <aside class="display-sidebar">{cards}</aside>',
+                f'<div class="display-shell" data-default-date="{self._escape(default_date)}">',
+                f'  <aside class="display-sidebar">{sidebar_header}</aside>',
                 f'  <section class="display-frame-wrap"><iframe src="{iframe_src}"></iframe></section>',
                 "</div>",
             ]
@@ -103,6 +116,18 @@ class DisplayRenderer:
             body_text = self._render_signal_body(card)
         elif card_type == "sector_focus_card":
             body_text = self._render_sector_focus_body(card.get("body", {}))
+        elif card_type == "watchlist_card":
+            body_text = self._render_watchlist_body(card.get("body", {}))
+        elif card_type == "funnel_deep_dive_card":
+            body_text = self._render_funnel_deep_dive_body(card.get("body", {}))
+        elif card_type == "focus_sector_card":
+            body_text = self._render_focus_sector_body(card.get("body", {}))
+        elif card_type == "observation_card":
+            body_text = self._render_observation_body(card.get("body", {}))
+        elif card_type == "stock_table_card":
+            body_text = self._render_table_body(card.get("body", {}), "stock")
+        elif card_type == "etf_table_card":
+            body_text = self._render_table_body(card.get("body", {}), "etf")
         else:
             body_text = self._compact(card.get("body") or card.get("metrics") or card.get("subtitle") or "")
         context = {
@@ -120,19 +145,84 @@ class DisplayRenderer:
     def _render_action_body(self, body: dict) -> str:
         if not isinstance(body, dict):
             return ""
+        # 优先用 builder 准备好的 sections（details 折叠结构）
+        sections = body.get("sections") or []
+        if sections:
+            return self._render_action_sections(sections)
+        # 兼容旧格式：从 decision_data 重新构造
         decision_data = body.get("decision_data") if isinstance(body.get("decision_data"), dict) else {}
         trade_plan = body.get("trade_plan") if isinstance(body.get("trade_plan"), dict) else None
-        sections = []
-        sections.append(self._action_summary(body, trade_plan))
-        sections.append(self._decision_section("趋势大背景", self._trend_context_text(decision_data.get("trend_context", {})), "trend"))
-        sections.append(self._decision_section("今日定位", self._today_position_text(decision_data.get("today_position", {})), "today"))
-        sections.append(self._decision_section("策略总纲", decision_data.get("strategy_summary", ""), "strategy"))
-        sections.append(self._decision_section("明日行情推演", self._projection_items(decision_data.get("projection", {})), "projection", "list"))
-        sections.append(self._decision_section("明日最佳买卖区间", self._buy_sell_zone_items(decision_data.get("buy_sell_zone", {})), "zone", "zones"))
-        sections.append(self._decision_section("关键价位", self._key_level_items(decision_data.get("key_levels", [])), "levels", "levels"))
-        sections.append(self._decision_section("盯盘场景", self._watch_scenario_items(decision_data.get("watch_scenarios", [])), "watch", "list"))
-        sections.append(self._decision_section("仓位管理", self._position_plan_items(decision_data.get("position_plan", [])), "position", "list"))
-        return "".join(section for section in sections if section)
+        parts = []
+        parts.append(self._action_summary(body, trade_plan))
+        parts.append(self._decision_section("趋势大背景", self._trend_context_text(decision_data.get("trend_context", {})), "trend"))
+        parts.append(self._decision_section("今日定位", self._today_position_text(decision_data.get("today_position", {})), "today"))
+        parts.append(self._decision_section("策略总纲", decision_data.get("strategy_summary", ""), "strategy"))
+        parts.append(self._decision_section("明日行情推演", self._projection_items(decision_data.get("projection", {})), "projection", "list"))
+        parts.append(self._decision_section("明日最佳买卖区间", self._buy_sell_zone_items(decision_data.get("buy_sell_zone", {})), "zone", "zones"))
+        parts.append(self._decision_section("关键价位", self._key_level_items(decision_data.get("key_levels", [])), "levels", "levels"))
+        parts.append(self._decision_section("盯盘场景", self._watch_scenario_items(decision_data.get("watch_scenarios", [])), "watch", "list"))
+        parts.append(self._decision_section("仓位管理", self._position_plan_items(decision_data.get("position_plan", [])), "position", "list"))
+        return "".join(part for part in parts if part)
+
+    def _render_action_sections(self, sections: list) -> str:
+        """渲染 8 段 details 折叠项（对应 v1 的 6 Widget）。"""
+        html_parts = []
+        for section in sections:
+            if not isinstance(section, dict):
+                continue
+            key = section.get("key", "")
+            title = self._escape(section.get("title", ""))
+            summary = self._escape(section.get("summary", ""))
+            data = section.get("data", {})
+            content = self._render_section_content(key, data)
+            if not content and not summary:
+                continue
+            summary_html = f'<span class="widget-summary">{summary}</span>' if summary else ""
+            html_parts.append(
+                f'<details class="widget-details action-card__section action-card__section--{self._escape(key)}">'
+                f'<summary>{title}{summary_html}</summary>'
+                f'<div class="widget-content">{content}</div>'
+                f'</details>'
+            )
+        return "".join(html_parts)
+
+    def _render_section_content(self, key: str, data) -> str:
+        """按 section key 渲染内容。"""
+        if key == "plan":
+            if not isinstance(data, dict) or not data:
+                return ""
+            target = f"目标仓位 {self._pct(data.get('target_position_pct'))}" if data.get("target_position_pct") is not None else ""
+            triggers = data.get("triggers", []) or []
+            rows = []
+            for trigger in triggers:
+                if not isinstance(trigger, dict):
+                    continue
+                action = self._action_label(trigger.get("action_type", ""))
+                position = self._pct(trigger.get("target_position_pct"))
+                label = " ".join(str(x) for x in [trigger.get("scenario_label", ""), action, position] if x)
+                conditions = "、".join(str(x) for x in trigger.get("trigger_conditions", []) if x)
+                rows.append(self._pill_row(label, conditions))
+            content = f'<div class="action-card__plan-lead">{self._escape(target)}</div>' if target else ""
+            content += self._list_block(rows)
+            return content
+        if key == "trend":
+            return self._trend_context_text(data if isinstance(data, dict) else {})
+        if key == "today":
+            return self._today_position_text(data if isinstance(data, dict) else {})
+        if key == "strategy":
+            text = data.get("text", "") if isinstance(data, dict) else str(data)
+            return f'<p>{self._escape(text)}</p>' if text else ""
+        if key == "projection":
+            return self._projection_items(data if isinstance(data, dict) else {})
+        if key == "zone":
+            return self._buy_sell_zone_items(data if isinstance(data, dict) else {})
+        if key == "levels":
+            return self._key_level_items(data if isinstance(data, list) else [])
+        if key == "watch":
+            return self._watch_scenario_items(data if isinstance(data, list) else [])
+        if key == "position":
+            return self._position_plan_items(data if isinstance(data, list) else [])
+        return ""
 
     def _action_summary(self, body: dict, trade_plan: dict | None) -> str:
         lead = body.get("action_hint", "")
@@ -318,10 +408,196 @@ class DisplayRenderer:
     def _zone_item(self, label: str, price: str, logic: str) -> str:
         return f'<div class="action-card__zone"><small>{self._escape(label)}</small><strong>{self._escape(price)}</strong><span>{self._escape(logic)}</span></div>'
 
+    # ── Step 3 新增渲染方法 ─────────────────────────────────────
+
+    def _render_5d_state_bar(self, states: list) -> str:
+        """渲染 5d 状态条（5个色点）。"""
+        if not states:
+            return ""
+        dots = []
+        for s in states[-5:]:
+            cls = {4: "state-up", 5: "state-up", 3: "state-mid", 2: "state-down", 1: "state-down"}.get(s, "state-mid")
+            if s == "3'":
+                cls = "state-risk"
+            dots.append(f'<span class="state-dot {cls}" title="{self._escape(str(s))}"></span>')
+        return f'<span class="state-bar-5d">{"".join(dots)}</span>'
+
+    def _render_sparkline(self, scores: list) -> str:
+        """渲染 sparkline SVG（5日得分折线）。"""
+        if not scores or len(scores) < 2:
+            return ""
+        vals = [float(s) for s in scores[-5:] if s is not None]
+        if len(vals) < 2:
+            return ""
+        w, h = 80, 18
+        mn, mx = min(vals), max(vals)
+        rng = mx - mn if mx > mn else 1
+        pts = []
+        for i, v in enumerate(vals):
+            x = (w / (len(vals) - 1)) * i
+            y = h - ((v - mn) / rng) * h
+            pts.append(f"{x:.1f},{y:.1f}")
+        return f'<svg class="sparkline" width="{w}" height="{h}" viewBox="0 0 {w} {h}"><polyline points="{" ".join(pts)}" fill="none" stroke="#06b6d4" stroke-width="1.5"/></svg>'
+
+    def _render_watchlist_body(self, body: dict) -> str:
+        items = body.get("items", []) if isinstance(body, dict) else []
+        if not items:
+            return '<p class="empty-state">关注列表为空</p>'
+        rows = []
+        for item in items:
+            code = self._escape(str(item.get("code", "")))
+            name = self._escape(str(item.get("name", "")))
+            rows.append(f'<tr><td>{name}</td><td>{code}</td></tr>')
+        return f'<table class="watchlist-table"><thead><tr><th>标的</th><th>代码</th></tr></thead><tbody>{"".join(rows)}</tbody></table>'
+
+    def _render_funnel_deep_dive_body(self, body: dict) -> str:
+        if not isinstance(body, dict):
+            return ""
+        abc = body.get("abc", {}) or {}
+        best_etf = body.get("best_etf") or {}
+        leaders = body.get("leaders", []) or []
+        recent_states = body.get("recent_states", [])
+        recent_scores = body.get("recent_scores", [])
+        parts = []
+        # ABC 三条件
+        abc_lines = []
+        for key, label in [("structure", "A 结构"), ("volume", "B 量能"), ("persistence", "C 持续性")]:
+            text = abc.get(key, "")
+            if text:
+                abc_lines.append(f'<div class="funnel-abc-line">{self._escape(text)}</div>')
+        if abc_lines:
+            parts.append(f'<div class="funnel-abc">{"".join(abc_lines)}</div>')
+        # 5d 状态条 + sparkline
+        bar = self._render_5d_state_bar(recent_states)
+        spark = self._render_sparkline(recent_scores)
+        if bar or spark:
+            parts.append(f'<div class="funnel-trend-strip">{bar}{spark}</div>')
+        # 最佳 ETF
+        if best_etf:
+            etf_name = self._escape(str(best_etf.get("name", "")))
+            etf_score = self._score_text(best_etf.get("score", ""))
+            parts.append(f'<div class="funnel-best-etf"><span>📊 最佳ETF: </span><strong>{etf_name}</strong> <span>{etf_score}</span></div>')
+        # 龙头
+        if leaders:
+            leader_items = []
+            for ld in leaders[:3]:
+                name = self._escape(str(ld.get("name", ld.get("code", ""))))
+                score = self._score_text(ld.get("score", ""))
+                leader_items.append(f'<span class="funnel-leader">{name} <sup>{score}</sup></span>')
+            parts.append(f'<div class="funnel-leaders">{"".join(leader_items)}</div>')
+        return "".join(parts)
+
+    def _render_focus_sector_body(self, body: dict) -> str:
+        if not isinstance(body, dict):
+            return ""
+        abc = body.get("abc", {}) or {}
+        best_etf = body.get("best_etf") or {}
+        leaders = body.get("leaders", []) or []
+        recent_states = body.get("recent_states", [])
+        recent_scores = body.get("recent_scores", [])
+        projection = body.get("projection", []) or []
+        sector_stats = body.get("sector_stats", {}) or {}
+        parts = []
+        # 5d 状态条 + sparkline
+        bar = self._render_5d_state_bar(recent_states)
+        spark = self._render_sparkline(recent_scores)
+        if bar or spark:
+            parts.append(f'<div class="focus-trend-strip">{bar}{spark}</div>')
+        # 推演概率
+        if projection:
+            proj_items = []
+            for p in projection:
+                label = self._escape(str(p.get("label", "")))
+                prob = p.get("probability", 0)
+                pct = f"{prob*100:.0f}%" if isinstance(prob, (int, float)) else str(prob)
+                proj_items.append(f'<span class="focus-proj-item">{label} {self._escape(pct)}</span>')
+            parts.append(f'<div class="focus-projection">{"".join(proj_items)}</div>')
+        # ABC
+        abc_lines = []
+        for key, label in [("structure", "A 结构"), ("volume", "B 量能"), ("persistence", "C 持续性")]:
+            text = abc.get(key, "")
+            if text:
+                abc_lines.append(f'<div class="focus-abc-line">{self._escape(text)}</div>')
+        if abc_lines:
+            parts.append(f'<div class="focus-abc">{"".join(abc_lines)}</div>')
+        # 板块统计
+        stats_items = []
+        for k, label in [("avg_uptrend_days", "平均上涨"), ("max_uptrend_days", "最长上涨"), ("tomorrow_prob", "明日概率"), ("expected_return", "预期收益")]:
+            v = sector_stats.get(k)
+            if v is not None:
+                stats_items.append(f'<span class="focus-stat"><small>{label}</small><strong>{self._escape(str(v))}</strong></span>')
+        if stats_items:
+            parts.append(f'<div class="focus-stats">{"".join(stats_items)}</div>')
+        # 指标行
+        pct_20d = body.get("pct_20d")
+        vol_ratio = body.get("vol_ratio")
+        if pct_20d is not None or vol_ratio is not None:
+            ind_parts = []
+            if pct_20d is not None:
+                ind_parts.append(f'<span>20日 {pct_20d:+.1f}%</span>')
+            if vol_ratio is not None:
+                ind_parts.append(f'<span>量比 {vol_ratio:.2f}</span>')
+            parts.append(f'<div class="focus-indicators">{"".join(ind_parts)}</div>')
+        # 最佳 ETF
+        if best_etf:
+            etf_name = self._escape(str(best_etf.get("name", "")))
+            parts.append(f'<div class="focus-best-etf"><span>📊 最佳ETF: </span><strong>{etf_name}</strong></div>')
+        # 龙头
+        if leaders:
+            leader_items = []
+            for ld in leaders[:4]:
+                name = self._escape(str(ld.get("name", ld.get("code", ""))))
+                score = self._score_text(ld.get("score", ""))
+                leader_items.append(f'<span class="focus-leader">{name} <sup>{score}</sup></span>')
+            parts.append(f'<div class="focus-leaders">{"".join(leader_items)}</div>')
+        return "".join(parts)
+
+    def _render_observation_body(self, body: dict) -> str:
+        leaders = body.get("leaders", []) if isinstance(body, dict) else []
+        if not leaders:
+            return '<p class="empty-state">暂无观察区板块</p>'
+        items = []
+        for ld in leaders[:5]:
+            name = self._escape(str(ld.get("name", ld.get("code", ""))))
+            score = self._score_text(ld.get("score", ""))
+            items.append(f'<span class="observation-leader">{name} <sup>{score}</sup></span>')
+        return f'<div class="observation-leaders">{"".join(items)}</div>'
+
+    def _render_table_body(self, body: dict, table_type: str) -> str:
+        if not isinstance(body, dict):
+            return ""
+        rows = body.get("rows", []) or []
+        if not rows:
+            return '<p class="empty-state">暂无数据</p>'
+        # 搜索框
+        search_id = f"{table_type}_search"
+        table_id = f"{table_type}_table"
+        # 表头
+        headers = {"code": "代码", "name": "标的", "sector": "板块", "theme": "题材",
+                   "state": "状态", "state_label": "趋势", "score": "评分",
+                   "pct_20d": "20日", "vol_ratio": "量比"}
+        columns = body.get("columns", ["code", "name", "state_label", "score", "pct_20d"])
+        ths = "".join(f'<th>{self._escape(headers.get(c, c))}</th>' for c in columns)
+        # 行
+        trs = []
+        for row in rows:
+            tds = []
+            for c in columns:
+                v = row.get(c, "")
+                if c == "state":
+                    v = self._render_5d_state_bar([v]) or str(v)
+                elif isinstance(v, float):
+                    v = f"{v:.1f}" if c == "score" else str(v)
+                tds.append(f'<td>{self._escape(str(v)) if c != "state" else v}</td>')
+            trs.append(f'<tr>{" ".join(tds)}</tr>')
+        search = f'<input type="text" class="table-search" id="{search_id}" placeholder="搜索..." oninput="filterTable(\'{table_id}\', this.value)">'
+        table = f'<table class="data-table" id="{table_id}"><thead><tr>{ths}</tr></thead><tbody>{"".join(trs)}</tbody></table>'
+        return f'{search}<div class="table-scroll">{table}</div>'
+
     def _render_template(self, template_path: Path, context: dict) -> str:
         template = template_path.read_text(encoding="utf-8")
         for key, value in context.items():
-            escaped = value if key in {"badges", "risks", "body", "metrics"} else self._escape(value)
+            escaped = value if key in {"badges", "risks", "body", "metrics", "line_market", "line_time", "line_leaders"} else self._escape(value)
             template = template.replace("{{ " + key + " }}", str(escaped))
         return template
 
@@ -329,14 +605,70 @@ class DisplayRenderer:
         line_time = card.get("line_time", {})
         line_market = card.get("line_market", {})
         line_leaders = card.get("line_leaders", {})
-        leaders = " / ".join(value for value in [line_leaders.get("sector"), line_leaders.get("theme"), line_leaders.get("stock"), line_leaders.get("etf")] if value)
+
+        # 第一行：日期 + 周几 + today/monday 标签
+        date_label = line_time.get("label", "")
+        weekday = line_time.get("weekday", "")
+        status = line_time.get("status", "")
+        tags_html = ""
+        if card.get("is_current"):
+            tags_html += '<span class="day-tag today">今天</span>'
+        # 周一标记
+        if weekday == "周一":
+            tags_html += '<span class="day-tag monday">周一</span>'
+        # 市场状态标签
+        health_label = {"强势": "强势", "正常": "正常", "弱势": "弱势", "complete": "强势", "warning": "弱势"}.get(status, status or "")
+        health_cls = {"强势": "strong", "正常": "normal", "弱势": "weak"}.get(health_label, "weak")
+        tags_html += f'<span class="day-tag {health_cls}">{health_label}</span>'
+        # ↑数量
+        up_count = line_market.get("up_count")
+        if up_count is not None:
+            tags_html += f'<span class="day-tag up-count">↑{up_count}</span>'
+        line_time_html = f'{date_label} {weekday}{tags_html}'
+
+        # 第二行：指数涨跌
+        indices = line_market.get("indices", []) or []
+        idx_parts = []
+        for idx in indices:
+            name = str(idx.get("name", ""))
+            pct = idx.get("pct", 0)
+            if isinstance(pct, (int, float)):
+                sign = "+" if pct >= 0 else ""
+                color = "#f85149" if pct >= 0 else "#3fb950"
+                short_name = name[:2] if len(name) >= 2 else name
+                idx_parts.append(f'<span style="color:{color}">{short_name}{sign}{pct:.2f}%</span>')
+        line_market_html = " ".join(idx_parts)
+
+        # 第三行：龙头
+        etf_name = line_leaders.get("etf", "")
+        sector = line_leaders.get("sector", "")
+        theme = line_leaders.get("theme", "")
+        stock = line_leaders.get("stock", "")
+        leader_parts = []
+        if etf_name:
+            leader_parts.append(etf_name)
+        if stock:
+            leader_parts.append(stock)
+        leaders_line = " / ".join(leader_parts) if leader_parts else ""
+        # 主线板块行（含 sector 和 theme）
+        sector_line = ""
+        sector_parts = []
+        if sector:
+            sector_parts.append(sector)
+        if theme:
+            sector_parts.append(theme)
+        if sector_parts:
+            sector_line = '★ ' + ' · '.join(sector_parts)
+        line_leaders_html = leaders_line
+        if sector_line:
+            line_leaders_html = f'{leaders_line}{" " if leaders_line else ""}{sector_line}'
+
         context = {
             "date": card.get("date", ""),
             "target": card.get("target", ""),
-            "line_time": " ".join(value for value in [line_time.get("date", ""), line_time.get("weekday", "")] if value),
-            "line_market": " ".join(value for value in [line_market.get("label", ""), line_market.get("summary", "")] if value),
-            "line_leaders": leaders,
-            "tag": "当日" if card.get("is_current") else "历史",
+            "line_time": line_time_html,
+            "line_market": line_market_html,
+            "line_leaders": line_leaders_html,
         }
         return self._render_template(self.CARD_TEMPLATE_DIR / "date_nav_card.html", context)
 
@@ -351,6 +683,7 @@ class DisplayRenderer:
                 '  <meta name="viewport" content="width=device-width, initial-scale=1">',
                 f"  <title>{html.escape(title)}</title>",
                 '  <link rel="stylesheet" href="assets/display.css">',
+                '  <script src="assets/display.js"></script>',
                 "</head>",
                 "<body>",
                 body,

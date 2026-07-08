@@ -5,6 +5,7 @@ from __future__ import annotations
 from .analyzers import analyze_trend_context, detect_risk_flags
 from .classifier import TrendClassifier
 from .filters import apply_trend_filters
+from .funnel import FunnelRunner
 from .indicators import calculate_indicators
 from .levels import calculate_key_levels
 from .params import StrategyParams
@@ -25,6 +26,7 @@ class TrendEngine:
         self.data_layer = data_layer
         self.params = params or StrategyParams()
         self.classifier = TrendClassifier()
+        self.funnel = FunnelRunner(engine=self, data_layer=data_layer)
 
     def analyze_symbol(
         self,
@@ -103,7 +105,10 @@ class TrendEngine:
         signals: list[StrategySignal] = []
         for code in self.data_layer.list_symbols(dtype):
             try:
-                signal = self.analyze_symbol(dtype, code, end_date=end_date, market_context=market_context)
+                name = None
+                if hasattr(self.data_layer, "get_symbol_name"):
+                    name = self.data_layer.get_symbol_name(code, dtype)
+                signal = self.analyze_symbol(dtype, code, name=name or code, end_date=end_date, market_context=market_context)
             except Exception:
                 continue
             if not signal.signals.get("passed_filter", True):
@@ -124,35 +129,8 @@ class TrendEngine:
         return self.scan_etf_direct(date=date, max_candidates=max_candidates)
 
     def scan_stock_funnel(self, date: str | None = None, max_candidates: int | None = 50) -> dict:
-        stocks = self.scan_stock_full(date=date, max_candidates=max_candidates)
-        relation_lookup = self._relation_entity_lookup()
-        return {
-            "relation_version": self.data_layer.get_relation_version() if hasattr(self.data_layer, "get_relation_version") else None,
-            "sectors": self._group_candidates_by_relation(stocks, "sectors", relation_lookup.get("sectors", {})),
-            "themes": self._group_candidates_by_relation(stocks, "themes", relation_lookup.get("themes", {})),
-            "stocks": stocks,
-        }
-
-    @staticmethod
-    def _group_candidates_by_relation(signals: list[StrategySignal], relation_key: str, names: dict) -> list[dict]:
-        groups: dict[str, dict] = {}
-        for signal in signals:
-            for code in signal.relations.get(relation_key, []):
-                group = groups.setdefault(code, {"code": code, "name": names.get(code, code), "candidate_count": 0, "top_score": 0.0, "candidates": []})
-                group["candidate_count"] += 1
-                group["top_score"] = max(group["top_score"], signal.score)
-                group["candidates"].append(signal.code)
-        return sorted(groups.values(), key=lambda item: (item["candidate_count"], item["top_score"], item["code"]), reverse=True)
-
-    def _relation_entity_lookup(self) -> dict:
-        relation_store = getattr(self.data_layer, "relations", None)
-        if relation_store is None or not hasattr(relation_store, "_load_current"):
-            return {"sectors": {}, "themes": {}}
-        relation = relation_store._load_current()
-        return {
-            "sectors": {str(item.get("code")): item.get("name", item.get("code")) for item in relation.get("sectors", []) if isinstance(item, dict)},
-            "themes": {str(item.get("code")): item.get("name", item.get("code")) for item in relation.get("themes", []) if isinstance(item, dict)},
-        }
+        """漏斗扫描：委托给 FunnelRunner（Top6 板块 + ABC + 最佳ETF + 龙头）。"""
+        return self.funnel.scan_stock_funnel(date=date, max_candidates=max_candidates)
 
     @staticmethod
     def _action_hint(state, passed_filter: bool, filter_reasons: list[str]) -> str:

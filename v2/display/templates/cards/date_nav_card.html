@@ -1,8 +1,5 @@
-<article class="date-nav-card" data-card-type="date_nav_card" data-template="date-nav-card-template" data-date="{{ date }}" data-target="{{ target }}">
-  <div class="date-nav-card__time">{{ line_time }}</div>
-  <div class="date-nav-card__meta">
-    <span class="date-nav-card__market">{{ line_market }}</span>
-    <span class="date-nav-card__tag">{{ tag }}</span>
-  </div>
+<article class="date-nav-card" data-card-type="date_nav_card" data-template="date-nav-card-template" data-date="{{ date }}" data-target="{{ target }}" onclick="loadDate('{{ date }}', '{{ target }}')">
+  <div class="date-nav-card__date">{{ line_time }}</div>
+  <div class="date-nav-card__indices">{{ line_market }}</div>
   <div class="date-nav-card__leaders">{{ line_leaders }}</div>
 </article>

@@ -10,8 +10,21 @@ import os
 # v2 独立数据目录根（与旧系统 dashboard/data 隔离）
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
+# v1 旧系统数据目录（fallback 数据源，真实积累数据，过渡期复用）
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+V1_DATA_DIR = os.path.join(_PROJECT_ROOT, "dashboard", "data")
+V1_LEGACY_DIR = os.path.join(_PROJECT_ROOT, "data")
+
 # 元数据 JSON 目录
 META_DIR = os.path.join(DATA_DIR, "meta")
+
+# 指数代码白名单（侧边栏指数涨跌用）
+INDEX_CODES = {
+    "000001": "上证综指",
+    "399006": "创业板指",
+    "000688": "科创50",
+    "000300": "沪深300",
+}
 
 # 子目录模板：{data_dir}/{dtype}/{code}.parquet
 PARQUET_PATH_TEMPLATE = "{data_dir}/{dtype}/{code}.parquet"
@@ -29,7 +42,7 @@ META_THEME_HOLDINGS = "theme_holdings.json"
 
 # ── 合法数据类型 ────────────────────────────────────────────
 
-VALID_DTYPES = frozenset({"stock", "sector", "theme", "etf"})
+VALID_DTYPES = frozenset({"stock", "sector", "theme", "etf", "index"})
 
 # ── 数据保留 ────────────────────────────────────────────────
 

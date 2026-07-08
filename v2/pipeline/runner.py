@@ -99,6 +99,11 @@ class PipelineRunner:
 
     def _run_data_health(self, target_date: str) -> StageResult:
         started = self._now()
+        # 刷新指数涨跌数据（从 v1 index.html 解析真实积累数据）
+        try:
+            self.data_layer.fetcher.update_index_pct()
+        except Exception:
+            pass
         health = self.data_layer.check_market_health(target_date)
         relation_health = self.data_layer.check_relation_health() if hasattr(self.data_layer, "check_relation_health") else {}
         issues = list(health.get("issues", [])) + list(relation_health.get("issues", []))
@@ -133,7 +138,16 @@ class PipelineRunner:
         if allowed.get("stock_recommendation") and allowed.get("etf_recommendation"):
             return True
         checks = health.get("checks", {})
-        return PipelineRunner._check_has_complete_count(checks.get("stock", {})) and PipelineRunner._check_has_complete_count(checks.get("etf", {}))
+        stock_check = checks.get("stock", {})
+        etf_check = checks.get("etf", {})
+        if PipelineRunner._check_has_complete_count(stock_check) and PipelineRunner._check_has_complete_count(etf_check):
+            return True
+        # 展示过渡期兜底：v1 fallback 数据量不足 min_count 但有真实数据，允许继续渲染（至少30%样本量）
+        stock_actual = (stock_check.get("actual_count") or 0) if isinstance(stock_check, dict) else 0
+        etf_actual = (etf_check.get("actual_count") or 0) if isinstance(etf_check, dict) else 0
+        stock_min = (stock_check.get("min_count") or 1) if isinstance(stock_check, dict) else 1
+        etf_min = (etf_check.get("min_count") or 1) if isinstance(etf_check, dict) else 1
+        return stock_actual >= max(1, stock_min * 0.15) and etf_actual >= max(1, etf_min * 0.15)
 
     @staticmethod
     def _check_has_complete_count(check: dict) -> bool:
@@ -163,6 +177,11 @@ class PipelineRunner:
                 [],
             )
         signals = list(stock_signals) + list(etf_signals)
+        # 追加 history（积累 v2 自身个股历史，用于 5d 状态条/sparkline）
+        try:
+            self.data_layer.history.append_states(target_date, signals)
+        except Exception:
+            pass
         return (
             StageResult(
                 name="engine",
@@ -202,12 +221,27 @@ class PipelineRunner:
         started = self._now()
         run_output_dir = self.output_dir / run_id
         try:
+            # 获取漏斗数据 + 全量 signals（供展示层 stock_table/etf_table/funnel_deep_dive）
+            funnel_cards = []
+            all_signals = list(signals)
+            try:
+                funnel_result = self.engine.scan_stock_funnel(date=target_date, max_candidates=50)
+                funnel_cards = funnel_result.get("funnel_cards", [])
+            except Exception:
+                pass
+            try:
+                all_signals = list(self.engine.scan_stock_full(date=target_date, max_candidates=None)) + list(self.engine.scan_etf_direct(date=target_date, max_candidates=None))
+            except Exception:
+                pass
+
             payload = self.display_builder.build(
                 date=target_date,
                 run_id=run_id,
                 signals=signals,
                 evaluation_report=evaluation_report,
                 health=health,
+                funnel_cards=funnel_cards,
+                all_signals=all_signals,
             )
             payload_path = run_output_dir / "display_payload.json"
             payload_path.parent.mkdir(parents=True, exist_ok=True)

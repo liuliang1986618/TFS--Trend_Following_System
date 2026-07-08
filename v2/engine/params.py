@@ -12,7 +12,7 @@ class StrategyParams:
     macd_fast: int = 12
     macd_slow: int = 26
     macd_signal: int = 9
-    min_history_days: int = 250
+    min_history_days: int = 60
     score_min: float = 0.0
     score_max: float = 100.0
     unknown_market_position_cap: float = 0.50

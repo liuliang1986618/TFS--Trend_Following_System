@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Iterable
 
-from .config import DATA_DIR
+from .config import DATA_DIR, INDEX_CODES
 from .providers.akshare_em import AkshareEMProvider
 from .storage import MarketDataStore
 
@@ -36,6 +36,9 @@ class DataFetcher:
             elif dtype == "etf":
                 universe = self.provider.fetch_etf_universe()
                 fetch_daily = self.provider.fetch_etf_daily
+            elif dtype == "index":
+                universe = [{"code": c, "name": n} for c, n in INDEX_CODES.items()]
+                fetch_daily = self.provider.fetch_index_daily
             else:
                 raise ValueError(f"unsupported update dtype: {dtype}")
 
@@ -201,6 +204,56 @@ class DataFetcher:
         active = {"version": version, "primary": primary, "fallback": fallback}
         (relations_dir / "active.json").write_text(json.dumps(active, ensure_ascii=False, indent=2), encoding="utf-8")
         (relations_dir / "current.json").write_text(json.dumps(relation, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def update_index_pct(self) -> dict:
+        """从 v1 index.html 解析真实指数涨跌数据，写入 v2/data/derived/index_pct.json。
+
+        过渡期数据源：v1 build_nav_index.py 已用 akshare 拉取并渲染到 index.html，
+        此方法解析该 HTML 提取每日期指数涨跌，作为 v2 侧边栏指数涨跌的真实数据来源。
+        """
+        import re
+        from .config import V1_DATA_DIR
+        try:
+            from bs4 import BeautifulSoup
+        except ImportError:
+            return {"status": "failed", "error": "beautifulsoup4 not installed"}
+
+        index_html = Path(V1_DATA_DIR).parent / "index.html"
+        if not index_html.exists():
+            return {"status": "failed", "error": f"v1 index.html not found: {index_html}"}
+
+        html = index_html.read_text(encoding="utf-8")
+        soup = BeautifulSoup(html, "html.parser")
+        results = []
+        seen = {}
+        for el in soup.find_all(string=lambda t: t and "上证" in t):
+            container = el.parent
+            for _ in range(5):
+                if container.get("onclick") and "loadDate" in str(container.get("onclick")):
+                    break
+                container = container.parent
+            onclick = container.get("onclick", "")
+            m = re.search(r"loadDate\('(\d{4}-\d{2}-\d{2})'\)", onclick)
+            if not m:
+                continue
+            date = m.group(1)
+            text = container.get_text(" ", strip=True)
+            sh = re.search(r"上证\s*([+-]?\d+\.?\d*)\s*%", text)
+            kc = re.search(r"科创\s*([+-]?\d+\.?\d*)\s*%", text)
+            cy = re.search(r"创业\s*([+-]?\d+\.?\d*)\s*%", text)
+            seen[date] = {
+                "date": date,
+                "indices": {
+                    "000001": {"name": "上证综指", "pct": float(sh.group(1)) if sh else 0.0},
+                    "000688": {"name": "科创50", "pct": float(kc.group(1)) if kc else 0.0},
+                    "399006": {"name": "创业板指", "pct": float(cy.group(1)) if cy else 0.0},
+                },
+            }
+        final = sorted(seen.values(), key=lambda x: x["date"])
+        out = self.data_dir / "derived" / "index_pct.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(final, ensure_ascii=False, indent=2), encoding="utf-8")
+        return {"status": "completed", "count": len(final), "path": str(out)}
 
     @staticmethod
     def _default_relation_version() -> str:

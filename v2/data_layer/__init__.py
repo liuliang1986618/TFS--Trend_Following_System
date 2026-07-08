@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .config import DATA_DIR, META_ETF_LIST
 from .fetcher import DataFetcher
+from .history import HistoryStore
 from .lifecycle import LifecycleManager
 from .relations import RelationStore
 from .storage import MarketDataStore
@@ -20,6 +21,7 @@ class DataLayer:
         self.market = MarketDataStore(self.data_dir)
         self.relations = RelationStore(self.data_dir)
         self.lifecycle = LifecycleManager(self.data_dir)
+        self.history = HistoryStore(self.data_dir)
         self.fetcher = fetcher or DataFetcher(self.data_dir)
 
     def load_daily(self, dtype: str, code: str, end_date: str | None = None):
@@ -57,10 +59,49 @@ class DataLayer:
 
     def get_etf_names(self) -> dict[str, str]:
         path = self.data_dir / "meta" / "universe" / META_ETF_LIST
-        if not path.exists():
-            return {}
-        items = json.loads(path.read_text(encoding="utf-8"))
-        return {item.get("code"): item.get("name") for item in items if item.get("code") and item.get("name")}
+        if path.exists():
+            try:
+                items = json.loads(path.read_text(encoding="utf-8"))
+                return {item.get("code"): item.get("name") for item in items if item.get("code") and item.get("name")}
+            except Exception:
+                pass
+        # v1 fallback
+        from .config import V1_DATA_DIR, V1_LEGACY_DIR
+        for v1_path in [Path(V1_DATA_DIR) / "etf_names.json", Path(V1_LEGACY_DIR) / "etf_names.json"]:
+            if v1_path.exists():
+                try:
+                    data = json.loads(v1_path.read_text(encoding="utf-8"))
+                    if isinstance(data, dict):
+                        return data
+                except Exception:
+                    pass
+        return {}
+
+    def get_stock_names(self) -> dict[str, str]:
+        """个股名称映射，fallback 读 v1 stock_names.json。"""
+        path = self.data_dir / "meta" / "stock_names.json"
+        if path.exists():
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                if isinstance(data, dict):
+                    return data
+            except Exception:
+                pass
+        from .config import V1_DATA_DIR, V1_LEGACY_DIR
+        for v1_path in [Path(V1_DATA_DIR) / "stock_names.json", Path(V1_LEGACY_DIR) / "stock_names.json"]:
+            if v1_path.exists():
+                try:
+                    data = json.loads(v1_path.read_text(encoding="utf-8"))
+                    if isinstance(data, dict):
+                        return data
+                except Exception:
+                    pass
+        return {}
+
+    def get_symbol_name(self, code: str, dtype: str = "stock") -> str:
+        """取单个标的名称。"""
+        names = self.get_etf_names() if dtype == "etf" else self.get_stock_names()
+        return names.get(code, code)
 
     def check_relation_health(self, relation_version: str | None = None) -> dict:
         return self.lifecycle.check_relation_health(relation_version)
