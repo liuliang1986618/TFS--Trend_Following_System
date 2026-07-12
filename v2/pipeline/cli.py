@@ -17,6 +17,8 @@ def build_parser() -> argparse.ArgumentParser:
     daily.add_argument("--render", dest="render_display", action="store_true", default=True)
     daily.add_argument("--no-render", dest="render_display", action="store_false")
     daily.add_argument("--output-dir", default=None)
+    daily.add_argument("--skip-health", action="store_true", default=False,
+                       help="Skip data health check (for development/testing)")
 
     eval_cmd = subparsers.add_parser("eval", help="run pipeline through evaluation")
     eval_cmd.add_argument("--date", default=None)
@@ -36,7 +38,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.print_help()
         return 0
     if args.command in ("daily", "eval"):
-        runner = PipelineRunner(output_dir=args.output_dir)
+        runner = PipelineRunner(output_dir=args.output_dir, skip_health_check=getattr(args, "skip_health", False))
         manifest = runner.run(
             date=args.date,
             mode=args.command,

@@ -42,12 +42,17 @@ class DisplayRenderer:
                 )
             )
         meta = view["meta"]
+        health = meta.get("market_health") or {}
+        badge = self._market_state_badge(health.get("label", "弱势"), health.get("score"))
         html_text = self._page(
             title=f'TFS {meta["date"]}',
             body="\n".join(
                 [
                     '<main class="daily-dashboard">',
-                    f'  <h1>趋势跟随 {self._escape(meta["date"])}</h1>',
+                    f'  <div class="daily-dashboard__topbar">',
+                    f'    <h1>趋势跟随 {self._escape(meta["date"])}</h1>',
+                    f'    {badge}',
+                    f'  </div>',
                     *sections,
                     "</main>",
                 ]
@@ -179,7 +184,7 @@ class DisplayRenderer:
                 continue
             summary_html = f'<span class="widget-summary">{summary}</span>' if summary else ""
             html_parts.append(
-                f'<details class="widget-details action-card__section action-card__section--{self._escape(key)}">'
+                f'<details open class="widget-details action-card__section action-card__section--{self._escape(key)}">'
                 f'<summary>{title}{summary_html}</summary>'
                 f'<div class="widget-content">{content}</div>'
                 f'</details>'
@@ -254,7 +259,28 @@ class DisplayRenderer:
         rendered = content if isinstance(content, str) and content.startswith("<") else f'<p>{self._escape(content)}</p>'
         if content_kind == "text" and isinstance(content, str) and not content.startswith("<"):
             rendered = f'<p>{self._escape(content)}</p>'
-        return f'<section class="action-card__section action-card__section--{self._escape(section_type)}{extra_class}"><h3>{self._escape(title)}</h3>{rendered}</section>'
+        emoji = self._section_emoji(section_type)
+        h3 = f'<h3><span class="action-card__section-icon">{emoji}</span>{self._escape(title)}</h3>'
+        return f'<section class="action-card__section action-card__section--{self._escape(section_type)}{extra_class}">{h3}{rendered}</section>'
+
+    @staticmethod
+    def _section_emoji(section_type: str) -> str:
+        return {
+            "plan": "📋",
+            "trend": "📈",
+            "today": "📍",
+            "strategy": "🎯",
+            "projection": "🔮",
+            "zone": "💰",
+            "levels": "📊",
+            "watch": "👀",
+            "position": "🧭",
+        }.get(section_type, "•")
+
+    @staticmethod
+    def _market_state_badge(label: str = "弱势", score: float | None = None) -> str:
+        score_part = f" · {score:.0f}" if isinstance(score, (int, float)) else ""
+        return f'<span class="market-state-badge market-state-badge--weak">{label}{score_part}</span>'
 
     def _render_metrics(self, metrics) -> str:
         if not isinstance(metrics, list):
@@ -342,6 +368,14 @@ class DisplayRenderer:
         if not isinstance(value, dict):
             return ""
         items = []
+        probs = []
+        for scenario in value.get("scenarios", []):
+            if not isinstance(scenario, dict):
+                continue
+            p = scenario.get("probability")
+            if isinstance(p, (int, float)):
+                probs.append(float(p))
+        sorted_probs = sorted(probs, reverse=True)
         for scenario in value.get("scenarios", []):
             if not isinstance(scenario, dict):
                 continue
@@ -349,7 +383,13 @@ class DisplayRenderer:
             pct = f"{float(probability) * 100:.0f}%" if isinstance(probability, (int, float)) else scenario.get("probability_label", "")
             label = " ".join(str(item) for item in [scenario.get("label"), scenario.get("title")] if item)
             meta = " ".join(str(item) for item in [pct, scenario.get("range")] if item)
-            items.append(self._pill_row(label, meta))
+            prob_cls = "prob-mid"
+            if isinstance(probability, (int, float)):
+                if sorted_probs and float(probability) == sorted_probs[0]:
+                    prob_cls = "prob-up"
+                elif sorted_probs and float(probability) == sorted_probs[-1]:
+                    prob_cls = "prob-down"
+            items.append(self._pill_row(label, meta, extra_class=f"action-card__row--{prob_cls}"))
         return self._list_block(items)
 
     def _buy_sell_zone_items(self, value: dict) -> str:
@@ -367,11 +407,24 @@ class DisplayRenderer:
     def _key_level_items(self, value: list) -> str:
         if not isinstance(value, list):
             return ""
-        items = []
+        chips = []
+        label_cls = {
+            "支撑位": "chip-support",
+            "阻力位": "chip-resistance",
+            "止损位": "chip-stop",
+            "止盈位": "chip-target",
+            "昨收": "chip-prevclose",
+            "当前": "chip-current",
+        }
         for item in value:
             if isinstance(item, dict) and item.get("label"):
-                items.append(self._pill_row(str(item.get("label")), str(item.get("price", ""))))
-        return self._list_block(items)
+                label = str(item.get("label"))
+                price = str(item.get("price", ""))
+                cls = label_cls.get(label, "chip-default")
+                chips.append(
+                    f'<div class="action-card__chip {cls}"><small>{self._escape(label)}</small><strong>{self._escape(price)}</strong></div>'
+                )
+        return f'<div class="action-card__chip-row">{"".join(chips)}</div>' if chips else ""
 
     def _watch_scenario_items(self, value: list) -> str:
         if not isinstance(value, list):
@@ -384,7 +437,9 @@ class DisplayRenderer:
             position = self._pct(item.get("position_pct")) if item.get("position_pct") is not None else ""
             action = self._action_label(item.get("action", ""))
             label = " ".join(str(part) for part in [item.get("level"), action, position] if part)
-            items.append(self._pill_row(label, signals))
+            level = str(item.get("level", "")).strip().upper()
+            level_cls = f"action-card__row--level-{level}" if level in {"A", "B", "C", "D", "E"} else ""
+            items.append(self._pill_row(label, signals, extra_class=level_cls))
         return self._list_block(items)
 
     def _position_plan_items(self, value: list) -> str:
@@ -402,8 +457,9 @@ class DisplayRenderer:
     def _list_block(self, items: list[str]) -> str:
         return f'<div class="action-card__list">{"".join(items)}</div>' if items else ""
 
-    def _pill_row(self, label: str, value: str) -> str:
-        return f'<div class="action-card__row"><strong>{self._escape(label)}</strong><span>{self._escape(value)}</span></div>'
+    def _pill_row(self, label: str, value: str, extra_class: str = "") -> str:
+        cls = f"action-card__row {extra_class}".strip()
+        return f'<div class="{cls}"><strong>{self._escape(label)}</strong><span>{self._escape(value)}</span></div>'
 
     def _zone_item(self, label: str, price: str, logic: str) -> str:
         return f'<div class="action-card__zone"><small>{self._escape(label)}</small><strong>{self._escape(price)}</strong><span>{self._escape(logic)}</span></div>'
@@ -411,14 +467,16 @@ class DisplayRenderer:
     # ── Step 3 新增渲染方法 ─────────────────────────────────────
 
     def _render_5d_state_bar(self, states: list) -> str:
-        """渲染 5d 状态条（5个色点）。"""
+        """渲染 5d 状态条（5 色点，绿=强 红=弱 灰=缺）。"""
         if not states:
             return ""
         dots = []
         for s in states[-5:]:
-            cls = {4: "state-up", 5: "state-up", 3: "state-mid", 2: "state-down", 1: "state-down"}.get(s, "state-mid")
-            if s == "3'":
-                cls = "state-risk"
+            try:
+                sv = int(s)
+            except (TypeError, ValueError):
+                sv = None
+            cls = {5: "state-5", 4: "state-4", 3: "state-3", 2: "state-2", 1: "state-1"}.get(sv, "state-mid")
             dots.append(f'<span class="state-dot {cls}" title="{self._escape(str(s))}"></span>')
         return f'<span class="state-bar-5d">{"".join(dots)}</span>'
 
@@ -542,14 +600,26 @@ class DisplayRenderer:
         if best_etf:
             etf_name = self._escape(str(best_etf.get("name", "")))
             parts.append(f'<div class="focus-best-etf"><span>📊 最佳ETF: </span><strong>{etf_name}</strong></div>')
-        # 龙头
+        # 龙头（表格：个股 / 评分 / 20日涨幅 / 入选原因）
         if leaders:
-            leader_items = []
+            rows = []
             for ld in leaders[:4]:
                 name = self._escape(str(ld.get("name", ld.get("code", ""))))
                 score = self._score_text(ld.get("score", ""))
-                leader_items.append(f'<span class="focus-leader">{name} <sup>{score}</sup></span>')
-            parts.append(f'<div class="focus-leaders">{"".join(leader_items)}</div>')
+                pct = ld.get("pct_20d")
+                pct_txt = f"{pct:+.1f}%" if isinstance(pct, (int, float)) else "-"
+                reason = self._escape(str(ld.get("reason", "") or "-"))
+                rows.append(
+                    f'<tr><td class="focus-leader-name">{name}</td>'
+                    f'<td class="focus-leader-score">{score}</td>'
+                    f'<td class="focus-leader-pct">{pct_txt}</td>'
+                    f'<td class="focus-leader-reason">{reason}</td></tr>'
+                )
+            parts.append(
+                '<table class="focus-leaders-table">'
+                '<thead><tr><th>龙头</th><th>评分</th><th>20日</th><th>入选原因</th></tr></thead>'
+                f'<tbody>{"".join(rows)}</tbody></table>'
+            )
         return "".join(parts)
 
     def _render_observation_body(self, body: dict) -> str:

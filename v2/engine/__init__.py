@@ -51,7 +51,7 @@ class TrendEngine:
         confidence = estimate_confidence(score, state, risk_flags)
         scenario = estimate_scenario(score, confidence, state)
         position_hint = calculate_position_hint(state, score, self.params, market_context=market_context)
-        passed_filter, filter_reasons = apply_trend_filters(state, indicators)
+        passed_filter, filter_reasons = apply_trend_filters(state, indicators, daily_df)
         key_levels = calculate_key_levels(daily_df, indicators)
 
         market_date = daily_df["date"].iloc[-1]
@@ -99,25 +99,79 @@ class TrendEngine:
         end_date: str | None = None,
         max_candidates: int | None = 50,
         market_context: dict | None = None,
+        parallel: bool = True,
+        prefilter: bool = True,
     ) -> list[StrategySignal]:
         if self.data_layer is None:
             raise ValueError("TrendEngine requires a DataLayer")
+        all_codes = self.data_layer.list_symbols(dtype)
+        if prefilter:
+            codes = self._prefilter_symbols(dtype, all_codes, end_date)
+        else:
+            codes = all_codes
+        if parallel and len(codes) > 1:
+            signals = self._run_universe_parallel(dtype, codes, end_date, market_context)
+        else:
+            signals = self._run_universe_sequential(dtype, codes, end_date, market_context)
+        signals.sort(key=lambda item: (item.score, item.confidence, str(item.code)), reverse=True)
+        if max_candidates is None:
+            return signals
+        return signals[:max_candidates]
+
+    def _run_universe_sequential(self, dtype, codes, end_date, market_context) -> list[StrategySignal]:
         signals: list[StrategySignal] = []
-        for code in self.data_layer.list_symbols(dtype):
+        for code in codes:
             try:
-                name = None
-                if hasattr(self.data_layer, "get_symbol_name"):
-                    name = self.data_layer.get_symbol_name(code, dtype)
+                name = self.data_layer.get_symbol_name(code, dtype) if hasattr(self.data_layer, "get_symbol_name") else code
                 signal = self.analyze_symbol(dtype, code, name=name or code, end_date=end_date, market_context=market_context)
             except Exception:
                 continue
             if not signal.signals.get("passed_filter", True):
                 continue
             signals.append(signal)
-        signals.sort(key=lambda item: (item.score, item.confidence, str(item.code)), reverse=True)
-        if max_candidates is None:
-            return signals
-        return signals[:max_candidates]
+        return signals
+
+    def _run_universe_parallel(self, dtype, codes, end_date, market_context) -> list[StrategySignal]:
+        from concurrent.futures import ProcessPoolExecutor
+        data_dir = str(self.data_layer.data_dir)
+        name_fn = hasattr(self.data_layer, "get_symbol_name")
+        args_list = []
+        for code in codes:
+            name = self.data_layer.get_symbol_name(code, dtype) if name_fn else code
+            args_list.append((data_dir, end_date, code, dtype, name))
+        signals: list[StrategySignal] = []
+        with ProcessPoolExecutor() as executor:
+            for sig in executor.map(_analyze_symbol_worker, args_list):
+                if sig is not None:
+                    signals.append(sig)
+        return signals
+
+    def _prefilter_symbols(self, dtype: str, codes: list[str], end_date: str | None) -> list[str]:
+        """快速预筛：仅读 date/close 两列，跳过明显弱势(state-1)标的。
+
+        state-1（弱势/下跌）从不进入展示层，可安全跳过以大幅减少分析量。
+        判定：20日收益 < -8% 且收盘价跌破 MA20 → 视为明显弱势。
+        """
+        if self.data_layer is None:
+            return codes
+        kept: list[str] = []
+        for code in codes:
+            try:
+                df = self.data_layer.load_daily_columns(dtype, code, ["date", "close"], end_date=end_date)
+                if df is None or len(df) < 22:
+                    kept.append(code)
+                    continue
+                close = df["close"].astype(float)
+                ma20 = close.rolling(20).mean().iloc[-1]
+                last = close.iloc[-1]
+                prev20 = close.iloc[-21]
+                ret20 = (last / prev20 - 1) if prev20 else 0
+                if ret20 < -0.08 and last < ma20:
+                    continue
+                kept.append(code)
+            except Exception:
+                kept.append(code)
+        return kept
 
     def scan_stock_full(self, date: str | None = None, max_candidates: int | None = 50) -> list[StrategySignal]:
         return self.run_universe("stock", end_date=date, max_candidates=max_candidates)
@@ -145,4 +199,21 @@ class TrendEngine:
         return "观望"
 
 
-__all__ = ["TrendEngine", "StrategySignal", "StrategyParams"]
+def _analyze_symbol_worker(args: tuple):
+    """多进程 worker：在子进程内重建 DataLayer + TrendEngine 并分析单标的。"""
+    data_dir, end_date, code, dtype, name = args
+    try:
+        from v2.data_layer import DataLayer
+        from v2.engine import TrendEngine
+
+        dl = DataLayer(data_dir)
+        engine = TrendEngine(dl)
+        signal = engine.analyze_symbol(dtype, code, name=name or code, end_date=end_date)
+        if not signal.signals.get("passed_filter", True):
+            return None
+        return signal
+    except Exception:
+        return None
+
+
+__all__ = ["TrendEngine", "StrategySignal", "StrategyParams", "_analyze_symbol_worker"]

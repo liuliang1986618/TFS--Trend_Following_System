@@ -16,11 +16,11 @@ from .storage import MarketDataStore
 class DataLayer:
     """Single data access facade for upper layers."""
 
-    def __init__(self, data_dir: str | Path | None = None, fetcher: DataFetcher | None = None):
+    def __init__(self, data_dir: str | Path | None = None, fetcher: DataFetcher | None = None, skip_health: bool = False):
         self.data_dir = Path(data_dir or DATA_DIR)
         self.market = MarketDataStore(self.data_dir)
         self.relations = RelationStore(self.data_dir)
-        self.lifecycle = LifecycleManager(self.data_dir)
+        self.lifecycle = LifecycleManager(self.data_dir, skip=skip_health)
         self.history = HistoryStore(self.data_dir)
         self.fetcher = fetcher or DataFetcher(self.data_dir)
 
@@ -105,6 +105,10 @@ class DataLayer:
 
     def check_relation_health(self, relation_version: str | None = None) -> dict:
         return self.lifecycle.check_relation_health(relation_version)
+
+    def update_sector_theme_daily(self, target_date: str | None = None) -> dict:
+        """获取板块和主题的日K线数据。"""
+        return self.fetcher.update_sector_theme_daily(target_date)
 
 
 __all__ = ["DataLayer", "DATA_DIR"]

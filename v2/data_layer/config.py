@@ -60,20 +60,22 @@ COMPLETENESS = {
     "min_rows_for_load": 20,
 }
 
+# 允许环境变量覆盖完整性阈值
+# 例如: TFS_STOCK_MIN=3000, TFS_ETF_MIN=400
+for _key in list(COMPLETENESS.keys()):
+    _env = os.environ.get(f"TFS_{_key.upper()}")
+    if _env is not None:
+        try:
+            COMPLETENESS[_key] = int(_env)
+        except ValueError:
+            pass
+
+# 跳过健康检查标志（用于开发/测试）
+SKIP_HEALTH_CHECK = os.environ.get("TFS_SKIP_HEALTH", "0") == "1"
+
 # ── 增量更新 ────────────────────────────────────────────────
 
 INCREMENTAL_LOOKBACK_DAYS = 30
-
-# ── 防封参数 ────────────────────────────────────────────────
-
-ANTI_BAN = {
-    "jitter_min_s": 0.5,
-    "jitter_max_s": 2.0,
-    "batch_size": 50,
-    "batch_cooldown_s": (3.0, 8.0),
-    "max_retries": 3,
-    "backoff_s": (2.0, 5.0, 15.0),
-}
 
 # ── 断点续传 ────────────────────────────────────────────────
 

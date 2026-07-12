@@ -545,11 +545,29 @@ class DisplayPayloadBuilder:
                 continue
             stats = fc.get("sector_stats", {}) or {}
             best_etf = fc.get("best_etf") or {}
-            leaders = fc.get("leaders", []) or []
+            leaders_raw = fc.get("leaders", []) or []
             # 从 signals 补该板块的候选个股
             sector_code = fc.get("code", "")
             sector_name = fc.get("name", sector_code)
             sector_signals = [s for s in signals if sector_code in (s.relations or {}).get("sectors", []) or sector_name == (s.relations or {}).get("sector")]
+            signal_by_code = {s.code: s for s in sector_signals}
+            enriched_leaders = []
+            for ld in leaders_raw[:4]:
+                code = ld.get("code")
+                sig = signal_by_code.get(code)
+                if sig is not None:
+                    tc = getattr(sig, "trend_context", {}) or {}
+                    readable = self._readable_relations(sig.relations, relation_names)
+                    enriched_leaders.append({
+                        "code": code,
+                        "name": ld.get("name", code),
+                        "score": ld.get("score"),
+                        "pct_20d": round(tc["pct_20d"], 1) if isinstance(tc.get("pct_20d"), (int, float)) else None,
+                        "reason": self._leader_reason(sig, readable),
+                    })
+                else:
+                    enriched_leaders.append(ld)
+            leaders = enriched_leaders
             # 板块完整指标
             pct_20d = abc.get("pct_20d", 0)
             vol_ratio = abc.get("vol_ratio", 1.0)

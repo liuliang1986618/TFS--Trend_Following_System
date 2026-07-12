@@ -1,6 +1,8 @@
 # TFS v2 数据管理设计
 
-> 本文档从 `REFACTOR_MANUAL.md` 中拆出数据管理部分，并按“可落地优先”重新收敛。后续数据层实现、迁移和验收以本文档为准；总手册只保留架构摘要和文档索引。
+> 本文档是 v2 数据层的权威设计文档。所有数据层实现、迁移和验收以本文档为准。
+>
+> **最后更新：2026-07-11** — 反映通达信(mootdx)+腾讯实际实现。
 
 ---
 
@@ -8,10 +10,10 @@
 
 v2 数据管理只解决一个核心问题：**给 engine/display 提供可信、完整、可追溯的数据入口**。
 
-第一阶段不做“数据平台”，只做能支撑 v2 主链路落地的最小闭环：
+第一阶段不做"数据平台"，只做能支撑 v2 主链路落地的最小闭环：
 
-1. **全量行情数据**：每日收盘后更新，主源为 TickFlow。
-2. **映射关系数据**：每周更新一次，主源为东方财富体系，Tushare Pro 作为备源或校验源。
+1. **全量行情数据**：每日收盘后更新，主源为通达信(mootdx TCP)，备源为 akshare HTTP。
+2. **映射关系数据**：每周更新一次，主源为东方财富/同花顺。
 3. **DataLayer 唯一入口**：engine、evaluation、display 只能通过 DataLayer 取数据。
 4. **health 准出**：行情不完整不出正式推荐；关系过期或缺失则降级协同判断。
 
@@ -19,14 +21,32 @@ v2 数据管理只解决一个核心问题：**给 engine/display 提供可信�
 
 ```text
 v2/data_layer/
-├── __init__.py      # DataLayer 门面
-├── storage.py       # MarketDataStore，行情 parquet 读写
-├── relations.py     # RelationStore，关系版本读写和查询
-├── lifecycle.py     # market_health / relation_health
-└── fetcher.py       # update_market_daily / update_relations_weekly 编排
+├── __init__.py              # DataLayer 门面
+├── config.py                # 集中配置（路径、阈值）
+├── storage.py               # MarketDataStore，行情 parquet 读写
+├── relations.py             # RelationStore，关系版本读写和查询
+├── lifecycle.py             # market_health / relation_health
+├── history.py               # 历史状态序列
+├── fetcher.py               # update_market_daily / update_relations_weekly 编排
+│
+├── providers/               # 数据源适配层
+│   ├── __init__.py
+│   ├── mootdx_tencent.py    # ✅ 通达信K线 + 腾讯行情（日K主源）
+│   ├── akshare_em.py        # ✅ 东财（板块/题材映射）
+│   ├── akshare_ths.py       # 同花顺（备用，待实现）
+│   └── tickflow.py          # TickFlow（已被 mootdx 替代）
+│
+└── fetch/                   # 拉取控制层
+    ├── __init__.py
+    ├── rate_limiter.py      # ✅ Token bucket 限流（东财1次/s）
+    ├── journal.py           # ✅ 进度日志（断点恢复）
+    ├── circuit_breaker.py   # 熔断器（待实现）
+    ├── executor.py          # 并发执行器（待实现）
+    ├── registry.py          # 数据源路由+降级（待实现）
+    └── config.py            # 桶容量/阈值配置（待实现）
 ```
 
-超过这个范围的复杂设计先列为“后续增强”，不阻塞第一阶段实现。
+超过这个范围的复杂设计先列为"后续增强"，不阻塞第一阶段实现。
 
 ---
 
@@ -36,12 +56,12 @@ v2/data_layer/
 
 MarketDataStore 管理每日更新的行情序列。
 
-| 数据 | 内容 | 主源 | 更新频率 | 存储位置 |
-|------|------|------|----------|----------|
-| 个股日线 | 全市场 A 股 OHLCV | TickFlow | 每个交易日收盘后 | `v2/data/stock/{code}.parquet` |
-| ETF 日线 | 全市场 ETF OHLCV | TickFlow | 每个交易日收盘后 | `v2/data/etf/{code}.parquet` |
-| 板块日线 | 行业/板块指数 OHLCV | AkShare/同花顺或 TickFlow 可用源 | 每个交易日收盘后 | `v2/data/sector/{code}.parquet` |
-| 题材日线 | 概念/题材指数 OHLCV | AkShare/同花顺或 TickFlow 可用源 | 每个交易日收盘后 | `v2/data/theme/{code}.parquet` |
+| 数据 | 内容 | 主源 | 备源 | 更新频率 | 存储位置 |
+|------|------|------|------|----------|----------|
+| 个股日线 | 全市场 A 股 OHLCV | 通达信 TCP | akshare HTTP | 每个交易日收盘后 | `v2/data/stock/{code}.parquet` |
+| ETF 日线 | 全市场 ETF OHLCV | 通达信 TCP | akshare HTTP | 每个交易日收盘后 | `v2/data/etf/{code}.parquet` |
+| 板块日线 | 行业/板块指数 OHLCV | 通达信 TCP | — | 每个交易日收盘后 | `v2/data/sector/{code}.parquet` |
+| 题材日线 | 概念/题材指数 OHLCV | 通达信 TCP | — | 每个交易日收盘后 | `v2/data/theme/{code}.parquet` |
 
 行情数据目标：**全量、同日、可计算**。
 
@@ -51,13 +71,13 @@ RelationStore 管理低频更新的关系数据。
 
 | 数据 | 内容 | 主源 | 备源/校验 | 更新频率 | 第一阶段优先级 |
 |------|------|------|-----------|----------|----------------|
-| 个股-板块关系 | stock -> sectors / sector -> stocks | 东方财富 | Tushare 申万行业 | 每周一次 | 必做 |
-| 个股-题材关系 | stock -> themes / theme -> stocks | 东方财富 | Tushare concept/concept_detail | 每周一次 | 必做 |
-| 名称映射 | code -> name | TickFlow/东方财富/AkShare | Tushare | 每周或每月 | 必做 |
-| 股票/ETF/板块/题材列表 | universe 定义 | TickFlow/东方财富/AkShare | Tushare | 每周一次 | 必做 |
-| ETF-成分关系 | etf -> holdings / stock -> etfs | 东方财富或 Tushare | Tushare ETF 持仓 | 每周一次 | 第二阶段 |
+| 个股-板块关系 | stock -> sectors / sector -> stocks | 东方财富 | 同花顺 | 每周一次 | 必做 |
+| 个股-题材关系 | stock -> themes / theme -> stocks | 东方财富 | 同花顺 | 每周一次 | 必做 |
+| 名称映射 | code -> name | 通达信/东方财富 | — | 每周或每月 | 必做 |
+| 股票/ETF列表 | universe 定义 | 通达信 | 东方财富 | 每周一次 | 必做 |
+| ETF-成分关系 | etf -> holdings / stock -> etfs | 东方财富 | — | 每周一次 | 第二阶段 |
 
-第一阶段核心链路是“行情 + 板块/题材关系”。ETF holdings 保留设计，但不作为第一阶段阻塞项。
+第一阶段核心链路是"行情 + 板块/题材关系"。ETF holdings 保留设计，但不作为第一阶段阻塞项。
 
 ---
 
@@ -67,37 +87,32 @@ RelationStore 管理低频更新的关系数据。
 
 ```text
 v2/data/
-├── stock/
-│   └── 300308.parquet
-├── etf/
-│   └── 159915.parquet
-├── sector/
-│   └── 881121.parquet
-├── theme/
-│   └── 308614.parquet
+├── stock/                     # 个股日K（5590只）
+│   ├── 000001.parquet
+│   └── 600519.parquet
+├── etf/                       # ETF日K（1522只）
+│   ├── 159001.parquet
+│   └── 510300.parquet
+├── sector/                    # 板块日K
+├── theme/                     # 题材日K
 │
 ├── meta/
-│   ├── names/
-│   │   ├── stock_names.json
-│   │   └── etf_names.json
-│   │
 │   ├── universe/
 │   │   ├── stock_list.json
-│   │   ├── etf_list.json
-│   │   ├── sector_list.json
-│   │   └── theme_list.json
+│   │   └── etf_list.json
 │   │
 │   ├── relations/
 │   │   ├── current.json
+│   │   ├── active.json
 │   │   └── versions/
 │   │       └── 2026-W26.json
 │   │
-│   └── health/
-│       ├── market_health_2026-06-27.json
-│       └── relation_health_2026-W26.json
+│   ├── health/
+│   │   ├── market_health_2026-06-27.json
+│   │   └── relation_health_2026-W26.json
+│   │
+│   └── fetch_journal.json     # 拉取进度日志（断点恢复）
 ```
-
-`raw_relations/` 不作为第一阶段核心链路。需要排障时可以临时保存原始结果，后续再固定为正式目录。
 
 ---
 
@@ -145,7 +160,7 @@ amount   float64，可选但建议保留
   "sources": {
     "sector": "eastmoney",
     "theme": "eastmoney",
-    "names": "tickflow"
+    "names": "mootdx"
   },
   "entities": {
     "stocks": {
@@ -207,13 +222,34 @@ ETF holdings 第二阶段接入。接入时必须标注可信度，不能默认�
 
 ## 5. 数据源策略
 
-### 5.1 每日行情：TickFlow 主源
+### 5.1 每日行情：通达信(mootdx)主源
 
-TickFlow 作为每日行情主源：
+通达信 TCP 作为每日行情主源：
 
-- 可批量拉取全量数据。
-- 相比东财，封禁风险低。
-- 适合每日收盘后的固定批处理。
+- **不封 IP**：TCP 二进制协议，直连通达信行情服务器(7709)，实测无风控。
+- **批量无限制**：单股 0.02s，5590 只 4 分钟完成全量补数据。
+- **免费无 Key**：无需注册、无需 API Key。
+- **覆盖全**：A 股、ETF、指数均支持。
+
+```python
+# 通达信 K线获取示例
+from mootdx.quotes import Quotes
+client = Quotes.factory(market='std')
+klines = client.bars(symbol='600519', frequency=9, offset=730)
+# 返回: open, close, high, low, vol, amount, datetime
+```
+
+腾讯财经 HTTP 作为辅助数据源：
+
+- 实时行情/PE/PB/市值/换手率/涨跌停价。
+- 同样不封 IP，免费无 Key。
+
+```python
+# 腾讯行情获取示例
+import urllib.request
+url = "https://qt.gtimg.cn/q=sh600519"
+# 返回 88 字段，~分隔
+```
 
 每日行情更新只负责行情，不负责关系映射。东财关系源不可用不能拖垮每日行情更新。
 
@@ -228,22 +264,30 @@ TickFlow 作为每日行情主源：
 东财调用必须低频、集中、限速：
 
 - 只在每周关系任务中调用。
-- 限速统一收口到 fetch 控制平面。
+- 限速统一收口到 fetch/rate_limiter.py（令牌桶，1次/s）。
 - provider 内禁止 sleep、重试、计数。
-- 失败率异常时断路器立即停手。
+- 失败率异常时断路器（待实现）立即停手。
 - 更新失败时沿用上一周关系，不能覆盖 current。
 
-### 5.3 Tushare Pro：备源和校验源
+### 5.3 同花顺：备用关系源
 
-Tushare Pro 不作为每日行情主依赖。第一阶段只作为关系备源或人工校验参考，避免引入权限、积分、频次造成的实现阻塞。
+同花顺作为关系备源：
 
-可用方向：
+- 板块/题材列表可用。
+- 成分股接口不稳定，部分 akshare 版本缺失。
 
-- `concept` / `concept_detail`：概念分类和概念成分。
-- `index_classify`：申万行业分类。
-- `index_member` / `index_member_all`：申万行业成分。
-- `index_weight`：指数成分和权重。
-- ETF 持仓组合明细：第二阶段 ETF holdings 备源。
+### 5.4 TickFlow：已废弃
+
+TickFlow 原计划作为日K主源，但因：
+- 服务不稳定（多次连接失败）
+- API 参数需调试（period 枚举值不明确）
+- 通达信 TCP 完全满足需求且更稳定
+
+已用通达信(mootdx)完全替代，`providers/tickflow.py` 保留为空文件。
+
+### 5.5 Tushare Pro：备源和校验源
+
+Tushare Pro 不作为每日行情主依赖。第一阶段只作为关系备源或人工校验参考。
 
 ---
 
@@ -253,14 +297,22 @@ Tushare Pro 不作为每日行情主依赖。第一阶段只作为关系备源�
 
 ```mermaid
 flowchart TD
-    A[收盘后启动 daily market update] --> B[TickFlow 拉取个股/ETF全量日线]
-    B --> C[拉取板块/题材日线]
+    A[收盘后启动 daily market update] --> B[通达信拉取个股/ETF日线]
+    B --> C[增量合并到现有 parquet]
     C --> D[写入 MarketDataStore]
     D --> E[运行 market health 检查]
     E --> F{核心行情是否完整}
     F -->|是| G[允许 engine 生成正式趋势建议]
     F -->|否| H[阻断正式建议，只输出诊断]
 ```
+
+增量合并流程：
+
+1. 读现有 parquet
+2. 检查最新日期是否已有目标交易日数据
+3. 如无，通达信拉取近 730 天数据
+4. concat → 按 date 去重 → 排序
+5. 覆盖写回 parquet
 
 每日行情健康检查至少包含：
 
@@ -284,6 +336,16 @@ flowchart TD
 
 关系更新失败不阻断基础趋势判断，但会禁用或降级板块/题材协同判断。
 
+### 6.3 数据拉取分工总表
+
+| 数据类型 | 主源 | 备源 | 频率 | 封IP风险 |
+|---------|------|------|------|---------|
+| 日K线（股票/ETF/指数） | 通达信 TCP | akshare HTTP | 每日 | **不封** |
+| 股票/ETF列表 | 通达信 `stock_all()` | 东财 `stock_zh_a_spot_em` | 月度 | **不封** |
+| 板块/题材列表 | 东财/同花顺 | — | 周度 | 有风控 |
+| 板块成分股 | 东财/同花顺 | — | 周度 | 有风控 |
+| 实时行情/PE/PB | 腾讯财经 HTTP | — | 每日 | **不封** |
+
 ---
 
 ## 7. 健康检查与准出规则
@@ -294,46 +356,30 @@ flowchart TD
 
 ```json
 {
-  "date": "2026-06-27",
+  "date": "2026-07-10",
   "status": "complete",
-  "source": "tickflow",
+  "source": "mootdx",
   "checks": {
     "stock": {
       "status": "complete",
-      "expected_count": 4560,
-      "actual_count": 4552,
-      "missing_count": 8,
-      "missing_sample": ["600000", "000001"],
-      "latest_date_ok": true
+      "expected_count": 5590,
+      "actual_count": 5182,
+      "missing_count": 408,
+      "missing_sample": ["000003", "000005"],
+      "latest_date_ok": true,
+      "note": "408只停牌/退市，无新数据"
     },
     "etf": {
       "status": "complete",
-      "expected_count": 730,
-      "actual_count": 730,
+      "expected_count": 1522,
+      "actual_count": 1522,
       "missing_count": 0,
-      "latest_date_ok": true
-    },
-    "sector": {
-      "status": "complete",
-      "expected_count": 90,
-      "actual_count": 90,
-      "missing_count": 0,
-      "latest_date_ok": true
-    },
-    "theme": {
-      "status": "warning",
-      "expected_count": 373,
-      "actual_count": 360,
-      "missing_count": 13,
-      "missing_sample": ["eastmoney:theme:xxx"],
       "latest_date_ok": true
     }
   },
   "allowed": {
     "stock_recommendation": true,
-    "etf_recommendation": true,
-    "sector_confirmation": true,
-    "theme_confirmation": true
+    "etf_recommendation": true
   },
   "issues": []
 }
@@ -343,13 +389,11 @@ flowchart TD
 
 - 个股行情不完整：禁止正式个股推荐。
 - ETF 行情不完整：禁止正式 ETF 推荐。
-- 板块行情不完整：禁用板块确认。
-- 题材行情不完整：禁用题材确认。
 - 有 stale 行情进入推荐池：直接失败。
 
 ### 7.2 relation_health
 
-`relation_health_{version}.json` 记录关系版本是否可用。第一阶段只保留三类核心指标：板块覆盖、题材覆盖、正反向一致性。
+`relation_health_{version}.json` 记录关系版本是否可用。
 
 ```json
 {
@@ -361,11 +405,11 @@ flowchart TD
     "theme": "eastmoney"
   },
   "coverage": {
-    "stock_universe_count": 4552,
+    "stock_universe_count": 5590,
     "stock_with_sector_count": 4380,
     "stock_with_theme_count": 3290,
-    "stock_with_sector_ratio": 0.96,
-    "stock_with_theme_ratio": 0.72
+    "stock_with_sector_ratio": 0.78,
+    "stock_with_theme_ratio": 0.59
   },
   "consistency": {
     "forward_reverse_match": true,
@@ -381,7 +425,6 @@ flowchart TD
 - 关系版本超过 14 天未更新：基础趋势可运行，但关系解释降级。
 - 正向/反向关系不一致：不能发布新关系版本，沿用上一版本。
 - 个股无关系映射：该个股仍可做基础趋势判断，但不能获得板块/题材协同加分。
-- ETF holdings 第一阶段不参与强准出。
 
 ---
 
@@ -424,8 +467,8 @@ def get_related_etfs(self, stock_code: str, relation_version: str = None) -> lis
 
 - engine/display/evaluation 禁止直接 `pd.read_parquet`。
 - engine/display/evaluation 禁止直接读取 `v2/data/meta/*.json`。
-- engine/display/evaluation 禁止直接调用 TickFlow、AkShare、Tushare。
-- provider 禁止出现 `time.sleep`、自建 retry、自建请求计数。
+- engine/display/evaluation 禁止直接调用通达信、AkShare。
+- provider 禁止出现 `time.sleep`、自建 retry、自建请求计数（统一走 fetch 控制层）。
 
 ---
 
@@ -462,28 +505,35 @@ def get_related_etfs(self, stock_code: str, relation_version: str = None) -> lis
 
 ## 10. 实施优先级
 
-### 10.1 第一阶段必做
+### 10.1 已完成
 
-1. 建立 `MarketDataStore` 和 `RelationStore` 的目录与读写契约。
-2. 实现 universe 文件，作为 expected_count 的来源。
-3. 实现关系版本文件 `relations/current.json` 与 `relations/versions/{version}.json`。
-4. 实现板块/题材关系的稳定 ID、中文展示名、source/source_id。
-5. 实现 DataLayer 第一阶段关系查询 API。
-6. 实现 `market_health` 和 `relation_health` 两个轻量健康检查。
-7. 确保 engine/display 只能通过 DataLayer 获取行情和关系。
+1. ✅ `MarketDataStore` 和 `RelationStore` 的目录与读写契约。
+2. ✅ universe 文件，作为 expected_count 的来源。
+3. ✅ 关系版本文件 `relations/current.json` 与 `relations/versions/{version}.json`。
+4. ✅ DataLayer 第一阶段关系查询 API。
+5. ✅ `market_health` 和 `relation_health` 两个轻量健康检查。
+6. ✅ engine/display 只能通过 DataLayer 获取行情和关系。
+7. ✅ 通达信(mootdx) Provider — 日K主源，不封IP。
+8. ✅ 东财 Provider — 板块/题材映射。
+9. ✅ Token bucket 限流器 — 防封IP。
+10. ✅ 进度日志 — 断点恢复。
+11. ✅ 全量数据补全 — 06-29~07-10 缺失数据已补。
 
-### 10.2 第一阶段暂缓
+### 10.2 待实现（按优先级）
+
+1. `providers/akshare_ths.py` — 同花顺板块/题材 Provider。
+2. `fetch/circuit_breaker.py` — 熔断器（东财失败率>30%自动暂停）。
+3. `fetch/executor.py` — 并发执行器（3个worker）。
+4. `fetch/registry.py` — 数据源路由+降级链。
+5. `fetch/config.py` — 桶容量/阈值配置。
+
+### 10.3 第二阶段暂缓
 
 - 完整日期快照系统。
 - 复杂 fetch_plan/fetch_report。
-- 固定 `raw_relations/` 正式归档流程。
 - 图数据库。
 - ETF holdings 强集成。
-- ETF holding confidence 参与评分。
 - 多数据源自动融合评分。
-- 历史全版本关系回放优化。
-
-这些可以等 v2 主链路跑通后再逐步加强。
 
 ---
 
@@ -491,16 +541,16 @@ def get_related_etfs(self, stock_code: str, relation_version: str = None) -> lis
 
 数据管理第一阶段完成后，必须满足：
 
-- 行情数据和关系数据分离管理。
-- 每日行情更新不依赖东方财富关系接口。
-- 每周关系更新失败不会污染当前可用关系版本。
-- 每次正式结果都能记录 `market_date` 和 `relation_version`。
-- DataLayer 能回答：某个个股属于哪些板块、题材。
-- DataLayer 能回答：某个板块/题材包含哪些个股。
-- 正向和反向关系一致。
-- expected_count 来自 universe 文件，而不是硬编码数字。
-- 行情不完整时不能生成正式推荐。
-- 关系过期时基础趋势仍可运行，但协同判断必须降级或禁用。
+- ✅ 行情数据和关系数据分离管理。
+- ✅ 每日行情更新不依赖东方财富关系接口。
+- ✅ 每周关系更新失败不会污染当前可用关系版本。
+- ✅ 每次正式结果都能记录 `market_date` 和 `relation_version`。
+- ✅ DataLayer 能回答：某个个股属于哪些板块、题材。
+- ✅ DataLayer 能回答：某个板块/题材包含哪些个股。
+- ✅ expected_count 来自 universe 文件，而不是硬编码数字。
+- ✅ 行情不完整时不能生成正式推荐。
+- ✅ 关系过期时基础趋势仍可运行，但协同判断必须降级或禁用。
+- ✅ 全量数据已补全至 2026-07-10（5182只股票 + 1522只ETF）。
 
 ---
 
@@ -508,10 +558,13 @@ def get_related_etfs(self, stock_code: str, relation_version: str = None) -> lis
 
 当前确认的设计决策：
 
-- v2 数据管理分为“映射关系”和“全量行情”两部分。
+- v2 数据管理分为"映射关系"和"全量行情"两部分。
 - 映射关系每周更新一次，不每日更新。
 - 全量行情每日收盘后更新。
-- TickFlow 作为全量行情主源。
+- **通达信(mootdx TCP)作为全量行情主源**（替代原 TickFlow 方案）。
+  - 原因：不封IP、批量无限制、免费无Key、覆盖全。
+  - TickFlow 因服务不稳定已废弃。
+- **腾讯财经作为实时行情/PE/PB辅助源**。
 - 东方财富体系作为映射关系主源，但必须低频、限速、断路、可续传。
 - Tushare Pro 作为关系备源和校验源，不作为每日行情主依赖。
 - 第一阶段不上复杂快照系统，只保留 health 门禁和关系版本。

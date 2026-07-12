@@ -62,6 +62,27 @@ class MarketDataStore:
                 return c
         return None
 
+    def load_daily_columns(self, dtype: str, code: str, columns: list[str], end_date: str | None = None) -> "pd.DataFrame | None":
+        """只读取指定列（用于快速预筛），比 load_daily 省 I/O。"""
+        self._validate_dtype(dtype)
+        path = self._resolve_daily_path(dtype, code)
+        if path is None:
+            return None
+        try:
+            df = pd.read_parquet(path, columns=columns)
+        except Exception:
+            return None
+        if "date" not in df.columns and df.index.name == "date":
+            df = df.reset_index()
+        if "date" not in df.columns:
+            return None
+        df = df.copy()
+        df["date"] = pd.to_datetime(df["date"])
+        df = df.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
+        if end_date is not None:
+            df = df[df["date"] <= pd.to_datetime(end_date)].reset_index(drop=True)
+        return df
+
     def load_universe(self, dtype: str) -> list[str]:
         self._validate_dtype(dtype)
         metadata = self._load_universe_metadata(dtype)

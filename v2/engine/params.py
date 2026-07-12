@@ -18,3 +18,8 @@ class StrategyParams:
     unknown_market_position_cap: float = 0.50
     score_weights: dict = field(default_factory=dict)
     enabled_indicators: set[str] = field(default_factory=set)
+    
+    # 涨跌停参数
+    limit_up_threshold: float = 9.5  # 普通股票涨跌停阈值（%）
+    limit_up_threshold_gem: float = 19.5  # 创业板/科创板涨跌停阈值（%）
+    limit_up_threshold_st: float = 4.5  # ST股票涨跌停阈值（%）

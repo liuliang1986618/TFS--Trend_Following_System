@@ -30,14 +30,16 @@ class PipelineRunner:
         display_builder=None,
         nav_builder=None,
         display_renderer=None,
+        skip_health_check: bool = False,
     ):
-        self.data_layer = data_layer or DataLayer()
+        self.data_layer = data_layer or DataLayer(skip_health=skip_health_check)
         self.engine = engine or TrendEngine(self.data_layer)
         self.evaluation = evaluation or Evaluation(data_layer=self.data_layer, engine=self.engine)
         self.output_dir = Path(output_dir or Path("v2") / "data" / "derived" / "runs")
         self.display_builder = display_builder or DisplayPayloadBuilder(data_layer=self.data_layer)
         self.nav_builder = nav_builder or NavPayloadBuilder()
         self.display_renderer = display_renderer or DisplayRenderer()
+        self.skip_health_check = skip_health_check
 
     def run(
         self,

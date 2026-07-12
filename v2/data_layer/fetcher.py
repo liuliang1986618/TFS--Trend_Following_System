@@ -7,7 +7,11 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Iterable
 
+import pandas as pd
+
 from .config import DATA_DIR, INDEX_CODES
+from .fetch.journal import FetchJournal
+from .fetch.rate_limiter import limiter
 from .providers.akshare_em import AkshareEMProvider
 from .storage import MarketDataStore
 
@@ -15,9 +19,12 @@ from .storage import MarketDataStore
 class DataFetcher:
     """Owner for market data writes under the v2 data directory."""
 
-    def __init__(self, data_dir: str | Path | None = None, provider: AkshareEMProvider | None = None):
+    def __init__(self, data_dir: str | Path | None = None, provider=None):
         self.data_dir = Path(data_dir or DATA_DIR)
-        self.provider = provider or AkshareEMProvider()
+        if provider is None:
+            provider = AkshareEMProvider()
+        self.provider = provider
+        self.journal = FetchJournal(self.data_dir)
 
     def update_market_daily(
         self,
@@ -47,19 +54,28 @@ class DataFetcher:
             for item in universe:
                 code = str(item["code"])
                 try:
+                    # journal 检查：今天已成功拉过就跳过
+                    if self.journal.is_done(dtype, code):
+                        check["skipped"] += 1
+                        continue
+                    # parquet 检查：数据已到目标日期也跳过
                     if self._has_current_daily(dtype, code, end):
+                        self.journal.mark(dtype, code, "skipped")
                         check["skipped"] += 1
                         continue
                     daily = fetch_daily(code, start_date=start, end_date=end)
                     self._write_daily(dtype, code, daily)
+                    self.journal.mark(dtype, code, "done")
                     check["success"] += 1
                 except Exception as exc:  # pragma: no cover - real data failures are reported, not hidden
                     check["failed"] += 1
+                    self.journal.mark(dtype, code, "failed", error=str(exc))
                     if len(check["errors"]) < 20:
                         check["errors"].append({"code": code, "error": str(exc)})
             result["checks"][dtype] = check
             if check["failed"]:
                 result["status"] = "partial"
+        self.journal.flush()
         return result
 
     def update_relations_weekly(self, week: str | None = None, sources: Iterable[str] = ("eastmoney",)) -> dict:
@@ -86,6 +102,74 @@ class DataFetcher:
             result["status"] = "partial"
         return result
 
+    def update_sector_theme_daily(self, target_date: str | None = None) -> dict:
+        """获取板块和主题的日K线数据。
+        
+        参数:
+            target_date: 目标日期（YYYY-MM-DD），默认今天
+        
+        返回:
+            {"sectors_ok": int, "sectors_fail": int, "themes_ok": int, "themes_fail": int}
+        """
+        import time
+        
+        if target_date is None:
+            target_date = datetime.now().strftime("%Y-%m-%d")
+        
+        # 读取关系数据获取BK代码
+        relations_path = self.data_dir / "meta" / "relations" / "current.json"
+        if not relations_path.exists():
+            return {"sectors_ok": 0, "sectors_fail": 0, "themes_ok": 0, "themes_fail": 0}
+        
+        try:
+            relations = json.loads(relations_path.read_text(encoding="utf-8"))
+        except Exception:
+            return {"sectors_ok": 0, "sectors_fail": 0, "themes_ok": 0, "themes_fail": 0}
+        
+        sector_codes = [s["code"] for s in relations.get("sectors", [])]
+        theme_codes = [t["code"] for t in relations.get("themes", [])]
+        
+        # 计算日期范围（回溯1年）
+        start_date = (datetime.strptime(target_date, "%Y-%m-%d") - timedelta(days=365)).strftime("%Y-%m-%d")
+        
+        sectors_ok = 0
+        sectors_fail = 0
+        themes_ok = 0
+        themes_fail = 0
+        
+        # 获取板块数据
+        for code in sector_codes:
+            try:
+                df = self.provider.fetch_sector_daily(code, start_date, target_date)
+                if df is not None and not df.empty:
+                    self._write_daily("sector", code, df)
+                    sectors_ok += 1
+                else:
+                    sectors_fail += 1
+                time.sleep(0.3)  # 限速
+            except Exception:
+                sectors_fail += 1
+        
+        # 获取主题数据
+        for code in theme_codes:
+            try:
+                df = self.provider.fetch_theme_daily(code, start_date, target_date)
+                if df is not None and not df.empty:
+                    self._write_daily("theme", code, df)
+                    themes_ok += 1
+                else:
+                    themes_fail += 1
+                time.sleep(0.3)  # 限速
+            except Exception:
+                themes_fail += 1
+        
+        return {
+            "sectors_ok": sectors_ok,
+            "sectors_fail": sectors_fail,
+            "themes_ok": themes_ok,
+            "themes_fail": themes_fail,
+        }
+
     def _build_relation_source(self, version: str, source: str) -> tuple[dict, dict]:
         sectors = self._fetch_relation_universe(source, "sector")
         themes = self._fetch_relation_universe(source, "theme")
@@ -109,7 +193,8 @@ class DataFetcher:
         for item in sectors:
             code = str(item["code"])
             try:
-                members = self._fetch_relation_members(source, "sector", item)
+                with limiter.acquire(source):
+                    members = self._fetch_relation_members(source, "sector", item)
                 symbols = [member["code"] for member in members]
                 relation["sector_members"][code] = symbols
                 for member in members:
@@ -124,7 +209,8 @@ class DataFetcher:
         for item in themes:
             code = str(item["code"])
             try:
-                members = self._fetch_relation_members(source, "theme", item)
+                with limiter.acquire(source):
+                    members = self._fetch_relation_members(source, "theme", item)
                 symbols = [member["code"] for member in members]
                 relation["theme_members"][code] = symbols
                 for member in members:
@@ -173,8 +259,22 @@ class DataFetcher:
         path.write_text(json.dumps(universe, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def _write_daily(self, dtype: str, code: str, daily) -> None:
+        """增量合并写入：读现有 → concat → 去重 → 覆盖。"""
         path = self.data_dir / dtype / f"{code}.parquet"
         path.parent.mkdir(parents=True, exist_ok=True)
+        if daily.empty:
+            return
+        # 如果已有数据，增量合并
+        if path.exists():
+            try:
+                existing = pd.read_parquet(path)
+                if not existing.empty:
+                    combined = pd.concat([existing, daily], ignore_index=True)
+                    combined["date"] = pd.to_datetime(combined["date"])
+                    combined = combined.sort_values("date").drop_duplicates("date", keep="last")
+                    daily = combined
+            except Exception:
+                pass  # 读取失败就直接覆盖
         MarketDataStore._validate_daily_schema(daily, path)
         daily.to_parquet(path, index=False)
 

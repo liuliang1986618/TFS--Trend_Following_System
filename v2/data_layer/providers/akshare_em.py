@@ -83,6 +83,99 @@ class AkshareEMProvider:
         df = self.ak.stock_board_concept_cons_em(symbol=name)
         return self._normalize_members(df)
 
+    def fetch_sector_daily(self, code: str, start_date: str, end_date: str) -> pd.DataFrame:
+        """获取板块日K线数据。
+        
+        参数:
+            code: 板块BK代码（如"BK0420"）
+            start_date: 开始日期（YYYY-MM-DD）
+            end_date: 结束日期（YYYY-MM-DD）
+        
+        返回:
+            标准化OHLCV DataFrame
+        """
+        try:
+            df = self.ak.stock_board_industry_hist_em(
+                symbol=code,
+                period="日k",
+                start_date=self._compact_date(start_date),
+                end_date=self._compact_date(end_date),
+                adjust="qfq",
+            )
+            return self._normalize_board_daily(df)
+        except Exception:
+            return pd.DataFrame()
+
+    def fetch_theme_daily(self, code: str, start_date: str, end_date: str) -> pd.DataFrame:
+        """获取主题日K线数据。
+        
+        参数:
+            code: 主题BK代码（如"BK0715"）
+            start_date: 开始日期（YYYY-MM-DD）
+            end_date: 结束日期（YYYY-MM-DD）
+        
+        返回:
+            标准化OHLCV DataFrame
+        """
+        try:
+            df = self.ak.stock_board_concept_hist_em(
+                symbol=code,
+                period="daily",
+                start_date=self._compact_date(start_date),
+                end_date=self._compact_date(end_date),
+                adjust="qfq",
+            )
+            return self._normalize_board_daily(df)
+        except Exception:
+            return pd.DataFrame()
+
+    @staticmethod
+    def _normalize_board_daily(df: pd.DataFrame) -> pd.DataFrame:
+        """标准化板块/主题日K线数据。
+        
+        注意：EM板块API返回的列顺序与股票API不同：
+        股票API: 开盘, 最高, 最低, 收盘
+        板块API: 开盘, 收盘, 最高, 最低
+        """
+        if df is None or df.empty:
+            return pd.DataFrame(columns=["date", "open", "high", "low", "close", "volume"])
+        
+        # 列名映射（板块API格式）
+        column_map = {
+            "日期": "date",
+            "开盘": "open",
+            "收盘": "close",
+            "最高": "high",
+            "最低": "low",
+            "成交量": "volume",
+        }
+        
+        # 选择需要的列
+        available_cols = [col for col in column_map if col in df.columns]
+        if not available_cols:
+            return pd.DataFrame(columns=["date", "open", "high", "low", "close", "volume"])
+        
+        result = df[available_cols].rename(columns=column_map).copy()
+        
+        # 转换日期
+        if "date" in result.columns:
+            result["date"] = pd.to_datetime(result["date"])
+        
+        # 转换数值列
+        for col in ["open", "high", "low", "close", "volume"]:
+            if col in result.columns:
+                result[col] = pd.to_numeric(result[col], errors="coerce")
+        
+        # 移除空值
+        result = result.dropna(subset=["close"])
+        
+        # 移除重复日期
+        if "date" in result.columns:
+            result = result.drop_duplicates(subset=["date"], keep="last")
+            result = result.sort_values("date").reset_index(drop=True)
+        
+        return result
+
     def fetch_relation_universe(self, source: str, kind: str) -> list[dict[str, str]]:
         if source == "eastmoney":
             fs = self._em_relation_fs(kind)

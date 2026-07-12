@@ -30,14 +30,32 @@ def ema(close: np.ndarray, period: int) -> np.ndarray:
 
 
 def rsi(close: np.ndarray, period: int = 14) -> float:
+    """标准Wilder RSI（平滑RSI）。
+    
+    行业标准：使用指数移动平均而非简单平均。
+    初始值 = 前period日的简单平均，之后用Wilder平滑。
+    """
     if len(close) < period + 1:
         return 50.0
-    delta = np.diff(close[-period - 1:].astype(float))
-    gain = np.maximum(delta, 0).sum() / period
-    loss = np.maximum(-delta, 0).sum() / period
-    if loss == 0:
+    
+    deltas = np.diff(close.astype(float))
+    gains = np.maximum(deltas, 0)
+    losses = np.maximum(-deltas, 0)
+    
+    # 初始平均（简单平均）
+    avg_gain = np.mean(gains[:period])
+    avg_loss = np.mean(losses[:period])
+    
+    # Wilder平滑（从第period+1个数据开始）
+    for i in range(period, len(gains)):
+        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
+        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+    
+    if avg_loss == 0:
         return 100.0
-    return float(100.0 - 100.0 / (1.0 + gain / loss))
+    
+    rs = avg_gain / avg_loss
+    return float(100.0 - 100.0 / (1.0 + rs))
 
 
 def bbands(close: np.ndarray, period: int = 20, std_dev: float = 2.0) -> dict:
